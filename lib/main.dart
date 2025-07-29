@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/feature/earning/presentation/screen/ride_history_screen.dart';
 
 import 'app.dart';
+import 'feature/earning/presentation/screen/earning_screen.dart';
 import 'feature/identity/presentation/screens/verify_identity_screen.dart';
 
 void main() {
@@ -22,10 +24,11 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home:
-      VerifyIdentityScreen(),
+      RideHistoryPage(),
           //MapScreenTest(),
           // SearchDestinationScreen(),
          //08i AppMain(),
+         
       // SplashScreen(nextScreen: Onboarding1()),
     );
   }
