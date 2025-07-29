@@ -61,6 +61,14 @@ dependencies:
     # # UI and Utils
   url_launcher: ^6.3.2
   cached_network_image: ^3.4.1
+  #camera
+  camera: ^0.10.5+9
+  path_provider: ^2.1.2
+  image: ^4.5.4
+
+
+
+
 
 
 
