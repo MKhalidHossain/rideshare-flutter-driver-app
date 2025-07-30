@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/app_controller.dart';
 import '../../../controllers/locaion_controller.dart';
-import 'car_selection_map_screen.dart';
+import 'home_screen_driver.dart';
 
 class SearchDestinationScreen extends StatefulWidget {
   final ScrollController? scrollController;
@@ -70,7 +70,7 @@ class _SearchDestinationScreenState extends State<SearchDestinationScreen> {
   void goToMap(String destination) {
     locationController.selectedAddress.value = destination;
     appController.setCurrentScreen('map');
-    Get.to(() => CarSelectionMapScreen());
+    Get.to(() => HomeScreenDriver());
   }
 
   @override
