@@ -77,6 +77,8 @@ class VerifyIdentityScreen extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Selfie
             GestureDetector(
               onTap: () {},
 
