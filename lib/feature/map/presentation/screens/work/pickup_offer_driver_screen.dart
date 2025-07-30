@@ -270,7 +270,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                         color: const Color(
                           0xFF2E2E38,
                         ), // Dark grey from the image
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
                         // border: Border(
                         //   left: BorderSide(color: Color(0xff7B0100), width: 5),
                         // ),
@@ -289,13 +289,30 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                               //     color: Colors.white,
                               //   ),
                               // ),
-                              Text(
-                                'New Ride Request',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 30,
+                                    backgroundColor: Colors.grey,
+                                    child: ClipOval(
+                                      child: Image.asset(
+                                        "assets/images/user6.png",
+
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      "Khalid Hossain".text16White500(),
+                                      const SizedBox(height: 4),
+                                      "+880 1777000000".text12Grey(),
+                                    ],
+                                  ),
+                                ],
                               ),
                               IconButton(
                                 onPressed: () {},
@@ -474,8 +491,15 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                               ],
                             ),
                           ),
-
                           SizedBox(height: 20),
+                          Divider(
+                            height: 1,
+                            indent: 5,
+                            endIndent: 5,
+                            thickness: 0.1,
+                            color: Color(0xffD8D8D8),
+                          ),
+
                           Container(
                             padding: EdgeInsets.all(15),
                             decoration: BoxDecoration(
@@ -506,6 +530,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                               ],
                             ),
                           ),
+                          SizedBox(height: 20),
 
                           // NormalCustomIconButton(
                           //   icon: Icons.call_outlined,
