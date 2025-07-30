@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
 
-import 'card_preview_screen.dart';
+import '../screens/card_preview_screen.dart';
 
 class AdjustCropScreen extends StatefulWidget {
   final String imagePath;

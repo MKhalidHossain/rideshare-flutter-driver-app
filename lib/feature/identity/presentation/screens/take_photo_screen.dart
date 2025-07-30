@@ -7,7 +7,7 @@ import 'package:image/image.dart' as img;
 import 'package:permission_handler/permission_handler.dart';
 
 import '../widgets/adjust_crop_screen.dart';
-import '../widgets/card_preview_screen.dart';
+import 'card_preview_screen.dart';
 
 // 📸 TakePhotoScreen
 class TakePhotoScreen extends StatefulWidget {
