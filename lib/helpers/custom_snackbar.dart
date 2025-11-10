@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,15 +20,14 @@ void showCustomSnackBar(
       dismissDirection: DismissDirection.horizontal,
       margin: const EdgeInsets.all(10).copyWith(right: 10),
       duration: Duration(seconds: seconds),
-      backgroundColor: Colors.black12,
-
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.white,
       borderRadius: 10,
       messageText: Row(
         children: [
           const SizedBox(width: 10),
           Expanded(
-            child: Container(
-              color: Colors.grey.shade200,
+            child: SizedBox(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

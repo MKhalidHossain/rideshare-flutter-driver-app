@@ -1,25 +1,23 @@
 abstract class AuthServiceInterface {
-
   Future<dynamic> register(
+    String fullName,
     String email,
+    String phoneNumber,
     String password,
-    String confirmPassword,
+    String role,
   );
-  Future<dynamic> login(String email,  String password);
+  Future<dynamic> login(String emailOrPhone, String password);
+  Future<dynamic> verifyOtp(String email, String otp, String type);
+  Future<dynamic> forgetPassword(String? emailOrPhone);
+  Future<dynamic> resetPassword(String emailOrPhone, String newPassword);
+  Future<dynamic> changePassword(String currentPassword, String newPassword);
+
   Future<dynamic> accessAndRefreshToken(String refreshToken);
-  Future<dynamic> changePassword(
-    String currentPassword,
-    String newPassword,
-    String confirmPassword,
-  );
-  Future<dynamic> forgetPassword(String? email);
-  Future<dynamic> verifyCode(String email, String otp);
-  Future<dynamic> resendOtp(String email);
-  Future<dynamic> sendOtp({required String phone});
-  Future<dynamic> resetPassword(String email ,String newPassword, String repeatNewPassword);
-  Future<dynamic> logout();
 
   bool isLoggedIn();
+  Future<dynamic> saveLogin(String token);
+  Future<dynamic> logout();
+
   Future<bool> clearUserCredentials();
   bool clearSharedAddress();
   String getUserToken();
@@ -30,5 +28,4 @@ abstract class AuthServiceInterface {
 
   bool isFirstTimeInstall();
   void setFirstTimeInstall();
-  Future<dynamic> chooseRole(String role);
 }

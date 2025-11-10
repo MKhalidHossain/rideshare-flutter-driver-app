@@ -1,43 +1,51 @@
-class VerifyCodeResponseModel {
-  int? statusCode;
-  bool? success;
-  String? message;
-  Data? data;
+class VerifyOtpResponseModel {
+  final bool success;
+  final String message;
+  final VerifyOtpData? data;
 
-  VerifyCodeResponseModel(
-      {this.statusCode, this.success, this.message, this.data});
+  VerifyOtpResponseModel({
+    required this.success,
+    required this.message,
+    this.data,
+  });
 
-  VerifyCodeResponseModel.fromJson(Map<String, dynamic> json) {
-    statusCode = json['statusCode'];
-    success = json['success'];
-    message = json['message'];
-    data = json['data'] != null ? Data.fromJson(json['data']) : null;
+  factory VerifyOtpResponseModel.fromJson(Map<String, dynamic> json) {
+    return VerifyOtpResponseModel(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+      data: json['data'] != null ? VerifyOtpData.fromJson(json['data']) : null,
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['statusCode'] = statusCode;
-    data['success'] = success;
-    data['message'] = message;
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    return data;
+    return {
+      'success': success,
+      'message': message,
+      'data': data?.toJson(),
+    };
   }
 }
 
-class Data {
-  String? email;
+class VerifyOtpData {
+  final bool isPhoneVerified;
+  final bool isEmailVerified;
 
-  Data({this.email});
+  VerifyOtpData({
+    required this.isPhoneVerified,
+    required this.isEmailVerified,
+  });
 
-  Data.fromJson(Map<String, dynamic> json) {
-    email = json['email'];
+  factory VerifyOtpData.fromJson(Map<String, dynamic> json) {
+    return VerifyOtpData(
+      isPhoneVerified: json['isPhoneVerified'] ?? false,
+      isEmailVerified: json['isEmailVerified'] ?? false,
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['email'] = email;
-    return data;
+    return {
+      'isPhoneVerified': isPhoneVerified,
+      'isEmailVerified': isEmailVerified,
+    };
   }
 }

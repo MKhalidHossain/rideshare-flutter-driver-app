@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
+import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import 'edit_profile_screen.dart';
@@ -14,11 +15,13 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  @override
-  void initState() {
-    //Get.find<ProfileController>().getUserById();
-    super.initState();
-  }
+
+  AuthController authController = Get.find<AuthController>();
+  // @override
+  // void initState() {
+  //   //Get.find<ProfileController>().getUserById();
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +148,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       "Log Out",
                       'Sign out of your account',
                       color: Color(0xffCE0000).withOpacity(0.8),
-                      onTap: () {},
+                      onTap: () async{
+                        await Get.find<AuthController>().logOut();
+                      },
                     ),
                     _divider(),
                   ],

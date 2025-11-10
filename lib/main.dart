@@ -5,13 +5,16 @@ import 'package:ridetohealthdriver/app.dart';
 import 'core/onboarding/presentation/screens/onboarding1.dart';
 import 'feature/map/bindings/initial_binding.dart';
 import 'core/onboarding/presentation/screens/spashScreen.dart';
+import 'helpers/dependency_injection.dart';
 // import 'package:ridetohealthdriver/feature/earning/presentation/screen/ride_history_screen.dart';
 
 // import 'app.dart';
 // import 'feature/earning/presentation/screen/earning_screen.dart';
 // import 'feature/identity/presentation/screens/verify_identity_screen.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await initDI();
   runApp(const MyApp());
 }
 

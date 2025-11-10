@@ -1,151 +1,255 @@
+import 'package:get/get.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/constants/urls.dart';
+import '../../feature/auth/controllers/auth_controller.dart';
+
+import '../../feature/auth/repositories/auth_repository.dart';
+import '../../feature/auth/repositories/auth_repository_interface.dart';
+import '../../feature/auth/sevices/auth_service.dart';
+import '../../feature/auth/sevices/auth_service_interface.dart';
+import 'remote/data/api_client.dart';
+
+Future<void> initDI() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  ApiClient apiClient = ApiClient(
+    appBaseUrl: Urls.baseUrl,
+    sharedPreferences: prefs,
+  );
+
+  //////////// Auth Service, Repository and Controller ////////////////////////////////
+
+  Get.lazyPut(() => apiClient);
+  // Get.lazyPut(
+  //   () => AuthRepository(apiClient: Get.find(), sharedPreferences: prefs),
+  // );
+  AuthRepositoryInterface authRepositoryInterface = AuthRepository(
+    apiClient: Get.find(),
+    sharedPreferences: prefs,
+  );
+  Get.lazyPut<AuthRepositoryInterface>(() => authRepositoryInterface);
+  AuthServiceInterface authServiceInterface = AuthService(Get.find());
+  Get.lazyPut(() => authServiceInterface);
+  Get.lazyPut(() => AuthController(authServiceInterface: Get.find()));
+  Get.lazyPut(() => AuthService(Get.find()));
+
+  // //////////// Profile Service, Repository and Controller ////////////////////////////////
+  // ///
+  // ///
+
+  // HistoryAndProfileRepositoryInterface profileRepositoryInterface =
+  //     HistoryAndProfileRepository(Get.find(), prefs);
+  // Get.lazyPut(() => profileRepositoryInterface);
+  // HistoryAndProfileServiceInterface profileServiceInterface =
+  //     HistoryAndProfileService(Get.find());
+  // Get.lazyPut(() => profileServiceInterface);
+  // Get.lazyPut(() => ProfileAndHistoryController(profileServiceInterface));
+  // Get.lazyPut(() => HistoryAndProfileService(Get.find()));
 
-// import 'package:get/get.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+  // //////////// home  Service, Repository and Controller ////////////////////////////////
+  // ///
+  // ///
 
-// import '../feature/auth/repositories/auth_repository.dart';
-// import '../feature/auth/repositories/auth_repository_interface.dart';
-// import '../feature/auth/sevices/auth_service.dart';
-// import '../feature/auth/sevices/auth_service_interface.dart';
-// import 'remote/data/api_client.dart';
+  // HomeRepositoryInterface localHomeRepositoryInterface = HomeRepository(
+  //   Get.find(),
+  //   prefs,
+  // );
+  // Get.lazyPut(() => localHomeRepositoryInterface);
+  // HomeServiceInterface localHomeServiceInterface = HomeService(Get.find());
+  // Get.lazyPut(() => localHomeServiceInterface);
+  // Get.lazyPut(() => HomeController(localHomeServiceInterface));
+  // Get.lazyPut(() => HomeService(Get.find()));
 
-// Future<void> initDI() async {
-//   SharedPreferences prefs = await SharedPreferences.getInstance();
+  // //
 
-//   ApiClient apiClient = ApiClient(
-//     appBaseUrl: 'https://johnnybrutes.onrender.com/api/v1/',
-//     sharedPreferences: prefs,
-//   );
+  //
 
-//   //////////// Auth Service, Repository and Controller ////////////////////////////////
+  // //////////// Task Service, Repository and Controller ////////////////////////////////
+  // ///
+  // ///
+  // Get.lazyPut(
+  //   () => TaskRepository(apiClient: apiClient, sharedPreferences: prefs),
+  // );
+  // TaskRepositoryInterface taskRepositoryInterface = TaskRepository(
+  //   apiClient: Get.find(),
+  //   sharedPreferences: prefs,
+  // );
+  // Get.lazyPut(() => taskRepositoryInterface);
+  // TaskServiceInterface taskServiceInterface = TaskService(
+  //   taskRepositoryInterface: Get.find(),
+  // );
+  // Get.lazyPut(() => taskServiceInterface);
+  // Get.lazyPut(() => TaskController(taskServiceInterface: Get.find()));
+  // Get.lazyPut(() => TaskService(taskRepositoryInterface: Get.find()));
 
-//   Get.lazyPut(() => ApiClient(appBaseUrl: 'appBaseUrl', sharedPreferences: prefs),);
-//   Get.lazyPut(() => AuthRepository(apiClient: Get.find(), sharedPreferences: prefs),);
-//   AuthRepositoryInterface authRepositoryInterface = AuthRepository(
-//     apiClient: Get.find(),
-//     sharedPreferences: prefs,
-//   );
-//   Get.lazyPut(() => authRepositoryInterface);
-//   AuthServiceInterface authServiceInterface = AuthService(Get.find());
-//   Get.lazyPut(() => authServiceInterface);
-//   Get.lazyPut(() => AuthController(authServiceInterface: Get.find()));
-//   Get.lazyPut(() => AuthService(Get.find()));
+  // // 2. Register repository
+  // Get.lazyPut<TaskRepositoryInterface>(() => TaskRepository(
+  //   apiClient: Get.find<ApiClient>(),
+  //   sharedPreferences: prefs,
+  // ));
 
-//   //////////// Auth Service, Repository and Controller ////////////////////////////////
-//   ///
-//   ///
-//   ///
+  // // 3. Register service interface with correct binding
+  // Get.lazyPut<TaskServiceInterface>(() => TaskService(
+  //   Get.find<ApiClient>(),
+  //   taskRepositoryInterface: Get.find<TaskRepositoryInterface>(),
+  // ));
 
-//   ///  ////////////  Commanders Calls, Repository and Controller ////////////////////////////////
+  // // 4. Register controller
+  // Get.lazyPut(() => TaskController(taskServiceInterface: Get.find<TaskServiceInterface>()));
 
-//   Get.lazyPut(
-//         () => CommandersCallRepository(Get.find(), prefs),
-//   );
+  // Get.lazyPut(() => ProfileRepository(apiClient: apiClient, sharedPreferences: prefs));
+  // ProfileRepositoryInterface profileRepositoryInterface = ProfileRepository(apiClient: apiClient, sharedPreferences: prefs);
+  // Get.lazyPut(() => profileRepositoryInterface);
+  // ProfileServiceInterface profileServiceInterface = ProfileService(Get.find());
 
-//   CommandersCallRepositoryInterface commandersCallRepositoryInterface = CommandersCallRepository(Get.find(), prefs,);
+  // Get.lazyPut(() => profileServiceInterface);
 
+  // Get.lazyPut(() => ProfileController(Get.find(), profileServiceInterface: Get.find()));
 
-//   Get.lazyPut(() => commandersCallRepositoryInterface);
+  // Get.lazyPut(() => ProfileService(Get.find()));
 
-//   CommandersCallServiceInterface commandersCallServiceInterface = CommandersCallService(Get.find());
+  //
 
-//   Get.lazyPut(() => commandersCallServiceInterface);
+  //
 
-//   Get.lazyPut(() => CommandersCallsController(Get.find()));
+  //
 
-//   Get.lazyPut(() => CommandersCallService(Get.find()));
+  // ProfileRepositoryInterface profileRepositoryInterface = ProfileRepository(
+  //   Get.find(),
+  //   prefs,
+  // );
 
+  // Get.lazyPut(() => profileRepositoryInterface);
 
+  // ProfileServiceInterface profileServiceInterface = ProfileService(Get.find());
 
-//   ////////////  Commanders Calls, Repository and Controller ////////////////////////////////
+  // Get.lazyPut(() => profileServiceInterface);
 
+  // Get.lazyPut(() => ProfilesController(Get.find()));
 
-//   //////////// Auth Service, Repository and Controller ////////////////////////////////
+  // Get.lazyPut(() => ProfileService(Get.find()));
 
+  ////////// Commanders Calls Service, Repository and Controller ////////////////////////////////
 
+  // Get.lazyPut(
+  //       () => ProfileRepository(Get.find(), prefs),
+  // );
 
+  // ProfileRepositoryInterface ProfileRepositoryInterface = ProfileRepository(Get.find(), prefs,);
 
-//   //Get.lazyPut(() => ReviewRepository(Get.find(), prefs));
+  // Get.lazyPut(() => ProfileRepositoryInterface);
 
-//   ReviewRepositoryInterface reviewRepositoryInterface = ReviewRepository(Get.find(), prefs,);
+  // CommandersCallServiceInterface commandersCallServiceInterface = CommandersCallService(Get.find());
 
+  // Get.lazyPut(() => commandersCallServiceInterface);
 
-//   Get.lazyPut(() => reviewRepositoryInterface);
+  // Get.lazyPut(() => CommandersCallsController(Get.find()));
 
-//   ReviewServiceInterface reviewServiceInterface = ReviewService(Get.find());
+  // Get.lazyPut(() => CommandersCallService(Get.find()));
 
-//   Get.lazyPut(() => reviewServiceInterface);
+  //////////// Commanders Calls Service, Repository and Controller ////////////////////////////////
 
-//   Get.lazyPut(() => ReviewController(Get.find()));
+  // Get.lazyPut(
+  //       () => CommandersCallRepository(Get.find(), prefs),
+  // );
 
-//   Get.lazyPut(() => ReviewService(Get.find()));
+  // CommandersCallRepositoryInterface commandersCallRepositoryInterface = CommandersCallRepository(Get.find(), prefs,);
 
+  // Get.lazyPut(() => commandersCallRepositoryInterface);
 
+  // CommandersCallServiceInterface commandersCallServiceInterface = CommandersCallService(Get.find());
 
-// //   // Registering the repository
-// //   Get.lazyPut<ReviewRepositoryInterface>(() => ReviewRepository(Get.find(), prefs));
-// //
-// // // Registering the service
-// //   Get.lazyPut<ReviewServiceInterface>(() => ReviewService(Get.find<ReviewRepositoryInterface>()));
-// //
-// // // Registering the controller
-// //   Get.lazyPut<ReviewController>(() => ReviewController(Get.find<ReviewServiceInterface>()));
+  // Get.lazyPut(() => commandersCallServiceInterface);
 
+  // Get.lazyPut(() => CommandersCallsController(Get.find()));
 
+  // Get.lazyPut(() => CommandersCallService(Get.find()));
 
+  // ////////////  Commanders Calls, Repository and Controller ////////////////////////////////
 
-//   ////////////  Commanders Calls, Repository and Controller ////////////////////////////////
+  // ////////////  Commanders Calls, Repository and Controller ////////////////////////////////
 
+  // //////////// Auth Service, Repository and Controller ////////////////////////////////
 
-//   //////////// Commanders Calls Service, Repository and Controller ////////////////////////////////
+  // //Get.lazyPut(() => ReviewRepository(Get.find(), prefs));
 
-//   // Get.lazyPut(()=> CommandersRepository(apiClient: Get.find(), sharedPreferences: prefs));
+  // ReviewRepositoryInterface reviewRepositoryInterface = ReviewRepository(Get.find(), prefs,);
 
-//   // CommandersRepositoryInterface commandersRepositoryInterface = CommandersRepository(apiClient: Get.find(), sharedPreferences: prefs);
+  // Get.lazyPut(() => reviewRepositoryInterface);
 
-//   // Get.lazyPut(()=> commandersRepositoryInterface);
+  // ReviewServiceInterface reviewServiceInterface = ReviewService(Get.find());
 
-//   // CommandersService commandersService = CommandersService( commandersServiceInterface: Get.find());
+  // Get.lazyPut(() => reviewServiceInterface);
 
-//   // CommandersServiceInterface commandersServiceInterface = CommandersService(commandersServiceInterface: Get.find());
+  // Get.lazyPut(() => ReviewController(Get.find()));
 
+  // Get.lazyPut(() => ReviewService(Get.find()));
 
-//   // Get.lazyPut(() => commandersService);
+  //   // Registering the repository
+  //   Get.lazyPut<ReviewRepositoryInterface>(() => ReviewRepository(Get.find(), prefs));
+  //
+  // // Registering the service
+  //   Get.lazyPut<ReviewServiceInterface>(() => ReviewService(Get.find<ReviewRepositoryInterface>()));
+  //
+  // // Registering the controller
+  //   Get.lazyPut<ReviewController>(() => ReviewController(Get.find<ReviewServiceInterface>()));
 
-//   // Get.lazyPut(()=> CommandersController(Get.find()));
+  ////////////  Commanders Calls, Repository and Controller ////////////////////////////////
 
-//   // Get.lazyPut(() => commandersService);
-// Get.lazyPut(()=> CommandersRepository(apiClient: Get.find(), sharedPreferences: prefs));
+  //////////// Commanders Calls Service, Repository and Controller ////////////////////////////////
 
-//   CommandersRepositoryInterface testRepositoryInterface = CommandersRepository(apiClient: Get.find(), sharedPreferences: prefs);
+  // Get.lazyPut(()=> CommandersRepository(apiClient: Get.find(), sharedPreferences: prefs));
 
-//   Get.lazyPut(()=> testRepositoryInterface);
+  // CommandersRepositoryInterface commandersRepositoryInterface = CommandersRepository(apiClient: Get.find(), sharedPreferences: prefs);
 
-//   CommandersServiceInterface testCentreServiceInterface = CommandersService(commandersRepositoryInterface: Get.find());
+  // Get.lazyPut(()=> commandersRepositoryInterface);
 
-//   Get.lazyPut(() => testCentreServiceInterface);
+  // CommandersService commandersService = CommandersService( commandersServiceInterface: Get.find());
 
-//   Get.lazyPut(()=> CommandersController(commandersServiceInterface: Get.find()));
+  // CommandersServiceInterface commandersServiceInterface = CommandersService(commandersServiceInterface: Get.find());
 
-//   Get.lazyPut(()=> CommandersService(commandersRepositoryInterface: Get.find()));
+  // Get.lazyPut(() => commandersService);
 
+  // Get.lazyPut(()=> CommandersController(Get.find()));
 
-//   // //////////// Setting Service, Repository and Controller ////////////////////////////////
+  // Get.lazyPut(() => commandersService);
 
-//   // //////////// Test Centre Service, Repository and Controller ////////////////////////////////
+  //
 
-//   // Get.lazyPut(()=> TestRepository(apiClient: Get.find(), sharedPreferences: prefs));
+  // Get.lazyPut(()=> CommandersRepository(apiClient: Get.find(), sharedPreferences: prefs));
 
-//   // TestRepositoryInterface testRepositoryInterface = TestRepository(apiClient: Get.find(), sharedPreferences: prefs);
+  //   CommandersRepositoryInterface testRepositoryInterface = CommandersRepository(apiClient: Get.find(), sharedPreferences: prefs);
 
-//   // Get.lazyPut(()=> testRepositoryInterface);
+  //   Get.lazyPut(()=> testRepositoryInterface);
 
-//   // TestCentreServiceInterface testCentreServiceInterface = TestCentreService(testRepositoryInterface: Get.find());
+  //   CommandersServiceInterface testCentreServiceInterface = CommandersService(commandersRepositoryInterface: Get.find());
 
-//   // Get.lazyPut(() => testCentreServiceInterface);
+  //   Get.lazyPut(() => testCentreServiceInterface);
 
-//   // Get.lazyPut(()=> TestCentreController(testCentreServiceInterface: Get.find()));
+  //   Get.lazyPut(()=> CommandersController(commandersServiceInterface: Get.find()));
 
-//   // Get.lazyPut(()=> TestCentreService(testRepositoryInterface: Get.find()));
+  //   Get.lazyPut(()=> CommandersService(commandersRepositoryInterface: Get.find()));
 
-//   //////////// Test Centre Service, Repository and Controller ////////////////////////////////
-// }
+  //
+
+  // //////////// Setting Service, Repository and Controller ////////////////////////////////
+
+  // //////////// Test Centre Service, Repository and Controller ////////////////////////////////
+
+  // Get.lazyPut(()=> TestRepository(apiClient: Get.find(), sharedPreferences: prefs));
+
+  // TestRepositoryInterface testRepositoryInterface = TestRepository(apiClient: Get.find(), sharedPreferences: prefs);
+
+  // Get.lazyPut(()=> testRepositoryInterface);
+
+  // TestCentreServiceInterface testCentreServiceInterface = TestCentreService(testRepositoryInterface: Get.find());
+
+  // Get.lazyPut(() => testCentreServiceInterface);
+
+  // Get.lazyPut(()=> TestCentreController(testCentreServiceInterface: Get.find()));
+
+  // Get.lazyPut(()=> TestCentreService(testRepositoryInterface: Get.find()));
+
+  //////////// Test Centre Service, Repository and Controller ////////////////////////////////
+}
