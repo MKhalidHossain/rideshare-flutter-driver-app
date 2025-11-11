@@ -15,7 +15,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   AuthController authController = Get.find<AuthController>();
   // @override
   // void initState() {
@@ -147,10 +146,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Icons.logout,
                       "Log Out",
                       'Sign out of your account',
+
                       color: Color(0xffCE0000).withOpacity(0.8),
-                      onTap: () async{
-                        await Get.find<AuthController>().logOut();
+
+                      onTap: () {
+                        Get.dialog(
+                          Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Container(
+                              width: 400,
+                              decoration: BoxDecoration(
+                                color: Color(0xff303644),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  RichText(
+                                    textAlign: TextAlign.center,
+                                    text: TextSpan(
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.white, // Default color
+                                      ),
+                                      children: [
+                                        const TextSpan(text: "Are You Sure  "),
+                                        TextSpan(
+                                          text: "Log out",
+                                          style: const TextStyle(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const TextSpan(text: " Your Account?"),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+
+                                  SizedBox(
+                                    width: 350,
+
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+
+                                        backgroundColor: const Color(
+                                          0xff3B82F6,
+                                        ),
+                                      ),
+                                      onPressed: () async {
+                                        await Get.find<AuthController>()
+                                            .logOut();
+                                      },
+                                      child: Text(
+                                        "Yes",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+
+                                  SizedBox(height: 10),
+                                  SizedBox(
+                                    width: 350,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+
+                                        backgroundColor: const Color(
+                                          0xffEF4444,
+                                        ),
+                                      ),
+                                      onPressed: () => Get.back(),
+                                      child: Text(
+                                        "No",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
                       },
+
+                      // onTap: () async{
+                      //   await Get.find<AuthController>().logOut();
+                      // },
                     ),
                     _divider(),
                   ],
