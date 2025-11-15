@@ -6,9 +6,9 @@ import 'package:ridetohealthdriver/feature/home/domain/response_model/get_servic
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_vehicle_by_service_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/services/home_service_interface.dart';
 
-class ProfileController extends GetxController {
+class HomeController extends GetxController {
   final HomeServiceInterface homeServiceInterface;
-  ProfileController({required this.homeServiceInterface});
+  HomeController({required this.homeServiceInterface});
 
   bool isLoading = false;
 
@@ -90,42 +90,6 @@ class ProfileController extends GetxController {
       update();
     }
   }
-  
-  
-  
-  
-  // Future<void> getServiceById() async {
-  //   try {
-  //     isLoading = true;
-  //     update();
-
-  //     final response = await homeServiceInterface.getAllServices();
-
-  //     debugPrint(" Status Code: ${response.statusCode}");
-  //     debugPrint(" Response Body: ${response.body}");
-
-  //      if (response.statusCode == 200) {
-  //       print("✅ getServiceById : for HomeController fetched successfully \n");
-  //       getNearbyVehiclesResponseModel = GetNearbyVehiclesResponseModel.fromJson(
-  //         response.body,
-  //       );
-
-  //       isLoading = false;
-  //       update();
-  //     } else {
-  //          getNearbyVehiclesResponseModel = GetNearbyVehiclesResponseModel.fromJson(
-  //         response.body,
-  //       );
-  //     }
-  //   }catch (e) {
-  //     debugPrint("⚠️ Error fetching HomeController : getServiceById : $e\n");
-  //   } finally {
-  //     isLoading = false;
-  //     update();
-  //   }
-  // } 
-  
-  
   
   
    Future<void> getVehicleByService() async {

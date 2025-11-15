@@ -6,6 +6,5 @@ import 'package:ridetohealthdriver/feature/home/domain/response_model/get_vehicl
 abstract class HomeRepositoryInterface {
   Future<Response> getAllServices();
   Future<Response> getServiceById(String serviceId);
-  Future<Response> getNearbyVehicles(String serviceId, String latitude, String longitude, String radius);
   Future<Response> getVehicleByService(String serviceId);
 }

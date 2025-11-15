@@ -16,11 +16,7 @@ class HomeRepository
     return await apiClient.getData(Urls.getAllServices);
   }
   
-  @override
-  Future<Response> getNearbyVehicles(String serviceId, String latitude, String longitude, String radius) async{
-    return await apiClient.getData(
-        Urls.getNearbyVehicles + '?serviceId=$serviceId&latitude=$latitude&longitude=$longitude&radius=$radius');
-  }
+
   
   @override
   Future<Response> getServiceById(String serviceId) async{
