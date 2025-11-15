@@ -9,132 +9,195 @@ class VerifyIdentityScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BackButton(color: Colors.white),
-                Text(
-                  'Verify Your Identity',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-                SizedBox(width: 50),
-              ],
-            ),
-            GestureDetector(
-              onTap: () => showBlurredBottomSheet(context),
-              child: Container(
-                width: double.infinity,
-                margin: EdgeInsets.all(16),
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
-                decoration: BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white70, width: 1),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 90,
-                      width: 140,
-
-                      child: Image.asset(
-                        'assets/images/governmentId.png',
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BackButton(color: Colors.white),
+                  Text(
+                    'Verify Your Identity',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                  SizedBox(width: 50),
+                ],
+              ),
+              GestureDetector(
+                onTap: () => showBlurredBottomSheet(context),
+                child: Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+                  decoration: BoxDecoration(
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white70, width: 1),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
                         height: 90,
+                        width: 140,
+        
+                        child: Image.asset(
+                          'assets/images/governmentId.png',
+                          fit: BoxFit.cover,
+                          height: 90,
+                        ),
                       ),
-                    ),
-                    "Government ID".text24White(),
-                    "Take picture a drivers licence, national identity cards or passport photo"
-                        .text14White(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 32.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.camera_alt_outlined,
-                            color: Color(0xff2563EB),
-                            size: 24,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Take a image',
-                            style: TextStyle(
+                      "Government ID".text24White(),
+                      "Take picture a drivers licence, national identity cards or passport photo"
+                          .text14White(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 32.0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.camera_alt_outlined,
                               color: Color(0xff2563EB),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                              size: 24,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              'Take a image',
+                              style: TextStyle(
+                                color: Color(0xff2563EB),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            // Selfie
-            GestureDetector(
-              onTap: () {},
-
-              child: Container(
-                width: double.infinity,
-                margin: EdgeInsets.all(16),
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
-                decoration: BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white70, width: 1),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 90,
-                      width: 140,
-
-                      child: Image.asset(
-                        'assets/images/selfiePhoto.png',
+              GestureDetector(
+                onTap: () => showBlurredBottomSheet(context),
+                child: Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+                  decoration: BoxDecoration(
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white70, width: 1),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
                         height: 90,
-                      ),
-                    ),
-                    "Selfie Photo".text24White(),
-                    "Take picture a drivers licence, national identity cards or passport photo"
-                        .text14White(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 32.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            "assets/icons/takeASelfieIcon.png",
-                            height: 26,
-                          ),
+                        width: 140,
 
-                          const SizedBox(width: 8),
-                          Text(
-                            'Take a image',
-                            style: TextStyle(
-                              color: Color(0xff2563EB),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                        child: Image.asset(
+                          'assets/images/driving_licence.png',
+                          fit: BoxFit.cover,
+                          height: 90,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      "Driving Licence".text24White(),
+                      "Take picture a drivers licence, national identity cards or passport photo"
+                          .text14White(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 32.0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.camera_alt_outlined,
+                              color: Color(0xff2563EB),
+                              size: 24,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Take a image',
+                              style: TextStyle(
+                                color: Color(0xff2563EB),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+        
+              // Selfie
+              GestureDetector(
+
+                     onTap: () => showBlurredBottomSheet(context),
+             
+        
+                child: Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+                  decoration: BoxDecoration(
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white70, width: 1),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 90,
+                        width: 140,
+        
+                        child: Image.asset(
+                          'assets/images/selfiePhoto.png',
+
+                          height: 90,
+                        ),
+                      ),
+                      "Selfie Photo".text24White(),
+                      "Take picture a drivers licence, national identity cards or passport photo"
+                          .text14White(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 32.0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              "assets/icons/takeASelfieIcon.png",
+                              height: 26,
+                            ),
+        
+                            const SizedBox(width: 8),
+                            Text(
+                              'Take a image',
+                              style: TextStyle(
+                                color: Color(0xff2563EB),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -6,7 +6,8 @@ import '../screens/card_preview_screen.dart';
 
 class AdjustCropScreen extends StatefulWidget {
   final String imagePath;
-  const AdjustCropScreen({super.key, required this.imagePath});
+  final String whichImage;
+  const AdjustCropScreen({super.key, required this.imagePath, required this.whichImage});
 
   @override
   State<AdjustCropScreen> createState() => _AdjustCropScreenState();
@@ -123,7 +124,7 @@ class _AdjustCropScreenState extends State<AdjustCropScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => CardPreviewScreen(imagePath: croppedFile.path),
+        builder: (_) => CardPreviewScreen(imagePath: croppedFile.path,  whichImage: widget.whichImage ?? 'No Image',),
       ),
     );
   }
@@ -150,33 +151,33 @@ class _AdjustCropScreenState extends State<AdjustCropScreen> {
               ),
 
               // Overlay blur & darken except cropRect inside image displayed area
-              if (cropRect != null)
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _BlurOutsideCropPainter(cropRect),
-                  ),
-                ),
+              // if (cropRect != null)
+              //   Positioned.fill(
+              //     child: CustomPaint(
+              //       painter: _BlurOutsideCropPainter(cropRect),
+              //     ),
+              //   ),
 
               // Draggable crop box positioned relative to image
-              if (cropRect != null)
-                Positioned(
-                  left: cropRect.left,
-                  top: cropRect.top,
-                  width: cropRect.width,
-                  height: cropRect.height,
-                  child: GestureDetector(
-                    onPanStart: _onPanStart,
-                    onPanUpdate: _onPanUpdate,
-                    onPanEnd: _onPanEnd,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.green, width: 3),
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.transparent,
-                      ),
-                    ),
-                  ),
-                ),
+              // if (cropRect != null)
+              //   Positioned(
+              //     left: cropRect.left,
+              //     top: cropRect.top,
+              //     width: cropRect.width,
+              //     height: cropRect.height,
+              //     child: GestureDetector(
+              //       onPanStart: _onPanStart,
+              //       onPanUpdate: _onPanUpdate,
+              //       onPanEnd: _onPanEnd,
+              //       child: Container(
+              //         decoration: BoxDecoration(
+              //           border: Border.all(color: Colors.green, width: 3),
+              //           borderRadius: BorderRadius.circular(12),
+              //           color: Colors.transparent,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
 
               // Crop button aligned bottom center
               Positioned(
@@ -185,7 +186,7 @@ class _AdjustCropScreenState extends State<AdjustCropScreen> {
                 right: 20,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.to(CardPreviewScreen(imagePath: widget.imagePath));
+                    Get.to(CardPreviewScreen(imagePath: widget.imagePath ,  whichImage: widget.whichImage ?? 'No Image',));
                   },
                   // onPressed: _cropImage,
                   style: ElevatedButton.styleFrom(
@@ -202,36 +203,36 @@ class _AdjustCropScreenState extends State<AdjustCropScreen> {
   }
 }
 
-class _BlurOutsideCropPainter extends CustomPainter {
-  final Rect cropRect;
-  _BlurOutsideCropPainter(this.cropRect);
+// class _BlurOutsideCropPainter extends CustomPainter {
+//   final Rect cropRect;
+//   _BlurOutsideCropPainter(this.cropRect);
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.black.withOpacity(0.6)
-      ..style = PaintingStyle.fill;
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     final paint = Paint()
+//       ..color = Colors.black.withOpacity(0.6)
+//       ..style = PaintingStyle.fill;
 
-    final fullRect = Offset.zero & size;
+//     final fullRect = Offset.zero & size;
 
-    final outerPath = Path()..addRect(fullRect);
-    final innerPath = Path()
-      ..addRRect(RRect.fromRectAndRadius(cropRect, const Radius.circular(12)));
+//     final outerPath = Path()..addRect(fullRect);
+//     final innerPath = Path()
+//       ..addRRect(RRect.fromRectAndRadius(cropRect, const Radius.circular(12)));
 
-    final combined = Path.combine(
-      PathOperation.difference,
-      outerPath,
-      innerPath,
-    );
+//     final combined = Path.combine(
+//       PathOperation.difference,
+//       outerPath,
+//       innerPath,
+//     );
 
-    canvas.drawPath(combined, paint);
-  }
+//     canvas.drawPath(combined, paint);
+//   }
 
-  @override
-  bool shouldRepaint(covariant _BlurOutsideCropPainter oldDelegate) {
-    return oldDelegate.cropRect != cropRect;
-  }
-}
+//   @override
+//   bool shouldRepaint(covariant _BlurOutsideCropPainter oldDelegate) {
+//     return oldDelegate.cropRect != cropRect;
+//   }
+// }
 
 // class CroppedPreviewScreen extends StatelessWidget {
 //   final String imagePath;

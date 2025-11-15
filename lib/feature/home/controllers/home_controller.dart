@@ -8,7 +8,7 @@ import 'package:ridetohealthdriver/feature/home/services/home_service_interface.
 
 class HomeController extends GetxController {
   final HomeServiceInterface homeServiceInterface;
-  HomeController({required this.homeServiceInterface});
+  HomeController(this.homeServiceInterface);
 
   bool isLoading = false;
 

@@ -6,11 +6,17 @@ import 'package:ridetohealthdriver/core/widgets/wide_custom_button.dart';
 
 import '../../../../app.dart';
 
-class CardPreviewScreen extends StatelessWidget {
+class CardPreviewScreen extends StatefulWidget {
   final String imagePath;
+  final String whichImage;
 
-  const CardPreviewScreen({super.key, required this.imagePath});
+  const CardPreviewScreen({super.key, required this.imagePath, required this.whichImage});
 
+  @override
+  State<CardPreviewScreen> createState() => _CardPreviewScreenState();
+}
+
+class _CardPreviewScreenState extends State<CardPreviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,12 +40,12 @@ class CardPreviewScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 40),
-                  const Text(
-                    'Cropped Card Image',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                   Text(
+                   widget.whichImage != 'Selfie Photo' ? 'Cropped Image': '${widget.whichImage} Image',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   const SizedBox(height: 20),
-                  Image.file(File(imagePath)),
+                  Image.file(File(widget.imagePath)),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),

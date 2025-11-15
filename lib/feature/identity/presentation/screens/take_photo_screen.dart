@@ -11,7 +11,10 @@ import 'card_preview_screen.dart';
 
 // 📸 TakePhotoScreen
 class TakePhotoScreen extends StatefulWidget {
-  const TakePhotoScreen({super.key});
+  final String? whichImage;
+
+  const TakePhotoScreen({super.key,required this.whichImage});
+ 
 
   @override
   State<TakePhotoScreen> createState() => _TakePhotoScreenState();
@@ -38,7 +41,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
       if (cameras.isEmpty) return setState(() => _cameraError = true);
 
       _cameraController = CameraController(
-        cameras[0],
+       widget.whichImage != 'Selfie Photo' ?  cameras[0]: cameras[1] ,
         ResolutionPreset.max,
         enableAudio: false,
       );
@@ -71,6 +74,19 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
 
     try {
       final file = await _cameraController!.takePicture();
+
+          // If Selfie Photo → skip cropping
+    if (widget.whichImage == 'Selfie Photo') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CardPreviewScreen(imagePath: file.path, whichImage: widget.whichImage ?? 'No Image',),
+        ),
+      );
+      return;
+    }
+
+
       final bytes = await File(file.path).readAsBytes();
       final image = img.decodeImage(bytes);
 
@@ -116,7 +132,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => AdjustCropScreen(imagePath: croppedFile.path),
+          builder: (_) => AdjustCropScreen(imagePath: croppedFile.path,  whichImage: widget.whichImage ?? 'No Image',),
         ),
       );
     } catch (e) {
@@ -147,7 +163,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
               key: _cameraKey,
               children: [
                 CameraPreview(_cameraController!),
-                _buildOverlay(),
+                widget.whichImage != 'Selfie Photo' ?_buildOverlay(): SizedBox(),
                 _buildHeader(),
                 _buildBottomControls(),
               ],
@@ -171,7 +187,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
 
           return Stack(
             children: [
-              Container(color: Colors.black.withOpacity(0.5)),
+              Container(color: Colors.transparent.withOpacity(0.5)),
               Positioned(
                 left: left,
                 top: top,
@@ -206,15 +222,15 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.all(12),
-        color: Colors.black.withOpacity(0.5),
+        // color: Colors.black.withOpacity(0.5),
         child: Row(
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.pop(context),
             ),
-            const Text(
-              'Scan ID Card',
+             Text(
+              'Take ${''}${'${widget.whichImage}'} Photo',
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
           ],

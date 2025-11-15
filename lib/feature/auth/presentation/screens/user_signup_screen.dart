@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
+import 'package:ridetohealthdriver/feature/identity/presentation/screens/verify_identity_screen.dart';
 import '../../../../core/validation/validators.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../core/utils/constants/app_colors.dart';
@@ -48,6 +49,8 @@ class UserSignupScreenState extends State<UserSignupScreen> {
   void initState() {
     authController = Get.find<AuthController>();
     homeController = Get.find<HomeController>();
+    homeController.getAllServices();
+    
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _phoneController = TextEditingController();
@@ -83,6 +86,8 @@ class UserSignupScreenState extends State<UserSignupScreen> {
       builder: (homeController) {
         return  GetBuilder<AuthController>(
         builder: (authController) {
+          final serviceTypes = homeController.getAllServicesResponseModel.data;
+          print("Service Types: ${serviceTypes?.first.name}");
           return authController.isLoading || homeController.isLoading
               ? const Center(child: CircularProgressIndicator())
               : AppScaffold(
@@ -148,7 +153,7 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                         controller: _phoneController,
                                         icon: Icons.phone_outlined,
                                         focusNode: _phoneFocus,
-                                        nextFocusNode: _passwordFocus,
+                                        nextFocusNode: _drivingLicenceFocus,
                                         validator: Validators.phone,
                                       ),
       
@@ -161,7 +166,7 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                         // icon: Icons.credit_card,
                                         icon: FontAwesomeIcons.idCard,
                                         focusNode: _drivingLicenceFocus,
-                                        nextFocusNode: _passwordFocus,
+                                        nextFocusNode: _nationalIdFocus,
                                         validator: Validators.phone,
                                       ),
       
@@ -170,17 +175,22 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                         context: context,
                                         label: 'Enter your National ID Number',
                                         keyboardType: TextInputType.number,
-                                        controller: _phoneController,
-                                        icon: FontAwesomeIcons.idCardClip,
-                                        focusNode: _phoneFocus,
-                                        nextFocusNode: _passwordFocus,
+                                        controller: _nationalIdController,
+                                        icon: FontAwesomeIcons.solidIdCard,
+                                        focusNode: _nationalIdFocus,
+                                        nextFocusNode: _serviceType,
                                         validator: Validators.phone,
                                       ),
       
                                       _buildDropdown(
                                         label: 'Service Type',
                                         value: selectedServiceType,
-                                        items: ['Male', 'Female', 'Other'],
+                                        // items: ['Male', 'Female', 'Other'],
+                                        items: serviceTypes != null
+                                            ? serviceTypes
+                                                .map((service) => service.name)
+                                                .toList()
+                                            : [],
                                         onChanged: (val) => setState(
                                           () => selectedServiceType = val,
                                         ),
@@ -280,7 +290,9 @@ class UserSignupScreenState extends State<UserSignupScreen> {
       
                                       WideCustomButton(
                                         text: 'Sign Up',
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Get.to(()=> VerifyIdentityScreen());
+                                        },
                                         // onPressed: () {
                                         //   authController.register(
                                         //     otpVerifyType,
@@ -427,53 +439,62 @@ class UserSignupScreenState extends State<UserSignupScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: value,
-          onChanged: onChanged,
-          validator: validator,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey.withOpacity(0.1),
-            hintText: 'Select $label',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+        Theme(
+           data: Theme.of(context).copyWith(
+    hintColor: AppColors.context(context).textColor,  // <— forces hint color
+  ),
+          child: DropdownButtonFormField<String>(
+            value: value,
+            onChanged: onChanged,
+            validator: validator,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.grey.withOpacity(0.1),
+              hintText: 'Select $label',
+              hintStyle:  TextStyle(color: AppColors.context(context).textColor),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 14,
+              ),
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 14,
+            icon: Icon(
+              Icons.keyboard_arrow_down,
+              color: Colors.grey,
             ),
-          ),
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            color: AppColors.context(context).textColor,
-          ),
-          dropdownColor: Color(0xff303644).withOpacity(0.9),
-          style: TextStyle(
-            color: AppColors.context(context).textColor,
-            fontSize: 16,
-          ),
-          items: items
-              .map(
-                (item) => DropdownMenuItem<String>(
-                  value: item,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      item,
-                      style: TextStyle(
-                        color: AppColors.context(context).textColor,
+            dropdownColor: Color(0xff303644).withOpacity(0.9),
+            style: TextStyle(
+              color: AppColors.context(context).textColor,
+              fontSize: 16,
+            ),
+            items: items
+                .map(
+                  (item) => DropdownMenuItem<String>(
+                    value: item,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        item,
+                        style: TextStyle(
+                          color: AppColors.context(context).textColor,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              )
-              .toList(),
+                )
+                .toList(),
+          ),
         ),
         const SizedBox(height: 16),
       ],
     );
   }
+
+
+
 }
 
 Widget _buildCustomTextField({
