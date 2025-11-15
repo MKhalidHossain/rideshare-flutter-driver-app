@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import '../../../../core/validation/validators.dart';
 import '../../../../core/widgets/app_scaffold.dart';
@@ -16,6 +17,7 @@ class UserSignupScreen extends StatefulWidget {
 
 class UserSignupScreenState extends State<UserSignupScreen> {
   late AuthController authController;
+  
   bool value = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -23,14 +25,22 @@ class UserSignupScreenState extends State<UserSignupScreen> {
   final FocusNode _nameFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _phoneFocus = FocusNode();
+  final FocusNode _drivingLicenceFocus = FocusNode();
+  final FocusNode _nationalIdFocus = FocusNode();
+  final FocusNode _serviceType = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
   final FocusNode _confirmPasswordFocus = FocusNode();
 
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
+  late TextEditingController _drivingLicenceController;
+  late TextEditingController _nationalIdController;
+  late TextEditingController _serviceTypeController;
   late TextEditingController _passwordController;
   late TextEditingController _confirmPasswordController;
+
+  String? selectedServiceType;
 
   @override
   void initState() {
@@ -38,6 +48,9 @@ class UserSignupScreenState extends State<UserSignupScreen> {
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _phoneController = TextEditingController();
+    _drivingLicenceController = TextEditingController();
+    _nationalIdController = TextEditingController();
+    _serviceTypeController = TextEditingController();
     _passwordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
     super.initState();
@@ -49,6 +62,9 @@ class UserSignupScreenState extends State<UserSignupScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _phoneController.dispose();
+    _drivingLicenceController.dispose();
+    _nationalIdController.dispose();
+    _serviceTypeController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
@@ -122,11 +138,49 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                       title: 'Phone Number',
                                       context: context,
                                       label: 'Enter your Phone Number',
+                                      keyboardType: TextInputType.phone,
                                       controller: _phoneController,
                                       icon: Icons.phone_outlined,
                                       focusNode: _phoneFocus,
                                       nextFocusNode: _passwordFocus,
                                       validator: Validators.phone,
+                                    ),
+
+                                    _buildCustomTextField(
+                                      title: 'Licence Number',
+                                      context: context,
+                                      label:
+                                          'Enter your Driving Licence Number',
+                                      controller: _drivingLicenceController,
+                                      // icon: Icons.credit_card,
+                                      icon: FontAwesomeIcons.idCard,
+                                      focusNode: _drivingLicenceFocus,
+                                      nextFocusNode: _passwordFocus,
+                                      validator: Validators.phone,
+                                    ),
+
+                                    _buildCustomTextField(
+                                      title: 'National ID Number',
+                                      context: context,
+                                      label: 'Enter your National ID Number',
+                                      keyboardType: TextInputType.number,
+                                      controller: _phoneController,
+                                      icon: FontAwesomeIcons.idCardClip,
+                                      focusNode: _phoneFocus,
+                                      nextFocusNode: _passwordFocus,
+                                      validator: Validators.phone,
+                                    ),
+
+                                    _buildDropdown(
+                                      label: 'Service Type',
+                                      value: selectedServiceType,
+                                      items: ['Male', 'Female', 'Other'],
+                                      onChanged: (val) => setState(
+                                        () => selectedServiceType = val,
+                                      ),
+                                      validator: (value) => value == null
+                                          ? 'Please select gender'
+                                          : null,
                                     ),
 
                                     _buildCustomTextField(
@@ -220,16 +274,20 @@ class UserSignupScreenState extends State<UserSignupScreen> {
 
                                     WideCustomButton(
                                       text: 'Sign Up',
-                                      onPressed: () {
-                                        authController.register(
-                                          otpVerifyType,
-                                          _nameController.text,
-                                          _emailController.text,
-                                          _phoneController.text,
-                                          _passwordController.text,
-                                          userRole,
-                                        );
-                                      },
+                                      onPressed: () {},
+                                      // onPressed: () {
+                                      //   authController.register(
+                                      //     otpVerifyType,
+                                      //     _nameController.text,
+                                      //     _emailController.text,
+                                      //     _phoneController.text,
+                                      //     _drivingLicenceController.text,
+                                      //     _nationalIdController.text,
+                                      //     // _serviceTypeController.text,
+                                      //     _passwordController.text,
+                                      //     userRole,
+                                      //   );
+                                      // },
                                     ),
 
                                     const SizedBox(height: 16),
@@ -328,6 +386,86 @@ class UserSignupScreenState extends State<UserSignupScreen> {
       },
     );
   }
+
+  Widget _buildDropdown({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required void Function(String?) onChanged,
+    required String? Function(String?) validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // const SizedBox(height: 12),
+        RichText(
+          text: TextSpan(
+            text: label,
+            style: TextStyle(
+              color: AppColors.context(context).textColor,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+            children: const [
+              TextSpan(
+                text: ' *',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: value,
+          onChanged: onChanged,
+          validator: validator,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey.withOpacity(0.1),
+            hintText: 'Select $label',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 14,
+            ),
+          ),
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            color: AppColors.context(context).textColor,
+          ),
+          dropdownColor: Color(0xff303644).withOpacity(0.9),
+          style: TextStyle(
+            color: AppColors.context(context).textColor,
+            fontSize: 16,
+          ),
+          items: items
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      item,
+                      style: TextStyle(
+                        color: AppColors.context(context).textColor,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
 }
 
 Widget _buildCustomTextField({
@@ -346,14 +484,34 @@ Widget _buildCustomTextField({
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
+      // RichText(
+      //   text: TextSpan(
+      //     text: title,
+      //     style: const TextStyle(
+      //       color: Colors.white,
+      //       fontSize: 16,
+      //       fontWeight: FontWeight.w400,
+      //     ),
+      //   ),
+      // ),
       RichText(
         text: TextSpan(
           text: title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: AppColors.context(context).textColor,
             fontSize: 16,
             fontWeight: FontWeight.w400,
           ),
+          children: const [
+            TextSpan(
+              text: ' *',
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+              ),
+            ),
+          ],
         ),
       ),
       const SizedBox(height: 8),

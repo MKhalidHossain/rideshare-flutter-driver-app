@@ -96,6 +96,9 @@ class AuthRepository implements AuthRepositoryInterface {
     String fullName,
     String email,
     String phoneNumber,
+    String drivingLicenceNumber,
+    String nationalIdNumber,
+    String serviceType,
     String password,
     String role,
   ) async {
@@ -103,6 +106,10 @@ class AuthRepository implements AuthRepositoryInterface {
       'fullName': fullName,
       'email': email,
       'phoneNumber': phoneNumber,
+      'licenseNumber':drivingLicenceNumber,
+      'nidNumber': nationalIdNumber,
+      'serviceTypes': serviceType,
+      'nid': nationalIdNumber,
       'password': password,
       'role': role,
     });

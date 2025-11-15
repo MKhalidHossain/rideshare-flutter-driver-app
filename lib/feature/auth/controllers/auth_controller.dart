@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ridetohealthdriver/feature/identity/presentation/screens/verify_identity_screen.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app.dart';
@@ -125,6 +126,9 @@ class AuthController extends GetxController implements GetxService {
     String fullName,
     String email,
     String phoneNumber,
+    String drivingLicenceNumber,
+    String nationalIdNumber,
+    String serviceType,
     String password,
     String role,
   ) async {
@@ -140,6 +144,9 @@ class AuthController extends GetxController implements GetxService {
         fullName,
         email,
         phoneNumber,
+        drivingLicenceNumber,
+        nationalIdNumber,
+        serviceType,
         password,
         role,
       );
@@ -350,7 +357,8 @@ class AuthController extends GetxController implements GetxService {
         Get.to(ResetChangePassword(userEmail: email));
       } else if (type == 'email_verification') {
         showCustomSnackBar('Email verification has been successful');
-        Get.offAll(() => UserLoginScreen());
+        Get.offAll(() => VerifyIdentityScreen());
+        //Get.offAll(() => UserLoginScreen());
       } else if (type == 'password_reset') {
         showCustomSnackBar('Password Change Successfully');
         Get.offAll(() => UserSignupScreen());

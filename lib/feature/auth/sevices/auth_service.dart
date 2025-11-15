@@ -64,6 +64,9 @@ class AuthService implements AuthServiceInterface {
     String fullName,
     String email,
     String phoneNumber,
+    String drivingLicenceNumber,
+    String nationalIdNumber,
+    String serviceType,
     String password,
     String role,
   ) async {
@@ -71,6 +74,9 @@ class AuthService implements AuthServiceInterface {
       fullName,
       email,
       phoneNumber,
+      drivingLicenceNumber,
+      nationalIdNumber,
+      serviceType,
       password,
       role,
     );

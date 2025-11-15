@@ -3,6 +3,9 @@ abstract class AuthRepositoryInterface {
     String fullName,
     String email,
     String phoneNumber,
+    String drivingLicenceNumber,
+    String nationalIdNumber,
+    String serviceType,
     String password,
     String role,
   );
