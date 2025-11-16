@@ -1,16 +1,20 @@
+// -------------------------------
+// GetAllServicesResponseModel
+// -------------------------------
+
 class GetAllServicesResponseModel {
-  final bool ?success;
-  final int ?currentPage;
-  final int ?totalPages;
-  final int ?totalItems;
-  final List<ServiceData> ?data;
+  final bool? success;
+  final int? currentPage;
+  final int? totalPages;
+  final int? totalItems;
+  final List<ServiceData>? data;
 
   GetAllServicesResponseModel({
-     this.success,
-     this.currentPage,
-     this.totalPages,
-     this.totalItems,
-     this.data,
+    this.success,
+    this.currentPage,
+    this.totalPages,
+    this.totalItems,
+    this.data,
   });
 
   factory GetAllServicesResponseModel.fromJson(Map<String, dynamic> json) {
@@ -19,7 +23,9 @@ class GetAllServicesResponseModel {
       currentPage: json['currentPage'] ?? 0,
       totalPages: json['totalPages'] ?? 0,
       totalItems: json['totalItems'] ?? 0,
-      data: json['data'] != null
+
+      // 🔥 FIXED: null-safe list parsing
+      data: json['data'] is List
           ? List<ServiceData>.from(
               json['data'].map((x) => ServiceData.fromJson(x)))
           : [],
@@ -32,15 +38,23 @@ class GetAllServicesResponseModel {
       "currentPage": currentPage,
       "totalPages": totalPages,
       "totalItems": totalItems,
-      "data": data!.map((e) => e.toJson()).toList(),
+
+      // 🔥 FIXED: Prevents app crash if data == null
+      "data": data?.map((e) => e.toJson()).toList() ?? [],
     };
   }
 }
+
+
+// -------------------------------
+// ServiceData MODEL
+// -------------------------------
 
 class ServiceData {
   final String id;
   final String name;
   final String description;
+
   final int? baseFare;
   final String? category;
   final String? serviceImage;
@@ -50,12 +64,14 @@ class ServiceData {
   final int? cancellationFee;
   final int? capacity;
   final bool isActive;
+
   final List<String> features;
   final int? estimatedArrivalTime;
   final bool? assignedDrivers;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final int? v;
+
   final Vehicle? vehicle;
 
   ServiceData({
@@ -82,37 +98,43 @@ class ServiceData {
 
   factory ServiceData.fromJson(Map<String, dynamic> json) {
     return ServiceData(
-      id: json['_id'] ?? '',
+      id: json['_id'] ?? '', // safe
       name: json['name'] ?? '',
       description: json['description'] ?? '',
+
       baseFare: json['baseFare'],
       category: json['category'],
       serviceImage: json['serviceImage'],
+
+      // 🔥 FIXED: supports both int & double
       perKmRate: json['perKmRate'] != null
-          ? json['perKmRate'].toDouble()
+          ? (json['perKmRate'] as num).toDouble()
           : null,
+
       perMinuteRate: json['perMinuteRate'] != null
-          ? json['perMinuteRate'].toDouble()
+          ? (json['perMinuteRate'] as num).toDouble()
           : null,
+
       minimumFare: json['minimumFare'],
       cancellationFee: json['cancellationFee'],
       capacity: json['capacity'],
       isActive: json['isActive'] ?? false,
+
+      // 🔥 FIXED: prevent null crash
       features: json['features'] != null
           ? List<String>.from(json['features'])
           : [],
+
       estimatedArrivalTime: json['estimatedArrivalTime'],
       assignedDrivers: json['assignedDrivers'],
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
-          : null,
+      createdAt:
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       v: json['__v'],
-      vehicle: json['vehicle'] != null
-          ? Vehicle.fromJson(json['vehicle'])
-          : null,
+
+      vehicle:
+          json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null,
     );
   }
 
@@ -140,6 +162,11 @@ class ServiceData {
     };
   }
 }
+
+
+// -------------------------------
+// VEHICLE MODEL
+// -------------------------------
 
 class Vehicle {
   final String taxiName;

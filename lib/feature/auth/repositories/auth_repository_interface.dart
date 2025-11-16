@@ -1,13 +1,19 @@
+import 'package:image_picker/image_picker.dart';
+
 abstract class AuthRepositoryInterface {
   Future<dynamic> register(
-    String fullName,
-    String email,
-    String phoneNumber,
-    String drivingLicenceNumber,
-    String nationalIdNumber,
-    String serviceType,
-    String password,
-    String role,
+  String fullName,
+  String email,
+  String phoneNumber,
+  String drivingLicenceNumber,
+  String nationalIdNumber,
+  String serviceType,
+  String password,
+  String role,
+  XFile license,
+  XFile nid,
+  XFile selfie,
+    
   );
   Future<dynamic> login(String emailOrPhone, String password);
   Future<dynamic> verifyOtp(String email, String otp, String type);

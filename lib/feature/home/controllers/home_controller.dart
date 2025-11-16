@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_all_services_response_model.dart';
@@ -31,31 +33,34 @@ class HomeController extends GetxController {
       final response = await homeServiceInterface.getAllServices();
 
       debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Body Type: ${response.body.runtimeType}");
       debugPrint(" Response Body: ${response.body}");
 
-       if (response.statusCode == 200) {
-        print("✅ getAllServices : for HomeController fetched successfully \n");
-        getAllServicesResponseModel = GetAllServicesResponseModel.fromJson(
-          response.body,
-        );
+      if (response.statusCode == 200) {
+        final decoded = response.body is String
+            ? jsonDecode(response.body)
+            : response.body;
 
-        isLoading = false;
-        update();
+        getAllServicesResponseModel =
+            GetAllServicesResponseModel.fromJson(decoded);
+
+        print("✅ getAllServices : for HomeController fetched successfully");
       } else {
-            getAllServicesResponseModel = GetAllServicesResponseModel.fromJson(
-          response.body,
-        );
+        final decoded = response.body is String
+            ? jsonDecode(response.body)
+            : response.body;
+
+        getAllServicesResponseModel =
+            GetAllServicesResponseModel.fromJson(decoded);
       }
-
-
-
-    }catch (e) {
+    } catch (e) {
       debugPrint("⚠️ Error fetching HomeController : getAllServices : $e\n");
     } finally {
       isLoading = false;
       update();
     }
   }
+
   
   
   

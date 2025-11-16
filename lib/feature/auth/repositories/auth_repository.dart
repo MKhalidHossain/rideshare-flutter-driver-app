@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/urls.dart';
 import '../../../helpers/remote/data/api_client.dart';
@@ -91,7 +92,8 @@ class AuthRepository implements AuthRepositoryInterface {
     });
   }
 
-  @override
+
+ @override
   Future register(
     String fullName,
     String email,
@@ -101,19 +103,62 @@ class AuthRepository implements AuthRepositoryInterface {
     String serviceType,
     String password,
     String role,
+    XFile license,
+    XFile nid,
+    XFile selfie,
   ) async {
-    return await apiClient.postData(Urls.register, {
+    return await apiClient.postDriverRegistration(
+      Urls.register,
+      
+  fields: {
       'fullName': fullName,
       'email': email,
       'phoneNumber': phoneNumber,
-      'licenseNumber':drivingLicenceNumber,
+      'licenseNumber': drivingLicenceNumber,
       'nidNumber': nationalIdNumber,
-      'serviceTypes': serviceType,
-      'nid': nationalIdNumber,
+      'serviceTypes': [serviceType],        // ARRAY
+      'vehicle': {},                        // add if needed
+      'insuranceInformation': {},           // add if needed
       'password': password,
       'role': role,
-    });
+    },
+     license: license,
+      nid: nid,
+      selfie: selfie,
+    // vehicleImage: vehicleImage,
+    );
   }
+
+
+
+
+  // @override
+  // Future register(
+  //   String fullName,
+  //   String email,
+  //   String phoneNumber,
+  //   String drivingLicenceNumber,
+  //   String nationalIdNumber,
+  //   String serviceType,
+  //   String password,
+  //   String role,
+  // ) async {
+  //   return await apiClient.postData(Urls.register, {
+  //     'fullName': fullName,
+  //     'email': email,
+  //     'phoneNumber': phoneNumber,
+  //     'licenseNumber':drivingLicenceNumber,
+  //     'nidNumber': nationalIdNumber,
+  //     'serviceTypes': serviceType,
+  //     'nid': nationalIdNumber,
+  //     'password': password,
+  //     'role': role,
+  //   });
+  // }
+
+
+
+
 
   @override
   Future forgetPassword(String? emailOrPhone) async {

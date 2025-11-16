@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ridetohealthdriver/app.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
-import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_signup_screen.dart';
-
-import 'core/onboarding/presentation/screens/onboarding1.dart';
 import 'feature/map/bindings/initial_binding.dart';
-import 'core/onboarding/presentation/screens/spashScreen.dart';
 import 'helpers/dependency_injection.dart';
 // import 'package:ridetohealthdriver/feature/earning/presentation/screen/ride_history_screen.dart';
 

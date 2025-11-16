@@ -80,7 +80,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => CardPreviewScreen(imagePath: file.path, whichImage: widget.whichImage ?? 'No Image',),
+          builder: (_) => CardPreviewScreen(selfiePhoto: file.path, whichImage: widget.whichImage ?? 'No Selfie Photo',),
         ),
       );
       return;
@@ -132,7 +132,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => AdjustCropScreen(imagePath: croppedFile.path,  whichImage: widget.whichImage ?? 'No Image',),
+          builder: (_) => AdjustCropScreen(imagePath: croppedFile.path, whichImage: widget.whichImage ?? 'No Image',),
         ),
       );
     } catch (e) {

@@ -1,3 +1,5 @@
+import 'package:image_picker/image_picker.dart';
+
 import '../repositories/auth_repository_interface.dart';
 import 'auth_service_interface.dart';
 
@@ -61,14 +63,18 @@ class AuthService implements AuthServiceInterface {
 
   @override
   Future register(
-    String fullName,
-    String email,
-    String phoneNumber,
-    String drivingLicenceNumber,
-    String nationalIdNumber,
-    String serviceType,
-    String password,
-    String role,
+
+  String fullName,
+  String email,
+  String phoneNumber,
+  String drivingLicenceNumber,
+  String nationalIdNumber,
+  String serviceType,
+  String password,
+  String role,
+  XFile license,
+  XFile nid,
+  XFile selfie,
   ) async {
     return await authRepositoryInterface.register(
       fullName,
@@ -79,6 +85,9 @@ class AuthService implements AuthServiceInterface {
       serviceType,
       password,
       role,
+      license,
+      nid,
+      selfie,
     );
   }
 

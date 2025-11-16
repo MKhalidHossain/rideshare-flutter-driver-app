@@ -122,85 +122,161 @@ class AuthController extends GetxController implements GetxService {
   }
 
   Future<void> register(
-    String otpVerifyType,
-    String fullName,
-    String email,
-    String phoneNumber,
-    String drivingLicenceNumber,
-    String nationalIdNumber,
-    String serviceType,
-    String password,
-    String role,
-  ) async {
-    _isLoading = true;
-    update();
+  String otpVerifyType,
+  String fullName,
+  String email,
+  String phoneNumber,
+  String drivingLicenceNumber,
+  String nationalIdNumber,
+  String serviceType,
+  String password,
+  String role,
+  XFile license,
+  XFile nid,
+  XFile selfie,
+  // XFile vehicleImage,
+) async {
+  _isLoading = true;
+  update();
 
-    print(
-      "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
+  print(
+    "REGISTER API BODY: {fullName: $fullName, email: $email, password: $password, role: $role}",
+  );
+
+  try {
+    Response response = await authServiceInterface.register(
+      fullName,
+      email,
+      phoneNumber,
+      drivingLicenceNumber,
+      nationalIdNumber,
+      serviceType,
+      password,
+      role,
+      license,
+      nid,
+      selfie,
+      // vehicleImage,
     );
 
-    try {
-      Response? response = await authServiceInterface.register(
-        fullName,
-        email,
-        phoneNumber,
-        drivingLicenceNumber,
-        nationalIdNumber,
-        serviceType,
-        password,
-        role,
-      );
-      if (response!.statusCode == 201) {
-        registrationResponseModel = RegistrationResponseModel.fromJson(
-          response.body,
-        );
+    if (response.statusCode == 201) {
+      registrationResponseModel =
+          RegistrationResponseModel.fromJson(response.body);
 
-        print(
-          "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
-        );
-        print('\nemail: $email , otpVerifyType: $otpVerifyType\n');
-        _isLoading = false;
-        update();
-        Get.off(
-          () => VerifyOtpScreen(email: email, otpVerifyType: otpVerifyType),
-        );
-
-        showCustomSnackBar(
-          response.body['message'] ??
-              'Registration success Now need to email verification',
-        );
-        showCustomSnackBar('please check your email to verify your account');
-        // Get.off(() => UserLoginScreen());
-        // showCustomSnackBar('Welcome you have successfully Registered');
-      } else {
-        _isLoading = false;
-        if (response.statusCode == 400) {
-          showCustomSnackBar(
-            response.body['message'] ?? 'Something went wrong',
-            isError: true,
-          );
-        } else {
-          showCustomSnackBar(
-            response.body['message'] ??
-                'Registration failed. Please try again.',
-            isError: true,
-          );
-        }
-
-        print(
-          ' ❌ Registration failed: ${response.statusCode} ${response.body} ',
-        );
-      }
-      update();
-    } catch (e) {
       _isLoading = false;
-      print("❌ Error during registration: $e");
+      update();
+
+      Get.off(() => VerifyOtpScreen(
+            email: email,
+            otpVerifyType: otpVerifyType,
+          ));
+
+      showCustomSnackBar(response.body['message'] ??
+          'Registration successful! Please verify your email.');
+      showCustomSnackBar('Check your email to verify your account.');
+
+    } else {
+      _isLoading = false;
+
       showCustomSnackBar(
-        "Something went wrong. Please try again later.",
+        response.body['message'] ?? 'Registration failed.',
         isError: true,
       );
+
+      print('❌ Registration failed: ${response.statusCode} ${response.body}');
     }
+  } catch (e) {
+    _isLoading = false;
+    print("❌ Error during registration: $e");
+
+    showCustomSnackBar(
+      "Something went wrong. Please try again later.",
+      isError: true,
+    );
   }
+}
+
+
+  // Future<void> register(
+  //   String otpVerifyType,
+  //   String fullName,
+  //   String email,
+  //   String phoneNumber,
+  //   String drivingLicenceNumber,
+  //   String nationalIdNumber,
+  //   String serviceType,
+  //   String password,
+  //   String role,
+  // ) async {
+  //   _isLoading = true;
+  //   update();
+
+  //   print(
+  //     "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
+  //   );
+
+  //   try {
+  //     Response? response = await authServiceInterface.register(
+  //       fullName,
+  //       email,
+  //       phoneNumber,
+  //       drivingLicenceNumber,
+  //       nationalIdNumber,
+  //       serviceType,
+  //       password,
+  //       role,
+  //     );
+  //     if (response!.statusCode == 201) {
+  //       registrationResponseModel = RegistrationResponseModel.fromJson(
+  //         response.body,
+  //       );
+
+  //       print(
+  //         "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
+  //       );
+  //       print('\nemail: $email , otpVerifyType: $otpVerifyType\n');
+  //       _isLoading = false;
+  //       update();
+  //       Get.off(
+  //         () => VerifyOtpScreen(email: email, otpVerifyType: otpVerifyType),
+  //       );
+
+  //       showCustomSnackBar(
+  //         response.body['message'] ??
+  //             'Registration success Now need to email verification',
+  //       );
+  //       showCustomSnackBar('please check your email to verify your account');
+  //       // Get.off(() => UserLoginScreen());
+  //       // showCustomSnackBar('Welcome you have successfully Registered');
+  //     } else {
+  //       _isLoading = false;
+  //       if (response.statusCode == 400) {
+  //         showCustomSnackBar(
+  //           response.body['message'] ?? 'Something went wrong',
+  //           isError: true,
+  //         );
+  //       } else {
+  //         showCustomSnackBar(
+  //           response.body['message'] ??
+  //               'Registration failed. Please try again.',
+  //           isError: true,
+  //         );
+  //       }
+
+  //       print(
+  //         ' ❌ Registration failed: ${response.statusCode} ${response.body} ',
+  //       );
+  //     }
+  //     update();
+  //   } catch (e) {
+  //     _isLoading = false;
+  //     print("❌ Error during registration: $e");
+  //     showCustomSnackBar(
+  //       "Something went wrong. Please try again later.",
+  //       isError: true,
+  //     );
+  //   }
+  // }
 
   Future<void> login(String emailOrPhone, String password) async {
     _isLoading = true;
