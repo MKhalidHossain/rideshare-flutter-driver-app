@@ -290,22 +290,28 @@ class UserSignupScreenState extends State<UserSignupScreen> {
       
                                       WideCustomButton(
                                         text: 'Sign Up',
+                                        
                                         onPressed: () {
-                                          Get.to(()=> VerifyIdentityScreen());
+                                         if (_passwordController.text == _confirmPasswordController.text) {
+                                             authController.setRegistrationData(
+                                              name : _nameController.text,
+                                              userEmail : _emailController.text,
+                                              phoneNumber:  _phoneController.text,
+                                              drivingLicenceNumber: _drivingLicenceController.text,
+                                              nationalIdNumber: _nationalIdController.text,
+                                              serviceType: _serviceTypeController.text,
+                                              password : _passwordController.text,
+
+                                          );
+                                          Get.to(()=>VerifyIdentityScreen());
+                                          }else{
+                                            Get.snackbar('Error', 'Passwords do not match',
+                                            snackPosition: SnackPosition.BOTTOM,
+                                            backgroundColor: Colors.red,
+                                            colorText: Colors.white,
+                                            );
+                                          }
                                         },
-                                        // onPressed: () {
-                                        //   authController.register(
-                                        //     otpVerifyType,
-                                        //     _nameController.text,
-                                        //     _emailController.text,
-                                        //     _phoneController.text,
-                                        //     _drivingLicenceController.text,
-                                        //     _nationalIdController.text,
-                                        //     // _serviceTypeController.text,
-                                        //     _passwordController.text,
-                                        //     userRole,
-                                        //   );
-                                        // },
                                       ),
       
                                       const SizedBox(height: 16),

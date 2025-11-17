@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
+import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 import '../screens/card_preview_screen.dart';
 
 class AdjustCropScreen extends StatefulWidget {
@@ -14,6 +16,7 @@ class AdjustCropScreen extends StatefulWidget {
 }
 
 class _AdjustCropScreenState extends State<AdjustCropScreen> {
+  late AuthController authController = Get.find<AuthController>();
   late Rect cropRect;
   Offset? dragStart;
   Offset? rectStartPosition;
@@ -28,7 +31,9 @@ class _AdjustCropScreenState extends State<AdjustCropScreen> {
   void initState() {
     super.initState();
 
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      authController= Get.find<AuthController>();
       final screenSize = MediaQuery.of(context).size;
       final width = screenSize.width - 32; // 16 px padding each side
       final height = width * (ratioH / ratioW);
@@ -121,12 +126,26 @@ class _AdjustCropScreenState extends State<AdjustCropScreen> {
     ).writeAsBytes(img.encodeJpg(cropped));
 
     if (!mounted) return;
+
+          final xfile = XFile(croppedFile.path);
+          // if (widget.whichImage == 'Government ID') {
+            
+          //   authController.setRegistrationData(nidFile: xfile);
+          // } else if (widget.whichImage == 'Driveing Licence' || widget.whichImage == 'Driveing Licence') {
+          //   authController.setRegistrationData(licenseFile: xfile);
+          // } else if (widget.whichImage == 'Selfie Photo') {
+          //   authController.setRegistrationData(selfieFile: xfile);
+          // }
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CardPreviewScreen(
-          governmentId: widget.whichImage == 'Government ID' ? croppedFile.path : 'No Government ID',
-          driveingLicence: widget.whichImage == 'Driving Licence' ? croppedFile.path : 'No Driving Licence',
+          governmentId: widget.whichImage == 'Government ID' ? 
+          croppedFile.path
+
+          
+           : 'No Government ID',
+          driveingLicence: widget.whichImage == 'Driveing Licence' ? croppedFile.path : 'No Driving Licence',
            whichImage: widget.whichImage,),
       ),
     );

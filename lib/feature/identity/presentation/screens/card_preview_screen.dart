@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/core/widgets/wide_custom_button.dart';
+import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 import '../../../../app.dart';
+import '../widgets/show_modal_bottom_sheet.dart';
 import 'take_photo_screen.dart';
 
 
@@ -12,6 +14,7 @@ class CardPreviewScreen extends StatefulWidget {
   final String driveingLicence;
   final String selfiePhoto;
   final String whichImage;
+  
 
   const CardPreviewScreen({
     super.key,
@@ -26,10 +29,54 @@ class CardPreviewScreen extends StatefulWidget {
 }
 
 class _CardPreviewScreenState extends State<CardPreviewScreen> {
+  late AuthController authController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    authController = Get.find<AuthController>();
+  }
+
   @override
   Widget build(BuildContext context) {
+
+// Debug print showing all four values
+debugPrint(
+  'CardPreview values -> Government ID: ${widget.governmentId}, '
+  'Driving Licence: ${widget.driveingLicence}, '
+  'Selfie Photo: ${widget.selfiePhoto}, '
+  'Which Image: ${widget.whichImage}',
+);
+// Read values from authController and print them with labels
+String name = authController.name ?? '';
+String userEmail = authController.email ?? '';
+String phoneNumber = authController.phoneNumber ?? '';
+String drivingLicenceNumber = authController.drivingLicenceNumber ?? '';
+String nationalIdNumber = authController.nationalIdNumber ?? '';
+String serviceType = authController.serviceType ?? '';
+String password = authController.password ?? '';
+String role = authController.role ?? 'driver';
+
+// files from controller (kept as dynamic to avoid requiring XFile import here)
+final license = authController.license;
+final nid = authController.nid;
+final selfie = authController.selfie;
+
+debugPrint('AuthController values -> '
+  'Name: $name, '
+  'Email: $userEmail, '
+  'Phone: $phoneNumber, '
+  'Driving Licence No: $drivingLicenceNumber, '
+  'National ID No: $nationalIdNumber, '
+  'Service Type: $serviceType, '
+  'Password: ${password.isNotEmpty ? '****' : '(empty)'}, '
+  'Role: $role, '
+  'License file: ${license?.path ?? license?.toString() ?? 'null'}, '
+  'NID file: ${nid?.path ?? nid?.toString() ?? 'null'}, '
+  'Selfie file: ${selfie?.path ?? selfie?.toString() ?? 'null'}');
     return Scaffold(
-      backgroundColor: Colors.black,
+      // backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -41,7 +88,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    BackButton(color: Colors.white),
+                    BackButton(color: Colors.white, onPressed: () => showBlurredBottomSheet(context),),
                     const Text(
                       "Check Card Quality",
                       style: TextStyle(color: Colors.white, fontSize: 18),

@@ -45,6 +45,135 @@ class AuthController extends GetxController implements GetxService {
   String countryDialCode = '+880';
   String email = '';
 
+
+
+  // for register 
+  // info taken from text fields and photos 
+
+  // simple variables to hold registration input values (from screens)
+  String name = '';
+  String userEmail = ''; // avoids conflict with existing `email` field
+  String phoneNumber = '';
+  String drivingLicenceNumber = '';
+  String nationalIdNumber = '';
+  String serviceType = '';
+  String password = '';
+  String role = 'driver';
+
+// iamge 
+
+  XFile? license;
+  XFile? nid;
+  XFile? selfie;
+
+
+  // Populate registration fields explicitly (call this when you have values ready).
+  // Example usage from a screen:
+  // controller.setRegistrationData(
+  //   name: '${controller.fNameController.text} ${controller.lNameController.text}',
+  //   userEmail: controller.emailController.text,
+  //   phoneNumber: controller.phoneController.text,
+  //   drivingLicenceNumber: controller.identityNumberController.text, // if used for DL
+  //   nationalIdNumber: controller.identityNumberController.text,    // or another field
+  //   serviceType: 'driver', // or obtained from a dropdown
+  //   password: controller.passwordController.text,
+  //   licenseFile: controller.license, // XFile picked earlier
+  //   nidFile: controller.nid,
+  //   selfieFile: controller.selfie,
+  // );
+  void setRegistrationData({
+    String? name,
+    String? userEmail,
+    String? phoneNumber,
+    String? drivingLicenceNumber,
+    String? nationalIdNumber,
+    String? serviceType,
+    String? password,
+    XFile? licenseFile,
+    XFile? nidFile,
+    XFile? selfieFile,
+  }) {
+    this.name = name ?? this.name;
+    this.userEmail = userEmail ?? this.userEmail;
+    this.phoneNumber = phoneNumber ?? this.phoneNumber;
+    this.drivingLicenceNumber =
+        drivingLicenceNumber ?? this.drivingLicenceNumber;
+    this.nationalIdNumber = nationalIdNumber ?? this.nationalIdNumber;
+    this.serviceType = serviceType ?? this.serviceType;
+    this.password = password ?? this.password;
+
+    if (licenseFile != null) {
+      print('Setting license to ${licenseFile.path}');
+      this.license = license;
+    }
+    if (nidFile != null) {
+      print('Setting nid to ${nidFile.path}');
+      this.nid = nid;
+    }
+    if (selfieFile != null) {
+      print('Setting selfie to ${selfieFile.path}');
+      this.selfie = selfie;
+    }
+  }
+
+  
+
+  // Convenience: read directly from controllers and current picked files.
+  // Call this from the sign up screen when user taps register.
+  void populateRegistrationFromControllers({String role = 'driver'}) {
+    // Combine first & last name controllers into single name field:
+    final combinedName =
+        '${fNameController.text.trim()} ${lNameController.text.trim()}'.trim();
+
+    setRegistrationData(
+      name: combinedName.isEmpty ? null : combinedName,
+      userEmail: emailController.text.trim().isEmpty
+          ? null
+          : emailController.text.trim(),
+      phoneNumber:
+          phoneController.text.trim().isEmpty ? null : phoneController.text.trim(),
+      // If you have separate controllers for DL and NID, map them here.
+      drivingLicenceNumber: identityNumberController.text.trim().isEmpty
+          ? null
+          : identityNumberController.text.trim(),
+      nationalIdNumber: identityNumberController.text.trim().isEmpty
+          ? null
+          : identityNumberController.text.trim(),
+      serviceType: serviceType.isEmpty ? role : serviceType,
+      password: passwordController.text.isEmpty ? null : passwordController.text,
+      licenseFile: license,
+      nidFile: nid,
+      selfieFile: selfie,
+    );
+  }
+
+  // Optional: clear stored registration inputs (call after successful registration).
+  // Example: controller.clearRegistrationData();
+  void clearRegistrationData() {
+    name = '';
+    userEmail = '';
+    phoneNumber = '';
+    drivingLicenceNumber = '';
+    nationalIdNumber = '';
+    serviceType = '';
+    password = '';
+
+    license = null;
+    nid = null;
+    selfie = null;
+
+    // also clear UI controllers if desired:
+    fNameController.clear();
+    lNameController.clear();
+    emailController.clear();
+    phoneController.clear();
+    identityNumberController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
+
+    update();
+  }
+
   void setCountryCode(String code) {
     countryDialCode = code;
     update();

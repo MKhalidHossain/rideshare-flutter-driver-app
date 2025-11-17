@@ -1,10 +1,11 @@
 // 📦 Import statements
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 
 import '../widgets/adjust_crop_screen.dart';
 import 'card_preview_screen.dart';
@@ -22,6 +23,7 @@ class TakePhotoScreen extends StatefulWidget {
 
 class _TakePhotoScreenState extends State<TakePhotoScreen> {
   CameraController? _cameraController;
+  late AuthController authController;
   bool _isCameraInitialized = false;
   bool _cameraError = false;
   double _currentZoomLevel = 1.0;
@@ -32,6 +34,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
   void initState() {
     super.initState();
     _initializeCamera();
+    authController = Get.find<AuthController>();
   }
 
   Future<void> _initializeCamera() async {
@@ -74,9 +77,18 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
 
     try {
       final file = await _cameraController!.takePicture();
+      
 
           // If Selfie Photo → skip cropping
     if (widget.whichImage == 'Selfie Photo') {
+      debugPrint('For Selfie Photos Picture saved to ${file.path}');
+      if (!mounted) return;
+
+          final xfile = XFile(file.path);
+
+            authController.setRegistrationData(selfieFile: xfile);
+            authController.selfie = xfile;
+          
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -129,10 +141,28 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
       ).writeAsBytes(img.encodeJpg(cropped));
 
       if (!mounted) return;
+      debugPrint('Cropped Image Picture saved to ${file.path} and the image type is ${widget.whichImage}');
+
+      debugPrint('Cropped Image Picture saved to ${croppedFile.path} and the image type is ${widget.whichImage}');
+      if (widget.whichImage == 'Government ID') {
+        final xfile = XFile(croppedFile.path);
+        authController.nid = xfile;
+      } else if (widget.whichImage == 'Driving Licence') {
+        final xfile = XFile(croppedFile.path);
+        authController.selfie = xfile;
+      }
+        // if (widget.whichImage == 'Government ID') {
+        //     final xfile = XFile(croppedFile.path);
+        //     authController.nid = 
+        //     authController.nid =xfile;
+        //   } else if (widget.whichImage == 'Driveing Licence') {
+        //     final xfile = XFile(croppedFile.path);
+        //     authController.selfie= xfile;
+        //   }
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => AdjustCropScreen(imagePath: croppedFile.path, whichImage: widget.whichImage ?? 'No Image',),
+          builder: (_) => AdjustCropScreen(imagePath: croppedFile.path, whichImage: widget.whichImage ?? 'No type found',),
         ),
       );
     } catch (e) {
