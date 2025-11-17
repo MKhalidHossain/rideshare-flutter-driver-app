@@ -81,40 +81,39 @@ class AuthController extends GetxController implements GetxService {
   //   nidFile: controller.nid,
   //   selfieFile: controller.selfie,
   // );
-  void setRegistrationData({
-    String? name,
-    String? userEmail,
-    String? phoneNumber,
-    String? drivingLicenceNumber,
-    String? nationalIdNumber,
-    String? serviceType,
-    String? password,
-    XFile? licenseFile,
-    XFile? nidFile,
-    XFile? selfieFile,
-  }) {
-    this.name = name ?? this.name;
-    this.userEmail = userEmail ?? this.userEmail;
-    this.phoneNumber = phoneNumber ?? this.phoneNumber;
-    this.drivingLicenceNumber =
-        drivingLicenceNumber ?? this.drivingLicenceNumber;
-    this.nationalIdNumber = nationalIdNumber ?? this.nationalIdNumber;
-    this.serviceType = serviceType ?? this.serviceType;
-    this.password = password ?? this.password;
+void setRegistrationData({
+  String? name,
+  String? userEmail,
+  String? phoneNumber,
+  String? drivingLicenceNumber,
+  String? nationalIdNumber,
+  String? serviceType,
+  String? password,
+  XFile? licenseFile,
+  XFile? nidFile,
+  XFile? selfieFile,
+}) {
+  this.name = name ?? this.name;
+  this.userEmail = userEmail ?? this.userEmail;
+  this.phoneNumber = phoneNumber ?? this.phoneNumber;
+  this.drivingLicenceNumber = drivingLicenceNumber ?? this.drivingLicenceNumber;
+  this.nationalIdNumber = nationalIdNumber ?? this.nationalIdNumber;
+  this.serviceType = serviceType ?? this.serviceType;
+  this.password = password ?? this.password;
 
-    if (licenseFile != null) {
-      print('Setting license to ${licenseFile.path}');
-      this.license = license;
-    }
-    if (nidFile != null) {
-      print('Setting nid to ${nidFile.path}');
-      this.nid = nid;
-    }
-    if (selfieFile != null) {
-      print('Setting selfie to ${selfieFile.path}');
-      this.selfie = selfie;
-    }
+  if (licenseFile != null) {
+    this.license = licenseFile; // ✅ correct assignment
   }
+  if (nidFile != null) {
+    this.nid = nidFile; // ✅
+  }
+  if (selfieFile != null) {
+    this.selfie = selfieFile; // ✅
+  }
+
+  update();
+}
+
 
   
 
