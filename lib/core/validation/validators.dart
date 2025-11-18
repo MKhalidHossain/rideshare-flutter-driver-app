@@ -333,6 +333,50 @@ class Validators {
     }
     return null;
   }
+
+  static String? licenceNumber(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return "Licence number is required";
+  }
+
+  if (value.length > 18) {
+    return "Licence number cannot exceed 18 characters";
+  }
+
+  // Must contain both letters and numbers
+  final regex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9]+$');
+
+  if (!regex.hasMatch(value)) {
+    return "Must contain letters and numbers only";
+  }
+
+  return null;
+}
+
+
+// US National ID (SSN or EIN) Validator
+static String? usNationalId(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return "National ID is required";
+  }
+
+  value = value.trim();
+
+  // SSN: 123-45-6789
+  final ssnRegex = RegExp(r'^\d{3}-\d{2}-\d{4}$');
+
+  // EIN: 12-3456789
+  final einRegex = RegExp(r'^\d{2}-\d{7}$');
+
+  if (!ssnRegex.hasMatch(value) && !einRegex.hasMatch(value)) {
+    return "Invalid ID. Use SSN (123-45-6789) or EIN (12-3456789)";
+  }
+
+  return null;
+}
+
+
+
 }
 
 // Extension for easy chaining of validations
@@ -341,3 +385,5 @@ extension ValidatorChaining on String? {
     return Validators.composite(this, validators);
   }
 }
+
+

@@ -3,7 +3,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 
+import '../../../../core/widgets/wide_custom_button.dart';
 import '../../../auth/controllers/auth_controller.dart';
 import 'take_photo_screen.dart';
 
@@ -12,7 +14,7 @@ import 'take_photo_screen.dart';
 /// and import your constants instead.)
 const String kSelfie  = 'Selfie Photo';
 const String kGovId   = 'Government ID';
-const String kDriving = 'Driving Licence';
+const String kDriving = 'Driveing Licence';
 
 class CardPreviewScreen extends StatefulWidget {
   /// Fallbacks from navigation args (legacy). The screen will prefer values
@@ -59,7 +61,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.black, // dark bg → better contrast for white text
+      // backgroundColor: Colors.black, // dark bg → better contrast for white text
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -84,16 +86,6 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
                 ),
 
                 const SizedBox(height: 25),
-
-                // ---------------- MAIN TITLE ----------------
-                Text(
-                  widget.whichImage != kSelfie
-                      ? 'Cropped Image'
-                      : '${widget.whichImage} Image',
-                  style: titleStyle,
-                ),
-
-                const SizedBox(height: 30),
 
                 // ---------------- GOVERNMENT ID ----------------
                 _buildImageBlock(
@@ -127,18 +119,6 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
                   retakeOnTap: () {
                     Get.to(() => const TakePhotoScreen(whichImage: kSelfie));
                   },
-                ),
-
-                const SizedBox(height: 30),
-
-                // ---------------- RETAKE MAIN BUTTON ----------------
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                  ),
-                  child: const Text("Retake Main Photo"),
                 ),
 
                 const SizedBox(height: 30),
@@ -211,7 +191,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                "Retake",
+                "Take Photo",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
@@ -265,40 +245,17 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
 
           const SizedBox(height: 16),
 
-          // ---- CONTINUE → triggers registration using controller fields ----
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _submitRegistration,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-              ),
-              child: const Text(
-                "Continue",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ),
+              WideCustomButton(
+            text: "Request to Admin",
+            onPressed: _submitRegistration,
           ),
 
           const SizedBox(height: 12),
 
-          // ---- Optional helper row ----
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.camera_alt_outlined, color: Color(0xff2563EB), size: 20),
-              SizedBox(width: 8),
-              Text(
-                'Take another image',
-                style: TextStyle(
-                  color: Color(0xff2563EB),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+             const Text(
+            "Admin will verify your documents and get back to you shortly.",
+            style: TextStyle(color: Colors.white70, fontSize: 12),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -367,13 +324,10 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
       );
       // On success, your controller navigates to VerifyOtpScreen.
     } catch (e) {
-      Get.snackbar(
+
+      showCustomSnackBar(
         'Registration failed',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(12),
+        isError: true
       );
     }
   }
