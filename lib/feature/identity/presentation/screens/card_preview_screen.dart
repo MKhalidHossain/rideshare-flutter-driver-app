@@ -6,15 +6,14 @@ import 'package:get/get.dart';
 import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 
 import '../../../../core/widgets/wide_custom_button.dart';
+import '../../../../utils/app_constants.dart';
 import '../../../auth/controllers/auth_controller.dart';
 import 'take_photo_screen.dart';
 
 /// Canonical labels to avoid string typos across the app.
 /// (If you already have a shared constants file, you can remove these
 /// and import your constants instead.)
-const String kSelfie  = 'Selfie Photo';
-const String kGovId   = 'Government ID';
-const String kDriving = 'Driveing Licence';
+
 
 class CardPreviewScreen extends StatefulWidget {
   /// Fallbacks from navigation args (legacy). The screen will prefer values
@@ -50,7 +49,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
   @override
   Widget build(BuildContext context) {
     // Files from controller (preferred source of truth)
-    final license = authController.license; // Driving Licence image (XFile?)
+    final dLicense = authController.license; // Driving Licence image (XFile?)
     final nid     = authController.nid;     // Government ID image (XFile?)
     final selfie  = authController.selfie;  // Selfie image (XFile?)
 
@@ -93,7 +92,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
                   // Prefer controller.nid, fall back to navigation argument
                   path: nid?.path ?? widget.governmentId,
                   retakeOnTap: () {
-                    Get.to(() => const TakePhotoScreen(whichImage: kGovId));
+                    Get.to(() => const TakePhotoScreen(whichImage: AppConstants.kGovId));
                   },
                 ),
 
@@ -103,9 +102,9 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
                 _buildImageBlock(
                   title: "Driving Licence",
                   // Prefer controller.license, fall back to navigation argument
-                  path: license?.path ?? widget.driveingLicence,
+                  path: dLicense?.path ?? widget.driveingLicence,
                   retakeOnTap: () {
-                    Get.to(() => const TakePhotoScreen(whichImage: kDriving));
+                    Get.to(() => const TakePhotoScreen(whichImage: AppConstants.kDriving));
                   },
                 ),
 
@@ -117,7 +116,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
                   // Prefer controller.selfie, fall back to navigation argument
                   path: selfie?.path ?? widget.selfiePhoto,
                   retakeOnTap: () {
-                    Get.to(() => const TakePhotoScreen(whichImage: kSelfie));
+                    Get.to(() => const TakePhotoScreen(whichImage: AppConstants.kSelfie));
                   },
                 ),
 

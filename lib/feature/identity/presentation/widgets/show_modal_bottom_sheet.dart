@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/utils/app_constants.dart';
 
 import '../screens/take_photo_screen.dart';
 
@@ -58,7 +59,7 @@ void showBlurredBottomSheet(BuildContext context) {
                             children: [
                               InkWell(
                                 onTap: () {
-                                  Get.to(TakePhotoScreen(whichImage: 'Government ID' ,));
+                                  Get.to(TakePhotoScreen(whichImage: AppConstants.kGovId ,));
                                 },
                                 child: Container(
                                   height: 65,
@@ -102,7 +103,7 @@ void showBlurredBottomSheet(BuildContext context) {
                               ),
                               InkWell(
                                 onTap: () {
-                                  Get.to(TakePhotoScreen(whichImage: 'Driveing Licence'));
+                                  Get.to(TakePhotoScreen(whichImage: AppConstants.kDriving));
                                 },
                                 child: Container(
                                   height: 65,
@@ -146,7 +147,7 @@ void showBlurredBottomSheet(BuildContext context) {
                               
                               InkWell(
                                 onTap: () {
-                                  Get.to(TakePhotoScreen(whichImage: 'Selfie Photo',));
+                                  Get.to(TakePhotoScreen(whichImage: AppConstants.kSelfie,));
                                 },
                                 child: Container(
                                   height: 65,

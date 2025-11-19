@@ -286,11 +286,14 @@ void setRegistrationData({
       selfie,
       // vehicleImage,
     );
+     print("RAW RESPONSE: ${response.body}");
+          print("STATUS CODE: ${response.statusCode}");
+          print("HEADERS: ${response.headers}");
 
     if (response.statusCode == 201) {
       registrationResponseModel =
           RegistrationResponseModel.fromJson(response.body);
-
+         
       _isLoading = false;
       update();
 

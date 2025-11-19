@@ -6,7 +6,9 @@ class AppConstants {
   static const String token = 'token';
   static const String refreshToken = 'token';
 
-  static const String appName = 'Driving Test';
+  static const String kSelfie  = 'Selfie Photo';
+  static const String kGovId   = 'Government ID';
+  static const String kDriving = 'Driveing Licence';
 
   static const String baseUrl = 'https://backend-david-weijian.onrender.com/api/v1/auth/user-login';
 
