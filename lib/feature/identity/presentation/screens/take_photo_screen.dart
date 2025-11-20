@@ -86,7 +86,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
       authController.setRegistrationData(selfieFile: xfile);
       if (!mounted) return;
 
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (_) => CardPreviewScreen(
@@ -152,7 +152,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
 
     if (!mounted) return;
 
-    Navigator.push(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
         builder: (_) => CardPreviewScreen(
@@ -165,6 +165,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
           whichImage: widget.whichImage ?? 'No type found',
         ),
       ),
+      (route) => !route.isCurrent,
     );
   } catch (e) {
     debugPrint("Capture or crop error: $e");
