@@ -40,32 +40,33 @@ class UserSignupScreenState extends State<UserSignupScreen> {
   final FocusNode _passwordFocus = FocusNode();
   final FocusNode _confirmPasswordFocus = FocusNode();
 
-  late TextEditingController _nameController;
-  late TextEditingController _emailController;
-  late TextEditingController _phoneController;
-  late TextEditingController _drivingLicenceController;
-  late TextEditingController _nationalIdController;
-  late TextEditingController _serviceTypeController;
-  late TextEditingController _passwordController;
-  late TextEditingController _confirmPasswordController;
+final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _drivingLicenceController = TextEditingController();
+  final TextEditingController _nationalIdController = TextEditingController();
+  final TextEditingController _serviceTypeController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   String? selectedServiceType;
 
   @override
-  void initState() {
+  void initState() { 
+      
     WidgetsBinding.instance.addPostFrameCallback((_) {
       authController = Get.find<AuthController>();
       homeController = Get.find<HomeController>();
       homeController.getAllServices();
 
-      _nameController = TextEditingController();
-      _emailController = TextEditingController();
-      _phoneController = TextEditingController();
-      _drivingLicenceController = TextEditingController();
-      _nationalIdController = TextEditingController();
-      _serviceTypeController = TextEditingController();
-      _passwordController = TextEditingController();
-      _confirmPasswordController = TextEditingController();
+      // _nameController = TextEditingController();
+      // _emailController = TextEditingController();
+      // _phoneController = TextEditingController();
+      // _drivingLicenceController = TextEditingController();
+      // _nationalIdController = TextEditingController();
+      // _serviceTypeController = TextEditingController();
+      // _passwordController = TextEditingController();
+      // _confirmPasswordController = TextEditingController();
     });
 
     super.initState();
@@ -192,9 +193,9 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                             nextFocusNode: _nationalIdFocus,
                                             validator: Validators.licenceNumber,
                                            inputFormatters: [
-    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')), // only letters & numbers
-    LicenseInputFormatter(maxLength: 18),
-  ],
+                                              FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')), // only letters & numbers
+                                              LicenseInputFormatter(maxLength: 18),
+                                            ],
 
                                           ),
 
@@ -217,7 +218,7 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                           _buildDropdown(
                                             label: 'Service Type',
                                             value: selectedServiceType,
-                                            // items: ['Male', 'Female', 'Other'],
+                                            // items: ['Economy Car', 'Economy Bike', 'Economy Bike2'],
                                             items: serviceTypes != null
                                                 ? serviceTypes
                                                       .map(
