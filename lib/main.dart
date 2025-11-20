@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ridetohealthdriver/app.dart';
-
+import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
 import 'feature/map/bindings/initial_binding.dart';
-
 import 'helpers/dependency_injection.dart';
 // import 'package:ridetohealthdriver/feature/earning/presentation/screen/ride_history_screen.dart';
 
@@ -36,7 +34,8 @@ class MyApp extends StatelessWidget {
           // VerifyIdentityScreen(),
           //MapScreenTest(),
           // SearchDestinationScreen(),
-          AppMain(),
+          // AppMain(),
+          UserLoginScreen()
 
       //SplashScreen(nextScreen: Onboarding1()),
 

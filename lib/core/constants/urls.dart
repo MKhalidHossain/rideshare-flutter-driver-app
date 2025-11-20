@@ -1,7 +1,9 @@
 class Urls {
   // Base URL
-  static const String baseUrl = 'http://localhost:5000/api';
-  // static const String baseUrl = 'https://kobeur.onrender.com/api/v1';
+  // static const String baseUrl = 'http://localhost:5000/api';
+
+  static const String baseUrl = 'https://ridetohealth-backend.onrender.com/api';
+
 
   // ------------------------ Authentication ------------------------
 
@@ -62,6 +64,7 @@ class Urls {
   static const String getAllServices = '/service';
   static const String getServiceById = '/service/'; // + {serviceId}
   static const String getNearbyVehicles = '/service/nearby/vehicles';
+  static const String getVehicleByService = '/service/vehicle/';
 
   // ------------------------ Payment Management ------------------------
   static const String addWalletBalance = '/payment/wallet/add-balance';

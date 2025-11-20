@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ridetohealthdriver/feature/identity/presentation/screens/verify_identity_screen.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app.dart';
@@ -43,6 +44,134 @@ class AuthController extends GetxController implements GetxService {
   List<MultipartBody> multipartList = [];
   String countryDialCode = '+880';
   String email = '';
+
+
+
+  // for register 
+  // info taken from text fields and photos 
+
+  // simple variables to hold registration input values (from screens)
+  String name = '';
+  String userEmail = ''; // avoids conflict with existing `email` field
+  String phoneNumber = '';
+  String drivingLicenceNumber = '';
+  String nationalIdNumber = '';
+  String serviceType = '';
+  String password = '';
+  String role = 'driver';
+
+// iamge 
+
+  XFile? license;
+  XFile? nid;
+  XFile? selfie;
+
+
+  // Populate registration fields explicitly (call this when you have values ready).
+  // Example usage from a screen:
+  // controller.setRegistrationData(
+  //   name: '${controller.fNameController.text} ${controller.lNameController.text}',
+  //   userEmail: controller.emailController.text,
+  //   phoneNumber: controller.phoneController.text,
+  //   drivingLicenceNumber: controller.identityNumberController.text, // if used for DL
+  //   nationalIdNumber: controller.identityNumberController.text,    // or another field
+  //   serviceType: 'driver', // or obtained from a dropdown
+  //   password: controller.passwordController.text,
+  //   licenseFile: controller.license, // XFile picked earlier
+  //   nidFile: controller.nid,
+  //   selfieFile: controller.selfie,
+  // );
+void setRegistrationData({
+  String? name,
+  String? userEmail,
+  String? phoneNumber,
+  String? drivingLicenceNumber,
+  String? nationalIdNumber,
+  String? serviceType,
+  String? password,
+  XFile? licenseFile,
+  XFile? nidFile,
+  XFile? selfieFile,
+}) {
+  this.name = name ?? this.name;
+  this.userEmail = userEmail ?? this.userEmail;
+  this.phoneNumber = phoneNumber ?? this.phoneNumber;
+  this.drivingLicenceNumber = drivingLicenceNumber ?? this.drivingLicenceNumber;
+  this.nationalIdNumber = nationalIdNumber ?? this.nationalIdNumber;
+  this.serviceType = serviceType ?? this.serviceType;
+  this.password = password ?? this.password;
+
+  if (licenseFile != null) {
+    this.license = licenseFile; // ✅ correct assignment
+  }
+  if (nidFile != null) {
+    this.nid = nidFile; // ✅
+  }
+  if (selfieFile != null) {
+    this.selfie = selfieFile; // ✅
+  }
+
+  update();
+}
+
+
+  
+
+  // Convenience: read directly from controllers and current picked files.
+  // Call this from the sign up screen when user taps register.
+  void populateRegistrationFromControllers({String role = 'driver'}) {
+    // Combine first & last name controllers into single name field:
+    final combinedName =
+        '${fNameController.text.trim()} ${lNameController.text.trim()}'.trim();
+
+    setRegistrationData(
+      name: combinedName.isEmpty ? null : combinedName,
+      userEmail: emailController.text.trim().isEmpty
+          ? null
+          : emailController.text.trim(),
+      phoneNumber:
+          phoneController.text.trim().isEmpty ? null : phoneController.text.trim(),
+      // If you have separate controllers for DL and NID, map them here.
+      drivingLicenceNumber: identityNumberController.text.trim().isEmpty
+          ? null
+          : identityNumberController.text.trim(),
+      nationalIdNumber: identityNumberController.text.trim().isEmpty
+          ? null
+          : identityNumberController.text.trim(),
+      serviceType: serviceType.isEmpty ? role : serviceType,
+      password: passwordController.text.isEmpty ? null : passwordController.text,
+      licenseFile: license,
+      nidFile: nid,
+      selfieFile: selfie,
+    );
+  }
+
+  // Optional: clear stored registration inputs (call after successful registration).
+  // Example: controller.clearRegistrationData();
+  void clearRegistrationData() {
+    name = '';
+    userEmail = '';
+    phoneNumber = '';
+    drivingLicenceNumber = '';
+    nationalIdNumber = '';
+    serviceType = '';
+    password = '';
+
+    license = null;
+    nid = null;
+    selfie = null;
+
+    // also clear UI controllers if desired:
+    fNameController.clear();
+    lNameController.clear();
+    emailController.clear();
+    phoneController.clear();
+    identityNumberController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
+
+    update();
+  }
 
   void setCountryCode(String code) {
     countryDialCode = code;
@@ -121,79 +250,161 @@ class AuthController extends GetxController implements GetxService {
   }
 
   Future<void> register(
-    String otpVerifyType,
-    String fullName,
-    String email,
-    String phoneNumber,
-    String password,
-    String role,
-  ) async {
-    _isLoading = true;
-    update();
+  String otpVerifyType,
+  String fullName,
+  String email,
+  String phoneNumber,
+  String drivingLicenceNumber,
+  String nationalIdNumber,
+  String serviceType,
+  String password,
+  String role,
+  XFile license,
+  XFile nid,
+  XFile selfie,
+  // XFile vehicleImage,
+) async {
+  _isLoading = true;
+  update();
 
-    print(
-      "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
+  print(
+    "REGISTER API BODY: {fullName: $fullName, email: $email, password: $password, role: $role}",
+  );
+
+  try {
+    Response response = await authServiceInterface.register(
+      fullName,
+      email,
+      phoneNumber,
+      drivingLicenceNumber,
+      nationalIdNumber,
+      serviceType,
+      password,
+      role,
+      license,
+      nid,
+      selfie,
+      // vehicleImage,
     );
 
-    try {
-      Response? response = await authServiceInterface.register(
-        fullName,
-        email,
-        phoneNumber,
-        password,
-        role,
-      );
-      if (response!.statusCode == 201) {
-        registrationResponseModel = RegistrationResponseModel.fromJson(
-          response.body,
-        );
+    if (response.statusCode == 201) {
+      registrationResponseModel =
+          RegistrationResponseModel.fromJson(response.body);
 
-        print(
-          "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
-        );
-        print('\nemail: $email , otpVerifyType: $otpVerifyType\n');
-        _isLoading = false;
-        update();
-        Get.off(
-          () => VerifyOtpScreen(email: email, otpVerifyType: otpVerifyType),
-        );
-
-        showCustomSnackBar(
-          response.body['message'] ??
-              'Registration success Now need to email verification',
-        );
-        showCustomSnackBar('please check your email to verify your account');
-        // Get.off(() => UserLoginScreen());
-        // showCustomSnackBar('Welcome you have successfully Registered');
-      } else {
-        _isLoading = false;
-        if (response.statusCode == 400) {
-          showCustomSnackBar(
-            response.body['message'] ?? 'Something went wrong',
-            isError: true,
-          );
-        } else {
-          showCustomSnackBar(
-            response.body['message'] ??
-                'Registration failed. Please try again.',
-            isError: true,
-          );
-        }
-
-        print(
-          ' ❌ Registration failed: ${response.statusCode} ${response.body} ',
-        );
-      }
-      update();
-    } catch (e) {
       _isLoading = false;
-      print("❌ Error during registration: $e");
+      update();
+
+      Get.off(() => VerifyOtpScreen(
+            email: email,
+            otpVerifyType: otpVerifyType,
+          ));
+
+      showCustomSnackBar(response.body['message'] ??
+          'Registration successful! Please verify your email.');
+      showCustomSnackBar('Check your email to verify your account.');
+
+    } else {
+      _isLoading = false;
+
       showCustomSnackBar(
-        "Something went wrong. Please try again later.",
+        response.body['message'] ?? 'Registration failed.',
         isError: true,
       );
+
+      print('❌ Registration failed: ${response.statusCode} ${response.body}');
     }
+  } catch (e) {
+    _isLoading = false;
+    print("❌ Error during registration: $e");
+
+    showCustomSnackBar(
+      "Something went wrong. Please try again later.",
+      isError: true,
+    );
   }
+}
+
+
+  // Future<void> register(
+  //   String otpVerifyType,
+  //   String fullName,
+  //   String email,
+  //   String phoneNumber,
+  //   String drivingLicenceNumber,
+  //   String nationalIdNumber,
+  //   String serviceType,
+  //   String password,
+  //   String role,
+  // ) async {
+  //   _isLoading = true;
+  //   update();
+
+  //   print(
+  //     "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
+  //   );
+
+  //   try {
+  //     Response? response = await authServiceInterface.register(
+  //       fullName,
+  //       email,
+  //       phoneNumber,
+  //       drivingLicenceNumber,
+  //       nationalIdNumber,
+  //       serviceType,
+  //       password,
+  //       role,
+  //     );
+  //     if (response!.statusCode == 201) {
+  //       registrationResponseModel = RegistrationResponseModel.fromJson(
+  //         response.body,
+  //       );
+
+  //       print(
+  //         "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
+  //       );
+  //       print('\nemail: $email , otpVerifyType: $otpVerifyType\n');
+  //       _isLoading = false;
+  //       update();
+  //       Get.off(
+  //         () => VerifyOtpScreen(email: email, otpVerifyType: otpVerifyType),
+  //       );
+
+  //       showCustomSnackBar(
+  //         response.body['message'] ??
+  //             'Registration success Now need to email verification',
+  //       );
+  //       showCustomSnackBar('please check your email to verify your account');
+  //       // Get.off(() => UserLoginScreen());
+  //       // showCustomSnackBar('Welcome you have successfully Registered');
+  //     } else {
+  //       _isLoading = false;
+  //       if (response.statusCode == 400) {
+  //         showCustomSnackBar(
+  //           response.body['message'] ?? 'Something went wrong',
+  //           isError: true,
+  //         );
+  //       } else {
+  //         showCustomSnackBar(
+  //           response.body['message'] ??
+  //               'Registration failed. Please try again.',
+  //           isError: true,
+  //         );
+  //       }
+
+  //       print(
+  //         ' ❌ Registration failed: ${response.statusCode} ${response.body} ',
+  //       );
+  //     }
+  //     update();
+  //   } catch (e) {
+  //     _isLoading = false;
+  //     print("❌ Error during registration: $e");
+  //     showCustomSnackBar(
+  //       "Something went wrong. Please try again later.",
+  //       isError: true,
+  //     );
+  //   }
+  // }
 
   Future<void> login(String emailOrPhone, String password) async {
     _isLoading = true;
@@ -350,7 +561,8 @@ class AuthController extends GetxController implements GetxService {
         Get.to(ResetChangePassword(userEmail: email));
       } else if (type == 'email_verification') {
         showCustomSnackBar('Email verification has been successful');
-        Get.offAll(() => UserLoginScreen());
+        Get.offAll(() => VerifyIdentityScreen());
+        //Get.offAll(() => UserLoginScreen());
       } else if (type == 'password_reset') {
         showCustomSnackBar('Password Change Successfully');
         Get.offAll(() => UserSignupScreen());

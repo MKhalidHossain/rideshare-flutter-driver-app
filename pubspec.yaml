@@ -65,6 +65,7 @@ dependencies:
   camera: ^0.10.5+9
   path_provider: ^2.1.2
   image: ^4.5.4
+  font_awesome_flutter: ^10.12.0
 
 
 

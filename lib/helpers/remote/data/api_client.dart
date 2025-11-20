@@ -93,6 +93,79 @@ class ApiClient extends GetxService {
     }
   }
 
+  Future<Response> postDriverRegistration(
+  String uri, {
+  required Map<String, dynamic> fields,
+  XFile? license,
+  XFile? nid,
+  XFile? selfie,
+  XFile? vehicleImage,
+  Map<String, String>? headers,
+}) async {
+  try {
+    var request = http.MultipartRequest('POST', Uri.parse(appBaseUrln + uri));
+
+    // Remove Content-Type (MultipartRequest handles it)
+    var requestHeaders = Map<String, String>.from(headers ?? _mainHeaders);
+    requestHeaders.remove('Content-Type');
+    request.headers.addAll(requestHeaders);
+
+    // Add text fields
+    fields.forEach((key, value) {
+      if (value != null) {
+        if (value is Map || value is List) {
+          request.fields[key] = jsonEncode(value);  // JSON stringify
+        } else {
+          request.fields[key] = value.toString();
+        }
+      }
+    });
+
+    // Add files (single file for each field)
+    if (license != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'license',
+        license.path,
+        filename: license.name,
+      ));
+    }
+
+    if (nid != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'nid',
+        nid.path,
+        filename: nid.name,
+      ));
+    }
+
+    if (selfie != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'selfie',
+        selfie.path,
+        filename: selfie.name,
+      ));
+    }
+
+    if (vehicleImage != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'vehicleImage',
+        vehicleImage.path,
+        filename: vehicleImage.name,
+      ));
+    }
+
+    // Send request
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    return handleResponse(response, uri);
+  } catch (e) {
+    print("Error in postDriverRegistration: $e");
+    return Response(statusCode: 1, statusText: noInternetMessage);
+  }
+}
+
+
   Future<Response> postMultipartFormData(
     String uri, {
     required Map<String, dynamic> fields,
