@@ -286,11 +286,14 @@ void setRegistrationData({
       selfie,
       // vehicleImage,
     );
+     print("RAW RESPONSE: ${response.body}");
+          print("STATUS CODE: ${response.statusCode}");
+          print("HEADERS: ${response.headers}");
 
     if (response.statusCode == 201) {
       registrationResponseModel =
           RegistrationResponseModel.fromJson(response.body);
-
+         
       _isLoading = false;
       update();
 
@@ -450,11 +453,11 @@ void setRegistrationData({
     } else if (response.statusCode == 202) {
       if (response.body['data']['is_phone_verified'] == 0) {}
     } else if (response.statusCode == 400) {
-      Get.offAll(UserSignupScreen());
+      Get.offAll(()=>UserSignupScreen());
       showCustomSnackBar('Sorry you have no account, please create a account');
     }
     else if (response.statusCode == 401) {
-      Get.offAll(UserSignupScreen());
+      Get.offAll(()=>UserSignupScreen());
       showCustomSnackBar(
   'Login Failed',
   subMessage: 'The email or password you entered is incorrect. Please try again.',

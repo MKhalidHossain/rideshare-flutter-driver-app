@@ -103,28 +103,31 @@ class ApiClient extends GetxService {
   Map<String, String>? headers,
 }) async {
   try {
-    var request = http.MultipartRequest('POST', Uri.parse(appBaseUrln + uri));
+    final cleanBaseUrl = appBaseUrln.replaceAll(RegExp(r'/$'), '');
+    final cleanUri = uri.replaceAll(RegExp(r'^/'), '');
+    final url = "$cleanBaseUrl/$cleanUri";
 
-    // Remove Content-Type (MultipartRequest handles it)
+    var request = http.MultipartRequest('POST', Uri.parse(url));
+
     var requestHeaders = Map<String, String>.from(headers ?? _mainHeaders);
     requestHeaders.remove('Content-Type');
     request.headers.addAll(requestHeaders);
 
-    // Add text fields
+    // text fields (JSON encode maps/lists)
     fields.forEach((key, value) {
       if (value != null) {
         if (value is Map || value is List) {
-          request.fields[key] = jsonEncode(value);  // JSON stringify
+          request.fields[key] = jsonEncode(value);
         } else {
           request.fields[key] = value.toString();
         }
       }
     });
 
-    // Add files (single file for each field)
+    // files – field names MUST match backend
     if (license != null) {
       request.files.add(await http.MultipartFile.fromPath(
-        'license',
+        'license',   // ✅ matches Postman
         license.path,
         filename: license.name,
       ));
@@ -132,7 +135,7 @@ class ApiClient extends GetxService {
 
     if (nid != null) {
       request.files.add(await http.MultipartFile.fromPath(
-        'nid',
+        'nid',       // ✅ matches Postman
         nid.path,
         filename: nid.name,
       ));
@@ -140,7 +143,7 @@ class ApiClient extends GetxService {
 
     if (selfie != null) {
       request.files.add(await http.MultipartFile.fromPath(
-        'selfie',
+        'selfie',    // ✅ matches Postman
         selfie.path,
         filename: selfie.name,
       ));
@@ -148,23 +151,21 @@ class ApiClient extends GetxService {
 
     if (vehicleImage != null) {
       request.files.add(await http.MultipartFile.fromPath(
-        'vehicleImage',
+        'vehicleImage', // ✅ matches Postman
         vehicleImage.path,
         filename: vehicleImage.name,
       ));
     }
 
-    // Send request
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
 
-    return handleResponse(response, uri);
+    return handleResponse(response, url);
   } catch (e) {
     print("Error in postDriverRegistration: $e");
     return Response(statusCode: 1, statusText: noInternetMessage);
   }
 }
-
 
   Future<Response> postMultipartFormData(
     String uri, {

@@ -116,9 +116,7 @@ class AuthRepository implements AuthRepositoryInterface {
       'phoneNumber': phoneNumber,
       'licenseNumber': drivingLicenceNumber,
       'nidNumber': nationalIdNumber,
-      'serviceTypes': [serviceType],        // ARRAY
-      'vehicle': {},                        // add if needed
-      'insuranceInformation': {},           // add if needed
+      'serviceTypes': serviceType,        
       'password': password,
       'role': role,
     },
