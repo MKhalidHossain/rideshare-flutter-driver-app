@@ -34,7 +34,7 @@ class HomeController extends GetxController {
 
       debugPrint(" Status Code: ${response.statusCode}");
       debugPrint(" Body Type: ${response.body.runtimeType}");
-      debugPrint(" Response Body: ${response.body}");
+      debugPrint(" Response Body fp: ${response.body}");
 
       if (response.statusCode == 200) {
         final decoded = response.body is String

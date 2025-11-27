@@ -129,7 +129,6 @@ class ApiClient extends GetxService {
       request.files.add(await http.MultipartFile.fromPath(
         'license',   // ✅ matches Postman
         license.path,
-        filename: license.name,
       ));
     }
 
@@ -137,7 +136,6 @@ class ApiClient extends GetxService {
       request.files.add(await http.MultipartFile.fromPath(
         'nid',       // ✅ matches Postman
         nid.path,
-        filename: nid.name,
       ));
     }
 
@@ -145,7 +143,6 @@ class ApiClient extends GetxService {
       request.files.add(await http.MultipartFile.fromPath(
         'selfie',    // ✅ matches Postman
         selfie.path,
-        filename: selfie.name,
       ));
     }
 
