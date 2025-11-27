@@ -123,7 +123,7 @@ class AuthRepository implements AuthRepositoryInterface {
      license: license,
       nid: nid,
       selfie: selfie,
-    // vehicleImage: vehicleImage,
+
     );
   }
 
