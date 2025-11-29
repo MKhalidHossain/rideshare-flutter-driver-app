@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ridetohealthdriver/core/themes/payment/domain/connect_stripe_account_response_model.dart';
+import 'package:ridetohealthdriver/payment/domain/connect_stripe_account_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_all_services_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_nearby_vehicles_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_service_by_id_response_model.dart';

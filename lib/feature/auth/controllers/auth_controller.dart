@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:ridetohealthdriver/core/themes/payment/screen/stripe_connect_screen.dart';
+import 'package:ridetohealthdriver/payment/screen/stripe_connect_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app.dart';
 import '../../../helpers/custom_snackbar.dart';

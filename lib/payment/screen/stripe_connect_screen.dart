@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ridetohealthdriver/core/themes/payment/screen/stripe_connect_webview_screen.dart';
+import 'package:ridetohealthdriver/payment/screen/stripe_connect_webview_screen.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
 

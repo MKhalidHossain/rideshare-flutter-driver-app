@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class StripeConnectWebViewScreen extends StatefulWidget {
@@ -24,8 +25,14 @@ class _StripeConnectWebViewScreenState
   void initState() {
     super.initState();
     final initialUri = Uri.parse(widget.initialUrl);
-    _successCallback = _extractCallback(initialUri, ['return_url', 'success_url']);
-    _cancelCallback = _extractCallback(initialUri, ['refresh_url', 'cancel_url']);
+    _successCallback = _extractCallback(initialUri, [
+      'return_url',
+      'success_url',
+    ]);
+    _cancelCallback = _extractCallback(initialUri, [
+      'refresh_url',
+      'cancel_url',
+    ]);
 
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -37,7 +44,19 @@ class _StripeConnectWebViewScreenState
               _progress = progress / 100;
             });
           },
-          onNavigationRequest: (request) {
+          onNavigationRequest: (request) async {
+            debugPrint("Navigating to: ${request.url}");
+            if (request.url.contains("driver/onboarding/success")) {
+              await Get.showSnackbar(
+                const GetSnackBar(
+                  title: 'Success',
+                  message: 'Stripe onboarding completed successfully.',
+                  duration: Duration(seconds: 3),
+                ),
+              );
+              Navigator.of(context).pop(true);
+              return NavigationDecision.prevent;
+            }
             _lastUrl = request.url;
             final handled = _maybeHandleCallback(Uri.parse(request.url));
             return handled
@@ -107,28 +126,26 @@ class _StripeConnectWebViewScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Stripe Onboarding'),
-      ),
+      appBar: AppBar(title: const Text('Stripe Onboarding')),
       body: Stack(
         children: [
           WebViewWidget(controller: _controller),
           if (_progress < 1 && _errorMessage == null)
             LinearProgressIndicator(value: _progress),
-          if (_errorMessage != null)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  _errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Theme.of(context).colorScheme.error),
-                ),
-              ),
-            ),
+          // if (_errorMessage != null)
+          //   Center(
+          //     child: Padding(
+          //       padding: const EdgeInsets.all(16.0),
+          //       child: Text(
+          //         _errorMessage!,
+          //         textAlign: TextAlign.center,
+          //         style: Theme.of(context)
+          //             .textTheme
+          //             .bodyMedium
+          //             ?.copyWith(color: Theme.of(context).colorScheme.error),
+          //       ),
+          //     ),
+          //   ),
         ],
       ),
     );
