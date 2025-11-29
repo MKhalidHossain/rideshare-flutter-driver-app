@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/core/themes/payment/domain/connect_stripe_account_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_all_services_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_nearby_vehicles_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_service_by_id_response_model.dart';
@@ -23,6 +24,7 @@ class HomeController extends GetxController {
       GetNearbyVehiclesResponseModel();
   GetVehicleByServiceResponseModel getVehicleByServiceResponseModel =
       GetVehicleByServiceResponseModel();
+  ConnectStripeAccountResponseModel? connectStripeAccountResponseModel;
 
 
   Future<void> getAllServices() async {
@@ -97,7 +99,7 @@ class HomeController extends GetxController {
   }
   
   
-   Future<void> getVehicleByService() async {
+  Future<void> getVehicleByService() async {
     try {
       isLoading = true;
       update();
@@ -128,4 +130,40 @@ class HomeController extends GetxController {
       update();
     }
   }
+
+  Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
+    try {
+      final response = await homeServiceInterface.connectStripeAccount();
+
+      final dynamic body = response.body;
+      late final Map<String, dynamic> decoded;
+
+      if (body is String) {
+        final parsed = jsonDecode(body);
+        if (parsed is! Map<String, dynamic>) {
+          throw Exception('Invalid response format from Stripe connect API');
+        }
+        decoded = parsed;
+      } else if (body is Map<String, dynamic>) {
+        decoded = body;
+      } else {
+        throw Exception('Invalid response format from Stripe connect API');
+      }
+
+      final result = ConnectStripeAccountResponseModel.fromJson(decoded);
+      connectStripeAccountResponseModel = result;
+
+      if (!result.success || (result.url?.isEmpty ?? true)) {
+        throw Exception(result.message ?? 'Unable to start Stripe onboarding');
+      }
+
+      debugPrint('✅ Stripe connect link fetched: ${result.url}\n');
+      return result;
+    } catch (e) {
+      debugPrint('⚠️ Error fetching Stripe connect link: $e\n');
+      rethrow;
+    }
+  }
+
+
 }

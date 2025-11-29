@@ -7,4 +7,5 @@ abstract class HomeRepositoryInterface {
   Future<Response> getAllServices();
   Future<Response> getServiceById(String serviceId);
   Future<Response> getVehicleByService(String serviceId);
+  Future<Response> connectStripeAccount();
 }

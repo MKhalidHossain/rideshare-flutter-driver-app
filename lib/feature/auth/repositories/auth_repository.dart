@@ -185,7 +185,10 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   Future<bool?> saveUserToken(String token, String refreshToken) async {
-    return await sharedPreferences.setString(AppConstants.token, token);
+    final isSaved = await sharedPreferences.setString(AppConstants.token, token);
+    await sharedPreferences.setString(AppConstants.refreshToken, refreshToken);
+    apiClient.updateHeader(token);
+    return isSaved;
   }
 
   @override

@@ -22,5 +22,11 @@ class HomeService implements HomeServiceInterface {
   Future<Response> getVehicleByService(String serviceId)async {
     return await historyAndProfileRepositoryInterface.getVehicleByService(serviceId);
   }
+  
+  @override
+  Future<Response<dynamic>> connectStripeAccount() async {
+    return await historyAndProfileRepositoryInterface.connectStripeAccount();
+    
+  }
 
 }

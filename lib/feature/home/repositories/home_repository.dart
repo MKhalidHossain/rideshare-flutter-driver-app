@@ -28,4 +28,9 @@ class HomeRepository
     return await apiClient.getData(Urls.getVehicleByService + serviceId);
   }
   
+  @override
+  Future<Response<dynamic>> connectStripeAccount() async{
+    return apiClient.postData(Urls.connectStripeAccount, {});
+  }
+  
 }
