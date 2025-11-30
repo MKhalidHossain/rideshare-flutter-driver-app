@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:ridetohealthdriver/app.dart';
 import 'package:ridetohealthdriver/core/onboarding/presentation/screens/spashScreen.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
+import 'package:ridetohealthdriver/helpers/remote/data/socket_client.dart';
 import 'core/onboarding/presentation/screens/constantSpashScreen.dart';
 import 'core/onboarding/presentation/screens/onboarding1.dart';
 import 'feature/auth/controllers/auth_controller.dart';
@@ -17,7 +18,15 @@ import 'helpers/dependency_injection.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await initDI();
+  socket();
   runApp( MyApp());
+}
+
+void socket() {
+  SocketClient().connect(
+    url: 'http://10.10.5.85:5001',
+    autoConnect: true,
+  );
 }
 
 

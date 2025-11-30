@@ -14,9 +14,13 @@ import '../feature/home/repositories/home_repository_interface.dart';
 import '../feature/home/services/home_service.dart';
 import '../feature/home/services/home_service_interface.dart';
 import 'remote/data/api_client.dart';
+import 'remote/data/socket_client.dart';
 
 Future<void> initDI() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  final socket = SocketClient();
+
+  socket.connect(url: "http://10.10.5.85:5001", autoConnect: true);
 
   ApiClient apiClient = ApiClient(
     appBaseUrl: Urls.baseUrl,

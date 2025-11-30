@@ -28,4 +28,15 @@ class HomeRepository
     return await apiClient.getData(Urls.getVehicleByService + serviceId);
   }
   
+  @override
+  Future<Response> toggleOnlineStatus()async {
+    return await apiClient.putData(Urls.toggleOnlineStatus, {});
+  }
+  
+  @override
+  Future<Response> updateDriverLocation() async{
+    return await apiClient.putData(Urls.updateDriverLocation, {});
+  }
+  
 }
+ 

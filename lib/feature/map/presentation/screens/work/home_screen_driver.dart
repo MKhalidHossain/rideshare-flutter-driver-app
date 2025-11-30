@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/core/widgets/normal_custom_button.dart';
+import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
 import '../../../controllers/app_controller.dart';
 import '../../../controllers/booking_controller.dart';
 import '../../../controllers/locaion_controller.dart';
@@ -41,6 +42,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
   final BookingController bookingController = Get.find<BookingController>();
 
   final AppController appController = Get.find<AppController>();
+  final HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
@@ -145,10 +147,17 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        Switch(
-                          activeColor: Color(0xff7B0100).withOpacity(0.08),
-                          value: true,
-                          onChanged: (value) {},
+                        GetBuilder<HomeController>(
+                          init: homeController,
+                          builder: (controller) {
+                            return Switch(
+                              activeColor: Color(0xff7B0100).withOpacity(0.08),
+                              value: controller.isDriverOnline,
+                              onChanged: controller.isTogglingStatus
+                                  ? null
+                                  : (_) => controller.toggleOnlineStatus(),
+                            );
+                          },
                         ),
                       ],
                     ),

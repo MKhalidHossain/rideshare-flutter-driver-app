@@ -22,5 +22,15 @@ class HomeService implements HomeServiceInterface {
   Future<Response> getVehicleByService(String serviceId)async {
     return await historyAndProfileRepositoryInterface.getVehicleByService(serviceId);
   }
-
+  
+  @override
+  Future<Response> toggleOnlineStatus() async{
+    return await historyAndProfileRepositoryInterface.toggleOnlineStatus();
+  }
+  
+  @override
+  Future<Response> updateDriverLocation() async{
+    return await historyAndProfileRepositoryInterface.updateDriverLocation();
+  }
+ 
 }
