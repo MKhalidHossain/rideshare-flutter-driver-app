@@ -1,12 +1,13 @@
 class Urls {
   // Base URL
   // static const String baseUrl = 'http://localhost:5000/api';
-  static const String baseUrl = 'http://10.10.5.85:5001/api';
+  static const String baseUrl = 'http://10.10.5.94:5000/api';
   // static const String baseUrl = 'http://10.0.2.2:5001/api';
 
   // static const String baseUrl = 'https://ridetohealth-backend.onrender.com/api';
 
   static const String socketUrl = 'http://10.10.5.85:5001'; 
+
 
 
 
@@ -39,12 +40,13 @@ class Urls {
   static const String updateNotificationSettings =
       '/user/notification-settings';
 
+  static const String connectStripeAccount = '/stripe/driver/create-account';    
+
   // ------------------------ Category------------------------
   static const String allCategories = '/admin/categories';
   static const String getACategory = 'admin/categories/';
   // static const String uploadProfileImage = '/user/profile/image';
   // static const String updateLocation = '/user/location';
-
 
   // ------------------------ Ride Management ------------------------
   static const String requestRide = '/ride/request';

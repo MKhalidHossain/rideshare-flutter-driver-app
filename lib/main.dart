@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ridetohealthdriver/app.dart';
-import 'package:ridetohealthdriver/core/onboarding/presentation/screens/spashScreen.dart';
+import 'package:ridetohealthdriver/payment/screen/stripe_connect_screen.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
-import 'package:ridetohealthdriver/helpers/remote/data/socket_client.dart';
 import 'core/onboarding/presentation/screens/constantSpashScreen.dart';
 import 'core/onboarding/presentation/screens/onboarding1.dart';
 import 'feature/auth/controllers/auth_controller.dart';
@@ -117,6 +115,7 @@ class MyApp extends StatelessWidget {
       initialBinding: InitialBinding(),
       debugShowCheckedModeBanner: false,
       home:
+      // StripeConnectScreen(),
 
           // VerifyIdentityScreen(),
           //MapScreenTest(),

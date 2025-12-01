@@ -14,7 +14,9 @@ void showCustomSnackBar(
   int seconds = 2,
   String? subMessage,
 }) {
-  Get.closeCurrentSnackbar();
+  if (Get.isSnackbarOpen ?? false) {
+    Get.closeCurrentSnackbar();
+  }
   Get.showSnackbar(
     GetSnackBar(
       dismissDirection: DismissDirection.horizontal,
@@ -41,13 +43,13 @@ void showCustomSnackBar(
                   ),
                   subMessage != null
                       ? Text(
-                        subMessage,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      )
+                          subMessage,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        )
                       : const SizedBox(),
                 ],
               ),

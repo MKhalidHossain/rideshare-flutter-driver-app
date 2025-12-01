@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:ridetohealthdriver/feature/identity/presentation/screens/verify_identity_screen.dart';
-
+import 'package:ridetohealthdriver/payment/screen/stripe_connect_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app.dart';
 import '../../../helpers/custom_snackbar.dart';
 import '../../../helpers/remote/data/api_checker.dart';
 import '../../../helpers/remote/data/api_client.dart';
-
-import '../../../utils/app_constants.dart';
 import '../domain/model/change_password_response_model.dart';
 import '../domain/model/login_user_response_model.dart';
 import '../domain/model/registration_user_response_model.dart';
@@ -17,7 +14,6 @@ import '../domain/model/request_password_reset_response_model.dart';
 import '../domain/model/reset_password_with_otp_response_model.dart';
 import '../domain/model/verify_otp_response_model.dart';
 import '../presentation/screens/reset_password_screen.dart';
-import '../presentation/screens/tourist_or_local_screen.dart';
 import '../presentation/screens/user_login_screen.dart';
 import '../presentation/screens/user_signup_screen.dart';
 import '../presentation/screens/verify_otp_screen.dart';
@@ -59,6 +55,8 @@ class AuthController extends GetxController implements GetxService {
   String serviceType = '';
   String password = '';
   String role = 'driver';
+  String? _pendingLoginEmail;
+  String? _pendingLoginPassword;
 
 // iamge 
 
@@ -266,6 +264,11 @@ void setRegistrationData({
 ) async {
   _isLoading = true;
   update();
+
+  userEmail = email;
+  this.password = password;
+  _pendingLoginEmail = email;
+  _pendingLoginPassword = password;
 
   print(
     "REGISTER API BODY: {fullName: $fullName, email: $email, password: $password, role: $role}",
@@ -564,8 +567,8 @@ void setRegistrationData({
         Get.to(ResetChangePassword(userEmail: email));
       } else if (type == 'email_verification') {
         showCustomSnackBar('Email verification has been successful');
-        Get.offAll(() => VerifyIdentityScreen());
-        //Get.offAll(() => UserLoginScreen());
+        await _autoLoginAfterEmailVerification();
+        Get.offAll(() => const StripeConnectScreen());
       } else if (type == 'password_reset') {
         showCustomSnackBar('Password Change Successfully');
         Get.offAll(() => UserSignupScreen());
@@ -766,7 +769,7 @@ void setRegistrationData({
   }
 
   Future<void> setUserToken(String token, String refreshToken) async {
-    authServiceInterface.saveUserToken(token, refreshToken);
+    await authServiceInterface.saveUserToken(token, refreshToken);
   }
 
   Future<bool> getFirsTimeInstall() async {
@@ -776,4 +779,34 @@ void setRegistrationData({
   void setFirstTimeInstall() {
     return authServiceInterface.setFirstTimeInstall();
   }
+
+  Future<void> _autoLoginAfterEmailVerification() async {
+    final email = _pendingLoginEmail ?? userEmail;
+    final password = _pendingLoginPassword ?? this.password;
+
+    if (email.isEmpty || password.isEmpty) {
+      return;
+    }
+
+    try {
+      final Response? response = await authServiceInterface.login(email, password);
+      if (response != null && response.statusCode == 200) {
+        logInResponseModel = LogInResponseModel.fromJson(response.body);
+        final accessToken = logInResponseModel?.data?.accessToken;
+        final refreshToken = logInResponseModel?.data?.refreshToken ?? '';
+
+        if (accessToken != null && accessToken.isNotEmpty) {
+          await setUserToken(accessToken, refreshToken);
+        }
+      }
+    } catch (e) {
+      debugPrint('Auto login failed: $e');
+    } finally {
+      _pendingLoginEmail = null;
+      _pendingLoginPassword = null;
+    }
+  }
+
+
+
 }

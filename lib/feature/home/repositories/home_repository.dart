@@ -27,8 +27,14 @@ class HomeRepository
   Future<Response> getVehicleByService(String serviceId) async{
     return await apiClient.getData(Urls.getVehicleByService + serviceId);
   }
+
+    @override
+  Future<Response<dynamic>> connectStripeAccount() async{
+    return apiClient.postData(Urls.connectStripeAccount, {});
+  }
   
-  @override
+
+    @override
   Future<Response> toggleOnlineStatus()async {
     return await apiClient.putData(Urls.toggleOnlineStatus, {});
   }

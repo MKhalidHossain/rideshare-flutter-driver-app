@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class AppConstants {
 
   static const String token = 'token';
-  static const String refreshToken = 'token';
+  static const String refreshToken = 'refresh_token';
 
   static const String kSelfie  = 'Selfie Photo';
   static const String kGovId   = 'Government ID';
