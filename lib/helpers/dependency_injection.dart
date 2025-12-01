@@ -20,7 +20,10 @@ Future<void> initDI() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   final socket = SocketClient();
 
-  socket.connect(url: "http://10.10.5.85:5001", autoConnect: true);
+  socket.connect(
+    url: Urls.socketUrl,
+     autoConnect: true
+     );
 
   ApiClient apiClient = ApiClient(
     appBaseUrl: Urls.baseUrl,

@@ -6,6 +6,9 @@ class Urls {
 
   // static const String baseUrl = 'https://ridetohealth-backend.onrender.com/api';
 
+  static const String socketUrl = 'http://10.10.5.85:5001'; 
+
+
 
   // ------------------------ Authentication ------------------------
 

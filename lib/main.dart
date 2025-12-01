@@ -18,16 +18,16 @@ import 'helpers/dependency_injection.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await initDI();
-  socket();
+  // socket();
   runApp( MyApp());
 }
 
-void socket() {
-  SocketClient().connect(
-    url: 'http://10.10.5.85:5001',
-    autoConnect: true,
-  );
-}
+// void socket() {
+//   SocketClient().connect(
+//     url: 'http://10.10.5.85:5001',
+//     autoConnect: true,
+//   );
+// }
 
 
 
