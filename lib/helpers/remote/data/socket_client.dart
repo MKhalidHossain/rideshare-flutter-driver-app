@@ -30,15 +30,16 @@ class SocketClient {
         builder.disableAutoConnect();
       }
 
-      _socket = IO.io(
-        url,
-        builder.build(),
-      );
-
-      _socket?.onConnect((_) {
+      _socket = IO.io(url, builder.build());
+      _socket?.on('connect', (_) {
         _isConnected = true;
         print('✅ Socket connected');
       });
+
+      // _socket?.onConnect((_) {
+      //   _isConnected = true;
+      //   print('✅ Socket connected');
+      // });
 
       _socket?.onDisconnect((_) {
         _isConnected = false;
