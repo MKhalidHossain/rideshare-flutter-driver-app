@@ -32,11 +32,13 @@ class HomeRepository
   Future<Response<dynamic>> connectStripeAccount() async{
     return apiClient.postData(Urls.connectStripeAccount, {});
   }
-  
 
-    @override
-  Future<Response> toggleOnlineStatus()async {
-    return await apiClient.putData(Urls.toggleOnlineStatus, {});
+    
+  @override
+  Future<Response> toggleOnlineStatus({required bool isOnline})async {
+    return await apiClient.putData(Urls.toggleOnlineStatus, {
+      "isOnline": isOnline,
+    });
   }
   
   @override

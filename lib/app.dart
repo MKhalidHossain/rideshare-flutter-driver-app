@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridetohealthdriver/feature/earning/presentation/screen/earning_screen.dart';
 import 'package:ridetohealthdriver/feature/earning/presentation/screen/ride_history_screen.dart';
-import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/driver_profile/screens/driver_profile_info_screen.dart';
-import 'feature/historyAndProfile/presentation/screens/history_screen.dart';
 import 'feature/historyAndProfile/presentation/screens/profile_screen.dart';
 import 'feature/map/presentation/screens/work/home_screen_driver.dart';
 import 'navigation/custom_bottom_nev_bar.dart';

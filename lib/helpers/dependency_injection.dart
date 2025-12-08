@@ -25,6 +25,8 @@ Future<void> initDI() async {
      autoConnect: true
      );
 
+    //  socket.join('join', data: {"senderId": "driver:1"});
+
   ApiClient apiClient = ApiClient(
     appBaseUrl: Urls.baseUrl,
     sharedPreferences: prefs,

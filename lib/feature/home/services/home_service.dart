@@ -31,8 +31,8 @@ class HomeService implements HomeServiceInterface {
 
     
   @override
-  Future<Response> toggleOnlineStatus() async{
-    return await historyAndProfileRepositoryInterface.toggleOnlineStatus();
+  Future<Response> toggleOnlineStatus({required bool isOnline}) async{
+    return await historyAndProfileRepositoryInterface.toggleOnlineStatus(isOnline: isOnline);
   }
   
   @override

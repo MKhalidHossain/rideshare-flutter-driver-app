@@ -8,7 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 
 import '../../../../utils/app_constants.dart';
-import '../widgets/adjust_crop_screen.dart';
 import 'card_preview_screen.dart';
 
 // 📸 TakePhotoScreen

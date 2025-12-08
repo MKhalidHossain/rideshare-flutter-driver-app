@@ -139,4 +139,126 @@ class HomeController extends GetxController {
       update();
     }
   }
+
+
+Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
+    try {
+      final response = await homeServiceInterface.connectStripeAccount();
+
+      final dynamic body = response.body;
+      late final Map<String, dynamic> decoded;
+
+      if (body is String) {
+        final parsed = jsonDecode(body);
+        if (parsed is! Map<String, dynamic>) {
+          throw Exception('Invalid response format from Stripe connect API');
+        }
+        decoded = parsed;
+      } else if (body is Map<String, dynamic>) {
+        decoded = body;
+      } else {
+        throw Exception('Invalid response format from Stripe connect API');
+      }
+
+      final result = ConnectStripeAccountResponseModel.fromJson(decoded);
+      connectStripeAccountResponseModel = result;
+
+      if (!result.success || (result.url?.isEmpty ?? true)) {
+        throw Exception(result.message ?? 'Unable to start Stripe onboarding');
+      }
+
+      debugPrint('✅ Stripe connect link fetched: ${result.url}\n');
+      return result;
+    } catch (e) {
+      debugPrint('⚠️ Error fetching Stripe connect link: $e\n');
+      rethrow;
+    }
+  }
+
+
+
+  Future<void> updateDriverLocation() async {
+    try {
+      isLoading = true;
+      update();
+
+      final response = await homeServiceInterface.updateDriverLocation();
+
+      debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Response Body: ${response.body}");
+
+       if (response.statusCode == 200) {
+        print("✅ updateDriverLocation : for HomeController fetched successfully \n");
+        updateDriverLocationResponesModel = UpdateDriverLocationResponesModel.fromJson(
+          response.body,
+        );
+
+        isLoading = false;
+        update();
+      } else {
+          updateDriverLocationResponesModel = UpdateDriverLocationResponesModel.fromJson(
+          response.body,
+        );
+      }
+
+    }catch (e) {
+      debugPrint("⚠️ Error fetching HomeController : updateDriverLocation : $e\n");
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
+
+  Future<void> toggleOnlineStatus(bool desiredStatus) async {
+    if (isTogglingStatus) return;
+
+    final previousOnline = isDriverOnline;
+    final previousAvailable = isDriverAvailable;
+
+    isTogglingStatus = true;
+    isDriverOnline = desiredStatus;
+    try {
+      update();
+
+      final response = await homeServiceInterface.toggleOnlineStatus(
+        isOnline: desiredStatus,
+      );
+
+      debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Response Body: ${response.body}");
+
+      final dynamic body = response.body;
+      final decoded = body is String ? jsonDecode(body) : body;
+
+      if (decoded is! Map<String, dynamic>) {
+        throw Exception('Invalid toggle online status response');
+      }
+
+      toggleOnlineStatusResponseModel =
+          ToggleOnlineStatusResponseModel.fromJson(decoded);
+
+      if (response.statusCode == 200 &&
+          (toggleOnlineStatusResponseModel.success ?? false)) {
+        isDriverOnline =
+            toggleOnlineStatusResponseModel.data?.isOnline ?? desiredStatus;
+        isDriverAvailable =
+            toggleOnlineStatusResponseModel.data?.isAvailable ??
+                previousAvailable;
+        debugPrint(
+          "✅ toggleOnlineStatus : HomeController updated (online: $isDriverOnline, available: $isDriverAvailable)\n",
+        );
+      } else {
+        isDriverOnline = previousOnline;
+        isDriverAvailable = previousAvailable;
+      }
+
+    }catch (e) {
+      debugPrint("⚠️ Error fetching HomeController : toggleOnlineStatus : $e\n");
+      isDriverOnline = previousOnline;
+      isDriverAvailable = previousAvailable;
+    } finally {
+      isTogglingStatus = false;
+      update();
+    }
+  }
 }

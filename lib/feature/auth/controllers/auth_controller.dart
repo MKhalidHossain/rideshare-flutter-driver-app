@@ -7,6 +7,7 @@ import '../../../app.dart';
 import '../../../helpers/custom_snackbar.dart';
 import '../../../helpers/remote/data/api_checker.dart';
 import '../../../helpers/remote/data/api_client.dart';
+import '../../../helpers/remote/data/socket_client.dart';
 import '../domain/model/change_password_response_model.dart';
 import '../domain/model/login_user_response_model.dart';
 import '../domain/model/registration_user_response_model.dart';
@@ -40,6 +41,7 @@ class AuthController extends GetxController implements GetxService {
   List<MultipartBody> multipartList = [];
   String countryDialCode = '+880';
   String email = '';
+  final socketClient = SocketClient();
 
 
 
@@ -446,7 +448,13 @@ void setRegistrationData({
       );
       await setUserToken(token, refreshToken);
 
+      socketClient.emit('join-driver', {
+          'driverId': logInResponseModel!.data!.user!.id,  // ei key ta backend expect korche
+            });
+      print("Join room with id : ${logInResponseModel!.data!.user!.id}");
+
       Get.offAll(() => AppMain());
+
 
       //Get.offAll(BottomNavbar());
 
