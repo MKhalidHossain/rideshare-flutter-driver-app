@@ -1,4 +1,5 @@
 import 'package:get/get_connect/http/src/response/response.dart';
+import 'package:ridetohealthdriver/feature/home/domain/request_model/request_model.dart';
 import 'package:ridetohealthdriver/feature/home/repositories/home_repository_interface.dart';
 import 'home_service_interface.dart';
 
@@ -41,14 +42,21 @@ class HomeService implements HomeServiceInterface {
   }
   
   @override
-  Future<Response> acceptRide(rideId) async{
+  Future<Response> acceptRide(String rideId) async{
     return await historyAndProfileRepositoryInterface.acceptRide(rideId);
   }
   
   @override
-  Future<Response> cancelRide(rideId) async{
+  Future<Response> cancelRide(String rideId) async{
     return await historyAndProfileRepositoryInterface.cancelRide(rideId);
   }
+
+  @override
+  Future<Response> sendMessage(SentMessageBody sentMessageBody) async{
+    return await historyAndProfileRepositoryInterface.sendMessage(sentMessageBody);
+  }
+  
+
  
 
 }

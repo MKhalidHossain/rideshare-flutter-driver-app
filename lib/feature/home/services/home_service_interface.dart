@@ -1,5 +1,7 @@
 import 'package:get/get_connect/http/src/response/response.dart';
 
+import '../domain/request_model/request_model.dart';
+
 abstract class HomeServiceInterface {
   Future<Response> getAllServices();
   Future<Response> getServiceById(String serviceId);
@@ -11,7 +13,9 @@ abstract class HomeServiceInterface {
   Future<Response> toggleOnlineStatus({required bool isOnline});
 
 // ride
-  Future<Response> acceptRide(rideId);
-  Future<Response> cancelRide(rideId);
+  Future<Response> acceptRide(String rideId);
+  Future<Response> cancelRide(String rideId);
 
+//messsage
+  Future<Response> sendMessage(SentMessageBody sentMessageBody);
 }

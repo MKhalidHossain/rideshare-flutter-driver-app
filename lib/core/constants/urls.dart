@@ -79,6 +79,10 @@ class Urls {
   static const String processPayment = '/payment/process';
   static const String getPaymentDetails = '/payment/details/'; // + {rideId}
 
+  // ------------------------ Payment Management ------------------------
+  static const String sendMessage = '/socket/send-message';
+
+
   // // ------------------------ Admin Management ------------------------
   // static const String getAllUsers = '/admin/users';
   // static const String getUserDetails = '/admin/users/'; // + {userId}

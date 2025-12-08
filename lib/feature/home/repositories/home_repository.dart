@@ -1,4 +1,5 @@
 import 'package:get/get_connect/http/src/response/response.dart';
+import 'package:ridetohealthdriver/feature/home/domain/request_model/request_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/urls.dart';
@@ -47,14 +48,22 @@ class HomeRepository
   }
   
   @override
-  Future<Response> acceptRide(rideId)async {
+  Future<Response> acceptRide(String rideId)async {
     return await apiClient.postData(Urls.acceptRide+rideId+"/accept", {});
   }
   
   @override
-  Future<Response> cancelRide(rideId) async{
+  Future<Response> cancelRide(String rideId) async{
     return await apiClient.postData(Urls.cancelRide+rideId+"/cancel", {});
   }
+
+  @override
+  Future<Response> sendMessage(SentMessageBody sentMessageBody) async{
+    return await apiClient.postData(Urls.sendMessage, sentMessageBody.toJson());
+  }
+  
+
   
 }
+ 
  
