@@ -46,5 +46,15 @@ class HomeRepository
     return await apiClient.putData(Urls.updateDriverLocation, {});
   }
   
+  @override
+  Future<Response> acceptRide(rideId)async {
+    return await apiClient.postData(Urls.acceptRide+rideId+"/accept", {});
+  }
+  
+  @override
+  Future<Response> cancelRide(rideId) async{
+    return await apiClient.postData(Urls.cancelRide+rideId+"/cancel", {});
+  }
+  
 }
  

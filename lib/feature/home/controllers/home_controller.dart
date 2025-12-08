@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/feature/home/domain/response_model/accept_ride_response_model.dart';
+import 'package:ridetohealthdriver/feature/home/domain/response_model/cancel_ride_response_model.dart';
 import 'package:ridetohealthdriver/payment/domain/connect_stripe_account_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_all_services_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_nearby_vehicles_response_model.dart';
@@ -35,6 +37,8 @@ class HomeController extends GetxController {
   UpdateDriverLocationResponesModel updateDriverLocationResponesModel = UpdateDriverLocationResponesModel();
   ToggleOnlineStatusResponseModel toggleOnlineStatusResponseModel = ToggleOnlineStatusResponseModel();
 
+  AcceptRideResponseModel acceptRideResponseModel = AcceptRideResponseModel();
+  CancelRideResponseModel cancelRideResponseModel = CancelRideResponseModel();
 
   Future<void> getAllServices() async {
     try {
@@ -261,4 +265,73 @@ Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
       update();
     }
   }
+
+    Future<void> acceptRide(rideId) async {
+    try {
+      isLoading = true;
+      update();
+
+      final response = await homeServiceInterface.acceptRide(rideId);
+
+      debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Response Body: ${response.body}");
+
+       if (response.statusCode == 200) {
+        print("✅ acceptRide : for HomeController fetched successfully \n");
+        acceptRideResponseModel = AcceptRideResponseModel.fromJson(
+          response.body,
+        );
+
+        isLoading = false;
+        update();
+      } else {
+         acceptRideResponseModel = AcceptRideResponseModel.fromJson(
+          response.body,
+        );
+      }
+
+    }catch (e) {
+      debugPrint("⚠️ Error fetching HomeController : acceptRide : $e\n");
+    } finally {
+      isLoading = false;
+      update();
+    }
+  } 
+  
+  
+   Future<void> cancelRide(rideId) async {
+    try {
+      isLoading = true;
+      update();
+      
+
+      final response = await homeServiceInterface.cancelRide(rideId);
+
+      debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Response Body: ${response.body}");
+
+       if (response.statusCode == 200) {
+        print("✅ cancelRide : for HomeController fetched successfully \n");
+        cancelRideResponseModel = CancelRideResponseModel.fromJson(
+          response.body,
+        );
+
+        isLoading = false;
+        update();
+      } else {
+           cancelRideResponseModel = CancelRideResponseModel.fromJson(
+          response.body,
+        );
+      }
+
+    }catch (e) {
+      debugPrint("⚠️ Error fetching HomeController : cancelRide : $e\n");
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
+
+
+
 }

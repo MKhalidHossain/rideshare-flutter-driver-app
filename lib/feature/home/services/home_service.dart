@@ -39,6 +39,16 @@ class HomeService implements HomeServiceInterface {
   Future<Response> updateDriverLocation() async{
     return await historyAndProfileRepositoryInterface.updateDriverLocation();
   }
+  
+  @override
+  Future<Response> acceptRide(rideId) async{
+    return await historyAndProfileRepositoryInterface.acceptRide(rideId);
+  }
+  
+  @override
+  Future<Response> cancelRide(rideId) async{
+    return await historyAndProfileRepositoryInterface.cancelRide(rideId);
+  }
  
 
 }

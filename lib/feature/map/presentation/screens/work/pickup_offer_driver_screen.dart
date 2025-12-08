@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/core/widgets/normal_custom_button.dart';
+import 'package:ridetohealthdriver/feature/home/domain/response_model/accept_ride_response_model.dart';
 import 'package:ridetohealthdriver/feature/map/presentation/screens/work/home_screen_driver.dart';
 import '../../../../../core/widgets/normal_custom_icon_button.dart';
 import '../../../controllers/app_controller.dart';
@@ -18,7 +19,14 @@ import '../payment_screen.dart';
 import 'finding_your_driver_screen.dart';
 
 class PickUpOfferDriverScreen extends StatefulWidget {
-  const PickUpOfferDriverScreen({super.key});
+  const PickUpOfferDriverScreen({
+    super.key,
+    this.rideRequest,
+    this.acceptedRideData,
+  });
+
+  final IncomingRideRequest? rideRequest;
+  final AcceptRideData? acceptedRideData;
   static const CameraPosition _initialPosition = CameraPosition(
     target: LatLng(
       23.707306,
@@ -33,7 +41,7 @@ class PickUpOfferDriverScreen extends StatefulWidget {
 }
 
 class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
-  bool _showFirstWidget = true;
+  late bool _showFirstWidget;
 
   //
   // late final Timer _timer;
@@ -49,14 +57,97 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   void initState() {
     super.initState();
 
+    _showFirstWidget =
+        widget.rideRequest == null && widget.acceptedRideData == null;
+
     // Delay for 3 seconds and then switch widgets
-    Future.delayed(Duration(seconds: 3), () {
-      if (mounted) {
-        setState(() {
-          _showFirstWidget = false;
-        });
-      }
-    });
+    if (_showFirstWidget) {
+      Future.delayed(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _showFirstWidget = false;
+          });
+        }
+      });
+    }
+  }
+
+  String get _pickupAddress {
+    final pickupAddress = widget.acceptedRideData?.customerInfo.pickup.address;
+    if (pickupAddress != null && pickupAddress.isNotEmpty) {
+      return pickupAddress;
+    }
+
+    final ridePickup = widget.rideRequest?.pickupAddress;
+    if (ridePickup != null && ridePickup.isNotEmpty) {
+      return ridePickup;
+    }
+
+    final controllerPickup = locationController.pickupAddress.value;
+    if (controllerPickup.isNotEmpty) {
+      return controllerPickup;
+    }
+    return '123 Main St, San Francisco, CA';
+  }
+
+  String get _destinationAddress {
+    final destination =
+        widget.acceptedRideData?.customerInfo.dropoff.address ?? '';
+    if (destination.isNotEmpty) {
+      return destination;
+    }
+
+    final rideDestination = widget.rideRequest?.dropoffAddress;
+    if (rideDestination != null && rideDestination.isNotEmpty) {
+      return rideDestination;
+    }
+
+    final controllerDestination = locationController.destinationAddress.value;
+    if (controllerDestination.isNotEmpty) {
+      return controllerDestination;
+    }
+    return '456 Market St, San Francisco, CA';
+  }
+
+  String get _fareText {
+    final fareFromRide = widget.rideRequest?.fareText;
+    if (fareFromRide != null && fareFromRide.isNotEmpty) {
+      return fareFromRide;
+    }
+    return '\$18.50';
+  }
+
+  String? get _distanceText {
+    final distanceFromRide = widget.rideRequest?.distanceText;
+    if (distanceFromRide != null && distanceFromRide.isNotEmpty) {
+      return distanceFromRide;
+    }
+
+    final distance = locationController.distance.value;
+    if (distance > 0) {
+      return '${distance.toStringAsFixed(1)}km';
+    }
+    return null;
+  }
+
+  String get _riderName {
+    final name = widget.acceptedRideData?.customerInfo.driverName;
+    if (name != null && name.isNotEmpty) {
+      return name;
+    }
+    final requestedName = widget.rideRequest?.customerName;
+    if (requestedName != null && requestedName.isNotEmpty) {
+      return requestedName;
+    }
+    return 'Rider';
+  }
+
+  String get _riderPhone {
+    final phone = widget.acceptedRideData?.customerInfo.driverPhone;
+    if (phone != null && phone.isNotEmpty) {
+      return phone;
+    }
+    return '--';
   }
 
   // @override
@@ -307,9 +398,9 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      "Khalid Hossain".text16White500(),
+                                      _riderName.text16White500(),
                                       const SizedBox(height: 4),
-                                      "+880 1777000000".text12Grey(),
+                                      _riderPhone.text12Grey(),
                                     ],
                                   ),
                                 ],
@@ -337,7 +428,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                                 ),
                               ),
                               Text(
-                                '\$18.50',
+                                _fareText,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -389,24 +480,15 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                                         children: [
                                           "Pickup:".text14White500(),
 
-                                          Obx(
-                                            () => Text(
-                                              locationController
-                                                      .pickupAddress
-                                                      .value
-                                                      .isEmpty
-                                                  ? '123 Main St, San Francisco, CA'
-                                                  : locationController
-                                                        .pickupAddress
-                                                        .value,
-                                              style: TextStyle(
-                                                color: Color(0xffB5B5B5),
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
+                                          Text(
+                                            _pickupAddress,
+                                            style: TextStyle(
+                                              color: Color(0xffB5B5B5),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
                                             ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ],
                                       ),
@@ -442,49 +524,30 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
-                                          children: [
-                                            "Destination:".text14White500(),
+                                        children: [
+                                          "Destination:".text14White500(),
 
-                                            Obx(
-                                              () => Text(
-                                                locationController
-                                                        .destinationAddress
-                                                        .value
-                                                        .isEmpty
-                                                    ? '456 Market St, San Francisco, CA' // Default text
-                                                    : locationController
-                                                          .destinationAddress
-                                                          .value,
-                                                style: TextStyle(
-                                                  color: Color(0xffB5B5B5),
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
+                                            Text(
+                                              _destinationAddress,
+                                              style: TextStyle(
+                                                color: Color(0xffB5B5B5),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
                                               ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ],
                                         ),
                                       ),
-                                      Obx(() {
-                                        // Only show distance if destination is set and distance is calculated
-                                        if (locationController
-                                                    .destinationLocation
-                                                    .value !=
-                                                null &&
-                                            locationController.distance.value >
-                                                0) {
-                                          return Text(
-                                            '${locationController.distance.value.toStringAsFixed(1)}km',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                          );
-                                        }
-                                        return SizedBox.shrink(); // Hide if no destination or distance is zero
-                                      }),
+                                      if (_distanceText != null)
+                                        Text(
+                                          _distanceText!,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -518,7 +581,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                                 //     fontWeight: FontWeight.bold,
                                 //   ),
                                 // ),
-                                "\$32.50".text16White500(),
+                                _fareText.text16White500(),
                                 // Text(
                                 //   '\$32.50',
                                 //   style: TextStyle(

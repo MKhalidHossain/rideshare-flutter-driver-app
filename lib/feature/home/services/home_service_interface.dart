@@ -10,4 +10,8 @@ abstract class HomeServiceInterface {
   Future<Response> updateDriverLocation();
   Future<Response> toggleOnlineStatus({required bool isOnline});
 
+// ride
+  Future<Response> acceptRide(rideId);
+  Future<Response> cancelRide(rideId);
+
 }

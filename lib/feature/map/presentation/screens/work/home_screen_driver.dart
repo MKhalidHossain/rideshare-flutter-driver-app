@@ -19,64 +19,7 @@ import '../payment_screen.dart';
 import 'finding_your_driver_screen.dart';
 import 'pickup_offer_driver_screen.dart';
 
-class IncomingRideRequest {
-  final String rideId;
-  final String pickupAddress;
-  final String dropoffAddress;
-  final double? totalFare;
-  final double? distanceKm;
-  final String? customerName;
 
-  IncomingRideRequest({
-    required this.rideId,
-    required this.pickupAddress,
-    required this.dropoffAddress,
-    this.totalFare,
-    this.distanceKm,
-    this.customerName,
-  });
-
-  String get fareText =>
-      totalFare != null ? '\$${totalFare!.toStringAsFixed(2)}' : '';
-
-  String? get distanceText =>
-      distanceKm != null ? '${distanceKm!.toStringAsFixed(1)} km' : null;
-
-  factory IncomingRideRequest.fromSocket(dynamic raw) {
-    Map<String, dynamic> data;
-    if (raw is String) {
-      data = Map<String, dynamic>.from(jsonDecode(raw));
-    } else if (raw is Map<String, dynamic>) {
-      data = Map<String, dynamic>.from(raw);
-    } else if (raw is Map) {
-      data = raw.map((key, value) => MapEntry(key.toString(), value));
-    } else {
-      throw Exception('Unsupported ride_request payload type: ${raw.runtimeType}');
-    }
-
-    final pickup = data['pickup'] is Map
-        ? Map<String, dynamic>.from(data['pickup'])
-        : <String, dynamic>{};
-    final dropoff = data['dropoff'] is Map
-        ? Map<String, dynamic>.from(data['dropoff'])
-        : <String, dynamic>{};
-
-    final rawFare = data['totalFare'];
-    final rawDistance = data['distance'];
-
-    return IncomingRideRequest(
-      rideId: data['rideId']?.toString() ?? '',
-      pickupAddress:
-          pickup['address']?.toString() ?? pickup['name']?.toString() ?? 'Pickup location',
-      dropoffAddress:
-          dropoff['address']?.toString() ?? dropoff['name']?.toString() ?? 'Destination',
-      totalFare: rawFare != null ? double.tryParse(rawFare.toString()) : null,
-      distanceKm:
-          rawDistance != null ? double.tryParse(rawDistance.toString()) : null,
-      customerName: data['customerName']?.toString(),
-    );
-  }
-}
 
 class HomeScreenDriver extends StatefulWidget {
   static const CameraPosition _initialPosition = CameraPosition(
@@ -95,6 +38,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
   final SocketClient socketClient = SocketClient();
   late final AuthController authController;
   IncomingRideRequest? _incomingRide;
+  bool _isProcessingAction = false;
 
   final LocationController locationController = Get.find<LocationController>();
   final BookingController bookingController = Get.find<BookingController>();
@@ -196,7 +140,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
                 margin: const EdgeInsets.all(24),
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2E2E38), // Dark grey from the image
+                  color: const Color(0xff303644), // Dark grey from the image
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                   // border: Border(
                   //   left: BorderSide(color: Color(0xff7B0100), width: 5),
@@ -285,9 +229,23 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
               bottom: 0,
               left: 0,
               right: 0,
-              child: hasRideRequest
-                  ? _buildRideRequestCard(size)
-                  : _buildIdleCard(size),
+              child: GetBuilder<HomeController>(
+                init: homeController,
+                builder: (controller) {
+                  if (!controller.isDriverOnline) {
+                    return _buildIdleCard(
+                      size,
+                      isOnline: false,
+                    );
+                  }
+                  return hasRideRequest
+                      ? _buildRideRequestCard(size)
+                      : _buildIdleCard(
+                          size,
+                          isOnline: true,
+                        );
+                },
+              ),
             ),
             // Loading overlay
             if (appController.isLoading.value)
@@ -303,7 +261,86 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
     );
   }
 
-  Widget _buildIdleCard(Size size) {
+  Future<void> _handleDeclineRide(IncomingRideRequest ride) async {
+    if (_isProcessingAction) return;
+
+    setState(() {
+      _isProcessingAction = true;
+    });
+    appController.showLoading();
+
+    try {
+      await homeController.cancelRide(ride.rideId);
+
+      final response = homeController.cancelRideResponseModel;
+      final success = response.success ?? false;
+      final message =
+          (response.message ?? '').isNotEmpty ? response.message! : 'Ride declined';
+
+      if (success) {
+        setState(() {
+          _incomingRide = null;
+        });
+        appController.showSuccessSnackbar(message);
+      } else {
+        appController.showErrorSnackbar(message);
+      }
+    } catch (e) {
+      appController.showErrorSnackbar('Failed to decline ride');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessingAction = false;
+        });
+      }
+      appController.hideLoading();
+    }
+  }
+
+  Future<void> _handleAcceptRide(IncomingRideRequest ride) async {
+    if (_isProcessingAction) return;
+
+    setState(() {
+      _isProcessingAction = true;
+    });
+    appController.showLoading();
+
+    try {
+      await homeController.acceptRide(ride.rideId);
+      final response = homeController.acceptRideResponseModel;
+      final success = response.success ?? false;
+      final message =
+          (response.message ?? '').isNotEmpty ? response.message! : 'Ride accepted';
+
+      if (success) {
+        final acceptedData = response.data;
+        final rideToSend = _incomingRide;
+        setState(() {
+          _incomingRide = null;
+        });
+        appController.showSuccessSnackbar(message);
+        Get.to(
+          () => PickUpOfferDriverScreen(
+            rideRequest: rideToSend,
+            acceptedRideData: acceptedData,
+          ),
+        );
+      } else {
+        appController.showErrorSnackbar(message);
+      }
+    } catch (e) {
+      appController.showErrorSnackbar('Failed to accept ride');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessingAction = false;
+        });
+      }
+      appController.hideLoading();
+    }
+  }
+
+  Widget _buildIdleCard(Size size, {required bool isOnline}) {
     return Container(
       width: size.width * 0.90,
       margin: const EdgeInsets.only(
@@ -312,28 +349,30 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
         bottom: 36,
       ),
       padding: const EdgeInsets.all(25),
-      decoration: const BoxDecoration(
-        color: Color(0xFF2E2E38),
-        borderRadius: BorderRadius.all(Radius.circular(8)),
+      decoration: BoxDecoration(
+        color: const Color(0xff303644),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
         border: Border(
           left: BorderSide(color: Color(0xff7B0100), width: 5),
         ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: const [
+        children: [
           Text(
-            'No ride requests at the moment',
-            style: TextStyle(
+            isOnline ? 'No ride requests at the moment' : "You're currently offline",
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            'New requests will appear here',
-            style: TextStyle(color: Colors.grey, fontSize: 13),
+            isOnline
+                ? 'New requests will appear here'
+                : 'Go online to receive ride requests',
+            style: const TextStyle(color: Colors.grey, fontSize: 13),
           ),
         ],
       ),
@@ -342,7 +381,12 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
 
   Widget _buildRideRequestCard(Size size) {
     final ride = _incomingRide;
-    if (ride == null) return _buildIdleCard(size);
+    if (ride == null) {
+      return _buildIdleCard(
+        size,
+        isOnline: homeController.isDriverOnline,
+      );
+    }
 
     return Container(
       width: size.width * 0.90,
@@ -562,9 +606,9 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
                 textColor: Colors.black,
                 text: "Decline",
                 onPressed: () {
-                  setState(() {
-                    _incomingRide = null;
-                  });
+                  if (_incomingRide != null) {
+                    _handleDeclineRide(ride);
+                  }
                 },
               ),
               NormalCustomButton(
@@ -572,13 +616,76 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
                 fillColor: Colors.green,
                 text: "Accept",
                 onPressed: () {
-                  Get.to(() => PickUpOfferDriverScreen());
+                  if (_incomingRide != null) {
+                    _handleAcceptRide(ride);
+                  }
                 },
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+
+
+class IncomingRideRequest {
+  final String rideId;
+  final String pickupAddress;
+  final String dropoffAddress;
+  final double? totalFare;
+  final double? distanceKm;
+  final String? customerName;
+
+  IncomingRideRequest({
+    required this.rideId,
+    required this.pickupAddress,
+    required this.dropoffAddress,
+    this.totalFare,
+    this.distanceKm,
+    this.customerName,
+  });
+
+  String get fareText =>
+      totalFare != null ? '\$${totalFare!.toStringAsFixed(2)}' : '';
+
+  String? get distanceText =>
+      distanceKm != null ? '${distanceKm!.toStringAsFixed(1)} km' : null;
+
+  factory IncomingRideRequest.fromSocket(dynamic raw) {
+    Map<String, dynamic> data;
+    if (raw is String) {
+      data = Map<String, dynamic>.from(jsonDecode(raw));
+    } else if (raw is Map<String, dynamic>) {
+      data = Map<String, dynamic>.from(raw);
+    } else if (raw is Map) {
+      data = raw.map((key, value) => MapEntry(key.toString(), value));
+    } else {
+      throw Exception('Unsupported ride_request payload type: ${raw.runtimeType}');
+    }
+
+    final pickup = data['pickup'] is Map
+        ? Map<String, dynamic>.from(data['pickup'])
+        : <String, dynamic>{};
+    final dropoff = data['dropoff'] is Map
+        ? Map<String, dynamic>.from(data['dropoff'])
+        : <String, dynamic>{};
+
+    final rawFare = data['totalFare'];
+    final rawDistance = data['distance'];
+
+    return IncomingRideRequest(
+      rideId: data['rideId']?.toString() ?? '',
+      pickupAddress:
+          pickup['address']?.toString() ?? pickup['name']?.toString() ?? 'Pickup location',
+      dropoffAddress:
+          dropoff['address']?.toString() ?? dropoff['name']?.toString() ?? 'Destination',
+      totalFare: rawFare != null ? double.tryParse(rawFare.toString()) : null,
+      distanceKm:
+          rawDistance != null ? double.tryParse(rawDistance.toString()) : null,
+      customerName: data['customerName']?.toString(),
     );
   }
 }
