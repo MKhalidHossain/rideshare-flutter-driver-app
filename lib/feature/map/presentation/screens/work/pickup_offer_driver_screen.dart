@@ -757,15 +757,15 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(
-                      child: NormalCustomIconButton(
-                        icon: Icons.call_outlined,
-                        iconSize: 26,
-                        onPressed: () {
-                          Get.to(CallScreen());
-                        },
-                      ),
-                    ),
+                    // Expanded(
+                    //   child: NormalCustomIconButton(
+                    //     icon: Icons.call_outlined,
+                    //     iconSize: 26,
+                    //     onPressed: () {
+                    //       Get.to(CallScreen());
+                    //     },
+                    //   ),
+                    // ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: NormalCustomIconButton(
@@ -777,16 +777,16 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Expanded(
-                      flex: 2,
-                      child: NormalCustomButton(
-                        height: 51,
-                        fontSize: 18,
-                        circularRadious: 30,
-                        text: "Cancel Ride",
-                        onPressed: () {},
-                      ),
-                    ),
+                    // Expanded(
+                    //   flex: 2,
+                    //   child: NormalCustomButton(
+                    //     height: 51,
+                    //     fontSize: 18,
+                    //     circularRadious: 30,
+                    //     text: "Cancel Ride",
+                    //     onPressed: () {},
+                    //   ),
+                    // ),
                   ],
                 ),
               ],

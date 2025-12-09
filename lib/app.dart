@@ -17,7 +17,6 @@ class _AppMainState extends State<AppMain> {
 
   final List<Widget> _pages = [
     HomeScreenDriver(),
-    //HomeScreen(),
     EarningsScreen(),
     RideHistoryPage(),
     ProfileScreen(),
