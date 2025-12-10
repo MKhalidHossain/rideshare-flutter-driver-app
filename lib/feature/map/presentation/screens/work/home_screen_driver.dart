@@ -8,6 +8,7 @@ import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/core/widgets/normal_custom_button.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
 import 'package:ridetohealthdriver/helpers/remote/data/socket_client.dart';
+import '../../../../home/domain/request_model/incoming_ride_request.dart';
 import '../../../controllers/app_controller.dart';
 import '../../../controllers/booking_controller.dart';
 import '../../../controllers/locaion_controller.dart';
@@ -630,62 +631,3 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
 }
 
 
-
-class IncomingRideRequest {
-  final String rideId;
-  final String pickupAddress;
-  final String dropoffAddress;
-  final double? totalFare;
-  final double? distanceKm;
-  final String? customerName;
-
-  IncomingRideRequest({
-    required this.rideId,
-    required this.pickupAddress,
-    required this.dropoffAddress,
-    this.totalFare,
-    this.distanceKm,
-    this.customerName,
-  });
-
-  String get fareText =>
-      totalFare != null ? '\$${totalFare!.toStringAsFixed(2)}' : '';
-
-  String? get distanceText =>
-      distanceKm != null ? '${distanceKm!.toStringAsFixed(1)} km' : null;
-
-  factory IncomingRideRequest.fromSocket(dynamic raw) {
-    Map<String, dynamic> data;
-    if (raw is String) {
-      data = Map<String, dynamic>.from(jsonDecode(raw));
-    } else if (raw is Map<String, dynamic>) {
-      data = Map<String, dynamic>.from(raw);
-    } else if (raw is Map) {
-      data = raw.map((key, value) => MapEntry(key.toString(), value));
-    } else {
-      throw Exception('Unsupported ride_request payload type: ${raw.runtimeType}');
-    }
-
-    final pickup = data['pickup'] is Map
-        ? Map<String, dynamic>.from(data['pickup'])
-        : <String, dynamic>{};
-    final dropoff = data['dropoff'] is Map
-        ? Map<String, dynamic>.from(data['dropoff'])
-        : <String, dynamic>{};
-
-    final rawFare = data['totalFare'];
-    final rawDistance = data['distance'];
-
-    return IncomingRideRequest(
-      rideId: data['rideId']?.toString() ?? '',
-      pickupAddress:
-          pickup['address']?.toString() ?? pickup['name']?.toString() ?? 'Pickup location',
-      dropoffAddress:
-          dropoff['address']?.toString() ?? dropoff['name']?.toString() ?? 'Destination',
-      totalFare: rawFare != null ? double.tryParse(rawFare.toString()) : null,
-      distanceKm:
-          rawDistance != null ? double.tryParse(rawDistance.toString()) : null,
-      customerName: data['customerName']?.toString(),
-    );
-  }
-}

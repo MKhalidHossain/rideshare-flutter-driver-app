@@ -1,6 +1,6 @@
 import 'package:get/get_connect/http/src/response/response.dart';
 
-import '../domain/request_model/request_model.dart';
+import '../domain/request_model/sent_message_body.dart';
 
 abstract class HomeRepositoryInterface {
   Future<Response> getAllServices();

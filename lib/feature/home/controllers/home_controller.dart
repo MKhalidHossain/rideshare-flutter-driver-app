@@ -274,7 +274,7 @@ Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
       final response = await homeServiceInterface.acceptRide(rideId);
 
       debugPrint(" Status Code: ${response.statusCode}");
-      debugPrint(" Response Body: ${response.body}");
+      debugPrint(" Response Body: acceptRide : ${response.body}");
 
        if (response.statusCode == 200) {
         print("✅ acceptRide : for HomeController fetched successfully \n");

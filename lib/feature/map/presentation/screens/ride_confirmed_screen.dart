@@ -296,7 +296,7 @@ class _RideConfirmedScreenState extends State<RideConfirmedScreen> {
                       icon: Icons.messenger_outline,
                       iconSize: 30,
                       onPressed: () {
-                        Get.to(ChatScreen());
+                        Get.to(ChatScreenRTH());
                       },
                     ),
                   ),

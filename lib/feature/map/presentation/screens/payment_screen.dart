@@ -165,7 +165,7 @@ class PaymentScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => Get.to(() => ChatScreen()),
+                    onPressed: () => Get.to(() => ChatScreenRTH()),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF34495E),
                       padding: EdgeInsets.symmetric(vertical: 16),

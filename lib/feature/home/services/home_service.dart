@@ -1,5 +1,5 @@
 import 'package:get/get_connect/http/src/response/response.dart';
-import 'package:ridetohealthdriver/feature/home/domain/request_model/request_model.dart';
+import 'package:ridetohealthdriver/feature/home/domain/request_model/sent_message_body.dart';
 import 'package:ridetohealthdriver/feature/home/repositories/home_repository_interface.dart';
 import 'home_service_interface.dart';
 

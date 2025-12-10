@@ -232,7 +232,7 @@ class _CallScreenState extends State<CallScreen> {
                   _buildSecondaryButton(
                     icon: Icons.chat,
                     label: 'Chat',
-                    onPressed: () => Get.to(() => ChatScreen()),
+                    onPressed: () => Get.to(() => ChatScreenRTH()),
                   ),
                   
                   // Keypad button

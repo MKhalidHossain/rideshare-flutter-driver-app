@@ -9,6 +9,7 @@ import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/core/widgets/normal_custom_button.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/accept_ride_response_model.dart';
 import '../../../../../core/widgets/normal_custom_icon_button.dart';
+import '../../../../home/domain/request_model/incoming_ride_request.dart';
 import '../../../controllers/app_controller.dart';
 import '../../../controllers/locaion_controller.dart';
 import '../chat_screen.dart';
@@ -125,7 +126,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   }
 
   String get _riderName {
-    final name = widget.acceptedRideData?.customerInfo.driverName;
+    final name = widget.acceptedRideData?.customerInfo.userName;
     if (name != null && name.isNotEmpty) {
       return name;
     }
@@ -137,11 +138,31 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   }
 
   String get _riderPhone {
-    final phone = widget.acceptedRideData?.customerInfo.driverPhone;
+    final phone = widget.acceptedRideData?.customerInfo.userPhone;
     if (phone != null && phone.isNotEmpty) {
       return phone;
     }
+    final requestPhone = widget.rideRequest?.customerPhone;
+    if (requestPhone != null && requestPhone.isNotEmpty) {
+      return requestPhone;
+    }
     return '--';
+  }
+
+  double get _riderRating {
+    final rating = widget.acceptedRideData?.customerInfo.userRating;
+    if (rating != null && rating > 0) return rating;
+    final requestRating = widget.rideRequest?.customerRating;
+    if (requestRating != null && requestRating > 0) return requestRating;
+    return 4.9;
+  }
+
+  ImageProvider? get _riderAvatar {
+    final photo = widget.acceptedRideData?.customerInfo.userPhoto ??
+        widget.rideRequest?.customerImage;
+    if (photo == null || photo.isEmpty) return null;
+    if (photo.startsWith('http')) return NetworkImage(photo);
+    return AssetImage(photo);
   }
 
   LatLng? _extractPickupLatLng() {
@@ -614,12 +635,10 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                   CircleAvatar(
                     radius: collapsed ? 18 : 26,
                     backgroundColor: Colors.grey.shade400,
-                    child: ClipOval(
-                      child: Image.asset(
-                        "assets/images/user6.png",
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                    backgroundImage: _riderAvatar,
+                    child: _riderAvatar == null
+                        ? const Icon(Icons.person, color: Colors.black87)
+                        : null,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -654,7 +673,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '4.9',
+                        _riderRating.toStringAsFixed(1),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: collapsed ? 13 : 14,
@@ -772,7 +791,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                         icon: Icons.messenger_outline,
                         iconSize: 26,
                         onPressed: () {
-                          Get.to(ChatScreen());
+                          Get.to(ChatScreenRTH());
                         },
                       ),
                     ),
