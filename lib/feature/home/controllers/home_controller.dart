@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/accept_ride_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/cancel_ride_response_model.dart';
+import 'package:ridetohealthdriver/feature/home/domain/response_model/send_message_respose_model.dart';
 import 'package:ridetohealthdriver/payment/domain/connect_stripe_account_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_all_services_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_nearby_vehicles_response_model.dart';
@@ -12,6 +13,7 @@ import 'package:ridetohealthdriver/feature/home/domain/response_model/get_vehicl
 import 'package:ridetohealthdriver/feature/home/domain/response_model/toggle_online_status_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/services/home_service_interface.dart';
 
+import '../domain/request_model/sent_message_body.dart';
 import '../domain/response_model/update_driver_location_respones_model.dart';
 
 class HomeController extends GetxController {
@@ -39,6 +41,8 @@ class HomeController extends GetxController {
 
   AcceptRideResponseModel acceptRideResponseModel = AcceptRideResponseModel();
   CancelRideResponseModel cancelRideResponseModel = CancelRideResponseModel();
+
+  SendMessageResposeModel sendMessageResposeModel = SendMessageResposeModel();
 
   Future<void> getAllServices() async {
     try {
@@ -326,6 +330,39 @@ Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
 
     }catch (e) {
       debugPrint("⚠️ Error fetching HomeController : cancelRide : $e\n");
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
+
+     Future<void> sendMessage(SentMessageBody sentMessageBody) async {
+    try {
+      isLoading = true;
+      update();
+      
+
+      final response = await homeServiceInterface.sendMessage(sentMessageBody);
+
+      debugPrint(" Status Code: sendMessage : ${response.statusCode}");
+      debugPrint(" Response Body: sendMessage : ${response.body}");
+
+       if (response.statusCode == 200) {
+        print("✅ sendMessage : for HomeController fetched successfully \n");
+        sendMessageResposeModel = SendMessageResposeModel.fromJson(
+          response.body,
+        );
+
+        isLoading = false;
+        update();
+      } else {
+        sendMessageResposeModel = SendMessageResposeModel.fromJson(
+          response.body,
+        );
+      }
+
+    }catch (e) {
+      debugPrint("⚠️ Error fetching HomeController : sendMessage : $e\n");
     } finally {
       isLoading = false;
       update();

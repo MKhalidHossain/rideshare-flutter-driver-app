@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/helpers/remote/data/socket_client.dart';
+import '../../../home/domain/request_model/incoming_ride_request.dart';
+import '../../../home/domain/response_model/accept_ride_response_model.dart';
 import '../../controllers/app_controller.dart';
 import '../../controllers/chat_controller.dart';
 import '../../domain/models/message.dart';
+
 
 const Color _chatBackground = Color(0xFF2E3747);
 const Color _inputBackground = Color(0xFF252D3A);
@@ -19,16 +23,12 @@ ImageProvider? _avatarImageProvider(String? path) {
 class ChatScreenRTH extends StatefulWidget {
   const ChatScreenRTH({
     Key? key,
-    this.receiverName,
-    this.receiverAvatar,
-    this.receiverPhone,
-    this.receiverRating,
+    this.incomingRideRequest,
+    this.acceptedRideData,
   }) : super(key: key);
 
-  final String? receiverName;
-  final String? receiverAvatar;
-  final String? receiverPhone;
-  final double? receiverRating;
+  final IncomingRideRequest? incomingRideRequest;
+    final AcceptRideData? acceptedRideData;
 
   @override
   State<ChatScreenRTH> createState() => _ChatScreenRTHState();
@@ -41,11 +41,54 @@ class _ChatScreenRTHState extends State<ChatScreenRTH> {
   final ScrollController scrollController = ScrollController();
   Worker? _messageWatcher;
 
+  final SocketClient socketClient = SocketClient();
+
+
   @override
   void initState() {
     super.initState();
     _messageWatcher = ever<List<Message>>(chatController.messages, (_) {
       _scrollToBottom();
+    });
+    _setupSocketListeners();
+    _joinChatRoom();
+
+  }
+
+
+    void _joinChatRoom() {
+    final driverId = widget.incomingRideRequest?.receiverId; // your logged-in driver id
+    final customerId = widget.incomingRideRequest?.senderId; // adjust field name
+
+    if (driverId == null || customerId == null) return;
+
+    // Save participants in controller (for sendMessage)
+    chatController.setParticipants(
+      senderId: driverId,
+      receiverId: customerId,
+    );
+
+    socketClient.emit('join-chat', {
+      'senderId': driverId,
+      'receiverId': customerId,
+    });
+  }
+
+
+  void _setupSocketListeners() {
+    // when backend broadcasts messages
+    socketClient.on('receive-message', (data) {
+      // backend currently does: io.to(chatRoom).emit('receive-message', message);
+      // so `data` is just the text string
+      chatController.onIncomingMessage(data);
+    });
+
+    socketClient.on('user-typing', (data) {
+      chatController.isTyping.value = true;
+    });
+
+    socketClient.on('user-stop-typing', (data) {
+      chatController.isTyping.value = false;
     });
   }
 
@@ -54,20 +97,31 @@ class _ChatScreenRTHState extends State<ChatScreenRTH> {
     _messageWatcher?.dispose();
     messageController.dispose();
     scrollController.dispose();
+
+        // optional: leave chat
+    final p = chatController.participants;
+    if (p != null) {
+      socketClient.emit('leave-chat', {
+        'senderId': p.senderId,
+        'receiverId': p.receiverId,
+      });
+    }
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final contactName =
-        widget.receiverName ?? chatController.supportAgentName.value;
-    final contactPhone = widget.receiverPhone ?? '';
-    final contactRating = widget.receiverRating;
-    final contactAvatar = _avatarImageProvider(widget.receiverAvatar);
+        widget.incomingRideRequest?.customerName ?? chatController.supportAgentName.value;
+    final contactPhone = widget.incomingRideRequest?.customerPhone ?? '';
+    final contactRating = widget.incomingRideRequest?.customerRating;
+    final contactAvatar = _avatarImageProvider(widget.incomingRideRequest?.customerImage);
     final subtitleParts = <String>[
-      if (contactPhone.isNotEmpty) contactPhone,
+    
       if (contactRating != null)
         '${contactRating.toStringAsFixed(1)} rating',
+      if (contactPhone.isNotEmpty) contactPhone,
     ];
 
     return Scaffold(
@@ -161,9 +215,9 @@ class _ChatScreenRTHState extends State<ChatScreenRTH> {
                           ? appController.userName.value[0].toUpperCase()
                           : '',
                       receiverName:
-                          widget.receiverName ??
+                          widget.incomingRideRequest?.customerName ??
                           chatController.supportAgentName.value,
-                      receiverAvatar: widget.receiverAvatar,
+                      receiverAvatar: widget.incomingRideRequest?.customerImage,
                     );
                   },
                 ),

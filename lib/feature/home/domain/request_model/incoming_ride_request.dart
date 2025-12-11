@@ -11,6 +11,10 @@ class IncomingRideRequest {
   final String? customerImage;
   final double? customerRating;
 
+  // NEW:
+  final String? senderId;
+  final String? receiverId;
+
   IncomingRideRequest({
     required this.rideId,
     required this.pickupAddress,
@@ -21,6 +25,8 @@ class IncomingRideRequest {
     this.customerPhone,
     this.customerImage,
     this.customerRating,
+    this.senderId,
+    this.receiverId,
   });
 
   String get fareText =>
@@ -38,7 +44,8 @@ class IncomingRideRequest {
     } else if (raw is Map) {
       data = raw.map((key, value) => MapEntry(key.toString(), value));
     } else {
-      throw Exception('Unsupported ride_request payload type: ${raw.runtimeType}');
+      throw Exception(
+          'Unsupported ride_request payload type: ${raw.runtimeType}');
     }
 
     final pickup = data['pickup'] is Map
@@ -66,6 +73,10 @@ class IncomingRideRequest {
       customerRating: data['customerRating'] != null
           ? double.tryParse(data['customerRating'].toString())
           : null,
+
+      // NEW:
+      senderId: data['senderId']?.toString(),
+      receiverId: data['receiverId']?.toString(),
     );
   }
 }

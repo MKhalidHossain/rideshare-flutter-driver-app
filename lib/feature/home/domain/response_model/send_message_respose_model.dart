@@ -10,13 +10,13 @@ String sendMessageResposeModelToJson(SendMessageResposeModel data) =>
     json.encode(data.toJson());
 
 class SendMessageResposeModel {
-  final bool success;
-  final String message;
+  final bool ?success;
+  final String? message;
   final SendMessageData? data;
 
   SendMessageResposeModel({
-    required this.success,
-    required this.message,
+    this.success,
+    this.message,
     this.data,
   });
 

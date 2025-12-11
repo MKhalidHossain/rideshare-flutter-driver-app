@@ -322,8 +322,9 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
         appController.showSuccessSnackbar(message);
         Get.to(
           () => PickUpOfferDriverScreen(
-            rideRequest: rideToSend,
+            incomingRideRequest: rideToSend,
             acceptedRideData: acceptedData,
+            
           ),
         );
       } else {

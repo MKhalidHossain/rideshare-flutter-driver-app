@@ -19,11 +19,11 @@ import 'home_screen_driver.dart';
 class PickUpOfferDriverScreen extends StatefulWidget {
   const PickUpOfferDriverScreen({
     super.key,
-    this.rideRequest,
+    this.incomingRideRequest,
     this.acceptedRideData,
   });
 
-  final IncomingRideRequest? rideRequest;
+  final IncomingRideRequest? incomingRideRequest;
   final AcceptRideData? acceptedRideData;
   static const CameraPosition _initialPosition = CameraPosition(
     target: LatLng(
@@ -73,7 +73,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
       return pickupAddress;
     }
 
-    final ridePickup = widget.rideRequest?.pickupAddress;
+    final ridePickup = widget.incomingRideRequest?.pickupAddress;
     if (ridePickup != null && ridePickup.isNotEmpty) {
       return ridePickup;
     }
@@ -92,7 +92,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
       return destination;
     }
 
-    final rideDestination = widget.rideRequest?.dropoffAddress;
+    final rideDestination = widget.incomingRideRequest?.dropoffAddress;
     if (rideDestination != null && rideDestination.isNotEmpty) {
       return rideDestination;
     }
@@ -105,7 +105,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   }
 
   String get _fareText {
-    final fareFromRide = widget.rideRequest?.fareText;
+    final fareFromRide = widget.incomingRideRequest?.fareText;
     if (fareFromRide != null && fareFromRide.isNotEmpty) {
       return fareFromRide;
     }
@@ -113,7 +113,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   }
 
   String? get _distanceText {
-    final distanceFromRide = widget.rideRequest?.distanceText;
+    final distanceFromRide = widget.incomingRideRequest?.distanceText;
     if (distanceFromRide != null && distanceFromRide.isNotEmpty) {
       return distanceFromRide;
     }
@@ -125,41 +125,31 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
     return null;
   }
 
-  String get _riderName {
-    final name = widget.acceptedRideData?.customerInfo.userName;
+  String get _customerName {
+    final name = widget.incomingRideRequest?.customerName;
     if (name != null && name.isNotEmpty) {
       return name;
     }
-    final requestedName = widget.rideRequest?.customerName;
-    if (requestedName != null && requestedName.isNotEmpty) {
-      return requestedName;
-    }
-    return 'Rider';
+    return 'Customer Name';
   }
 
-  String get _riderPhone {
-    final phone = widget.acceptedRideData?.customerInfo.userPhone;
+  String get _customerPhone {
+    final phone = widget.incomingRideRequest?.customerPhone;
     if (phone != null && phone.isNotEmpty) {
       return phone;
     }
-    final requestPhone = widget.rideRequest?.customerPhone;
-    if (requestPhone != null && requestPhone.isNotEmpty) {
-      return requestPhone;
-    }
-    return '--';
+    return '000-000-0000';
   }
 
-  double get _riderRating {
-    final rating = widget.acceptedRideData?.customerInfo.userRating;
+  double get _customerRating {
+    final rating = widget.incomingRideRequest?.customerRating;
     if (rating != null && rating > 0) return rating;
-    final requestRating = widget.rideRequest?.customerRating;
-    if (requestRating != null && requestRating > 0) return requestRating;
-    return 4.9;
+    return 0.0;
   }
 
-  ImageProvider? get _riderAvatar {
-    final photo = widget.acceptedRideData?.customerInfo.userPhoto ??
-        widget.rideRequest?.customerImage;
+  ImageProvider? get _customerAvatar {
+    final photo = 
+        widget.incomingRideRequest?.customerImage;
     if (photo == null || photo.isEmpty) return null;
     if (photo.startsWith('http')) return NetworkImage(photo);
     return AssetImage(photo);
@@ -477,7 +467,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final hasRide =
-        widget.rideRequest != null || widget.acceptedRideData != null;
+        widget.incomingRideRequest != null || widget.acceptedRideData != null;
 
     return Scaffold(
       body: Obx(
@@ -635,8 +625,8 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                   CircleAvatar(
                     radius: collapsed ? 18 : 26,
                     backgroundColor: Colors.grey.shade400,
-                    backgroundImage: _riderAvatar,
-                    child: _riderAvatar == null
+                    backgroundImage: _customerAvatar,
+                    child: _customerAvatar == null
                         ? const Icon(Icons.person, color: Colors.black87)
                         : null,
                   ),
@@ -646,7 +636,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _riderName,
+                          _customerName,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: collapsed ? 14 : 16,
@@ -655,7 +645,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _riderPhone,
+                          _customerPhone,
                           style: const TextStyle(
                             color: Color(0xffB5B5B5),
                             fontSize: 12,
@@ -673,7 +663,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        _riderRating.toStringAsFixed(1),
+                        _customerRating.toStringAsFixed(1),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: collapsed ? 13 : 14,
@@ -791,7 +781,10 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                         icon: Icons.messenger_outline,
                         iconSize: 26,
                         onPressed: () {
-                          Get.to(ChatScreenRTH());
+                          Get.to(ChatScreenRTH(
+                            incomingRideRequest: widget.incomingRideRequest,
+                            acceptedRideData : widget.acceptedRideData,
+                          ));
                         },
                       ),
                     ),
