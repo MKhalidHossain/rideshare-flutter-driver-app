@@ -4,6 +4,7 @@ import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/wide_custom_button.dart';
 import '../controller/driver_profile_controller.dart';
+
 import 'driver_profile_edit_screen.dart';
 
 class DriverProfileInfoScreen extends StatelessWidget {
@@ -17,8 +18,11 @@ class DriverProfileInfoScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text(
+          //'${controller.email}',
           'Personal Information',
+
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -60,7 +64,7 @@ class DriverProfileInfoScreen extends StatelessWidget {
                                     height: 100,
                                     fit: BoxFit.cover,
                                   )
-                                : Image.asset(
+                                : Image.network(
                                     controller.profileImageUrl.value,
                                     width: 100,
                                     height: 100,
@@ -104,9 +108,9 @@ class DriverProfileInfoScreen extends StatelessWidget {
                   // Name - Updates in real-time
                   Obx(
                     () => Text(
-                      controller.fullName.value.isNotEmpty
+                      controller.fullName.value.isEmpty
                           ? controller.fullName.value
-                          : 'Alex Johnson',
+                          : '${controller.fullName}',
                       style: TextStyle(
                         color: AppColors.context(context).textColor,
                         fontSize: 16,

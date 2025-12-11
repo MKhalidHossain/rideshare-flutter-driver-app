@@ -1,6 +1,8 @@
 class Urls {
   // Base URL
-  static const String baseUrl = 'http://localhost:5000/api';
+  static const String baseUrl = 'https://ridetohealth-backend.onrender.com/api';
+  //static const String baseUrl = 'http://localhost:5005/api';
+ // static const String baseUrl = 'https://ridetohealth-backend.onrender.com';
   // static const String baseUrl = 'https://kobeur.onrender.com/api/v1';
 
   // ------------------------ Authentication ------------------------
@@ -13,9 +15,11 @@ class Urls {
   static const String resetPasswordWithOtp = '/auth/reset-password';
   static const String changePassword = '/auth/change-password';
   static const String logOut = '/auth/logout';
+  static const String driverProfile = "/driver/profile";
 
   // ------------------------ User Management ------------------------
   static const String getProfile = '/user/profile';
+
   static const String updateProfile = '/user/profile';
   static const String uploadProfileImage = '/user/profile/image';
   static const String updateLocation = '/user/location';
@@ -57,11 +61,22 @@ class Urls {
   static const String getEarnings = '/driver/earnings';
   static const String requestWithdrawal = '/driver/withdrawal';
   static const String getDriverReviews = '/driver/reviews';
+  static const String getVehiclesDetails = '/driver/get-vehicle';
+
+
+  static const String getReviews = '/driver/reviews?page=1&limit=10';
+
+
 
   // ------------------------ Service Management ------------------------
   static const String getAllServices = '/service';
   static const String getServiceById = '/service/'; // + {serviceId}
   static const String getNearbyVehicles = '/service/nearby/vehicles';
+
+
+
+
+
 
   // ------------------------ Payment Management ------------------------
   static const String addWalletBalance = '/payment/wallet/add-balance';

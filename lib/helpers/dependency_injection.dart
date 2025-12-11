@@ -34,6 +34,8 @@ Future<void> initDI() async {
   Get.lazyPut(() => AuthController(authServiceInterface: Get.find()));
   Get.lazyPut(() => AuthService(Get.find()));
 
+
+
   // //////////// Profile Service, Repository and Controller ////////////////////////////////
   // ///
   // ///

@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/urls.dart';
 import '../../../helpers/remote/data/api_client.dart';
 import '../../../utils/app_constants.dart';
+import '../../historyAndProfile/model/driver_profile_model.dart';
 import 'auth_repository_interface.dart';
 
 class AuthRepository implements AuthRepositoryInterface {
@@ -12,6 +15,10 @@ class AuthRepository implements AuthRepositoryInterface {
   AuthRepository({required this.apiClient, required this.sharedPreferences});
 
   RxString _token = "".obs;
+  static const String driverProfile = "/api/driver/profile";
+
+
+
 
   @override
   Future accessAndRefreshToken(Pattern refreshToken) async {
@@ -143,6 +150,8 @@ class AuthRepository implements AuthRepositoryInterface {
     sharedPreferences.setBool('firstTimeInstall', true);
   }
 
+
+
   @override
   Future updateAccessAndRefreshToken() async {
     return await apiClient.postData(Urls.refreshAccessToken, {
@@ -164,4 +173,8 @@ class AuthRepository implements AuthRepositoryInterface {
       'type': type,
     });
   }
+
+
+
+
 }
