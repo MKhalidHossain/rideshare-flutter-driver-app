@@ -52,6 +52,11 @@ class HomeService implements HomeServiceInterface {
   }
 
   @override
+  Future<Response> getTripHistory() async{
+    return await historyAndProfileRepositoryInterface.getTripHistory();
+  }
+
+  @override
   Future<Response> sendMessage(SentMessageBody sentMessageBody) async{
     return await historyAndProfileRepositoryInterface.sendMessage(sentMessageBody);
   }

@@ -58,6 +58,11 @@ class HomeRepository
   }
 
   @override
+  Future<Response> getTripHistory() async{
+    return await apiClient.getData(Urls.getTripHistory);
+  }
+
+  @override
   Future<Response> sendMessage(SentMessageBody sentMessageBody) async{
     return await apiClient.postData(Urls.sendMessage, sentMessageBody.toJson());
   }

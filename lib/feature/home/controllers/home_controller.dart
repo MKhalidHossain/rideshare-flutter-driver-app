@@ -7,6 +7,7 @@ import 'package:ridetohealthdriver/feature/home/domain/response_model/cancel_rid
 import 'package:ridetohealthdriver/payment/domain/connect_stripe_account_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_all_services_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_nearby_vehicles_response_model.dart';
+import 'package:ridetohealthdriver/feature/home/domain/response_model/get_ride_history_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_service_by_id_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_vehicle_by_service_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/toggle_online_status_response_model.dart';
@@ -39,6 +40,9 @@ class HomeController extends GetxController {
 
   AcceptRideResponseModel acceptRideResponseModel = AcceptRideResponseModel();
   CancelRideResponseModel cancelRideResponseModel = CancelRideResponseModel();
+  GetTripHistoryResponseModel getTripHistoryResponseModel = GetTripHistoryResponseModel();
+  bool isTripHistoryLoading = false;
+  String? tripHistoryError;
 
   Future<void> getAllServices() async {
     try {
@@ -262,6 +266,38 @@ Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
       isDriverAvailable = previousAvailable;
     } finally {
       isTogglingStatus = false;
+      update();
+    }
+  }
+
+  Future<void> getTripHistory() async {
+    try {
+      isTripHistoryLoading = true;
+      tripHistoryError = null;
+      update();
+
+      final response = await homeServiceInterface.getTripHistory();
+      debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Response Body: ${response.body}");
+
+      final dynamic body = response.body;
+      final decoded = body is String ? jsonDecode(body) : body;
+
+      if (decoded is Map<String, dynamic>) {
+        getTripHistoryResponseModel = GetTripHistoryResponseModel.fromJson(decoded);
+      } else {
+        throw Exception('Invalid trip history response');
+      }
+
+      if (response.statusCode != 200 &&
+          !(getTripHistoryResponseModel.success ?? false)) {
+        tripHistoryError = 'Unable to fetch ride history';
+      }
+    } catch (e) {
+      tripHistoryError = e.toString();
+      debugPrint("⚠️ Error fetching HomeController : getTripHistory : $e\n");
+    } finally {
+      isTripHistoryLoading = false;
       update();
     }
   }
