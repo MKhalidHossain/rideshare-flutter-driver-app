@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
-
-class NotificationsController extends GetxController {
-  RxBool notificationsEnabled = true.obs;
-  RxString selectedAlert = ''.obs;
-}
+import 'package:ridetohealthdriver/feature/auth/domain/model/get_notification_response_model.dart';
+import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
+import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatefulWidget {
   @override
@@ -13,165 +11,166 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  final NotificationsController controller = Get.put(NotificationsController());
+  late final HomeController homeController;
+
+  @override
+  void initState() {
+    super.initState();
+    homeController = Get.find<HomeController>();
+    homeController.getNotifications();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(() {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    BackButton(color: Colors.white),
-                    Text(
-                      'Notifications',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+      backgroundColor: const Color(0xFF2E3442),
+      body: SafeArea(
+        child: GetBuilder<HomeController>(
+          builder: (controller) {
+            final notifications =
+                controller.getNotificationResponseModel.data?.notifications ??
+                [];
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      BackButton(color: Colors.white),
+                      const Text(
+                        'Notifications',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      const SizedBox(width: 50),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: Colors.white,
+                      backgroundColor: const Color(0xFF3A4252),
+                      onRefresh: controller.getNotifications,
+                      child: Builder(
+                        builder: (_) {
+                          if (controller.isNotificationsLoading) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            );
+                          }
+                          if (controller.notificationsError != null) {
+                            return ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                const SizedBox(height: 60),
+                                Center(
+                                  child: Text(
+                                    controller.notificationsError ??
+                                        'Something went wrong',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                          if (notifications.isEmpty) {
+                            return ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: const [
+                                SizedBox(height: 60),
+                                Center(
+                                  child: Text(
+                                    'No notifications yet',
+                                    style: TextStyle(color: Colors.white70),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                          return ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: notifications.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (_, index) {
+                              final item = notifications[index];
+                              return _NotificationTile(item: item);
+                            },
+                          );
+                        },
+                      ),
                     ),
-                    SizedBox(width: 50),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _buildToggleCard(controller),
-                SizedBox(height: 20),
-                if (controller.notificationsEnabled.value)
-                  _buildAlertsSection(controller),
-              ],
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
-  Widget _buildToggleCard(NotificationsController controller) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      height: 60,
-      decoration: BoxDecoration(
-        color: Colors.white10,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          "All Notifications".text16White500(),
-          Obx(
-            () => CustomNotificationSwitch(
-              value: controller.notificationsEnabled.value,
-              onChanged: (value) =>
-                  controller.notificationsEnabled.value = value,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlertsSection(NotificationsController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Alerts', style: TextStyle(color: Colors.white, fontSize: 18)),
-        SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(
-            color: Color(0xFF2D3A5C),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildAlertOption(
-                controller,
-                icon: Icons.phone_android,
-                label: 'Lock Screen',
-                value: 'lock',
+                  ),
+                ],
               ),
-              _buildAlertOption(
-                controller,
-                icon: Icons.email_outlined,
-                label: 'Email',
-                value: 'email',
-              ),
-            ],
-          ),
+            );
+          },
         ),
-      ],
-    );
-  }
-
-  Widget _buildAlertOption(
-    NotificationsController controller, {
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return GestureDetector(
-      onTap: () => controller.selectedAlert.value = value,
-      child: Obx(() {
-        final selected = controller.selectedAlert.value == value;
-        return Column(
-          children: [
-            CircleAvatar(
-              backgroundColor: selected ? Colors.blue[100] : Colors.transparent,
-              radius: 28,
-              child: Icon(
-                icon,
-                size: 32,
-                color: selected ? Colors.blue : Colors.white,
-              ),
-            ),
-            SizedBox(height: 6),
-            Row(
-              children: [
-                Radio<String>(
-                  value: value,
-                  groupValue: controller.selectedAlert.value,
-                  onChanged: (val) => controller.selectedAlert.value = val!,
-                  activeColor: Colors.white,
-                  fillColor: MaterialStateProperty.all(Colors.white),
-                ),
-                Text(label, style: TextStyle(color: Colors.white)),
-              ],
-            ),
-          ],
-        );
-      }),
+      ),
     );
   }
 }
 
-class CustomNotificationSwitch extends StatelessWidget {
-  final bool value;
-  final ValueChanged<bool> onChanged;
+class _NotificationTile extends StatelessWidget {
+  final NotificationItem item;
 
-  const CustomNotificationSwitch({
-    super.key,
-    required this.value,
-    required this.onChanged,
-  });
+  const _NotificationTile({required this.item});
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return '';
+    return DateFormat('MMM d, h:mm a').format(date);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Switch(
-      value: value,
-      onChanged: onChanged,
-      activeColor: Colors.red,
-      activeTrackColor: Colors.white,
-      inactiveThumbColor: Colors.red,
-      inactiveTrackColor: Colors.black,
-
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF3A4252),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const CircleAvatar(
+            radius: 20,
+            backgroundColor: Color(0xFFB10706),
+            child: Icon(Icons.notifications, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title ?? 'Notification',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item.message ?? '',
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _formatDate(item.createdAt),
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

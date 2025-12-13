@@ -12,6 +12,7 @@ import 'package:ridetohealthdriver/feature/home/domain/response_model/get_servic
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_vehicle_by_service_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/toggle_online_status_response_model.dart';
 import 'package:ridetohealthdriver/feature/earning/domain/get_earnings_response_model.dart';
+import 'package:ridetohealthdriver/feature/auth/domain/model/get_notification_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/services/home_service_interface.dart';
 
 import '../domain/response_model/update_driver_location_respones_model.dart';
@@ -47,6 +48,9 @@ class HomeController extends GetxController {
   GetEarningsResponseModel getEarningsResponseModel = GetEarningsResponseModel();
   bool isEarningsLoading = false;
   String? earningsError;
+  GetNotificationResponseModel getNotificationResponseModel = GetNotificationResponseModel();
+  bool isNotificationsLoading = false;
+  String? notificationsError;
 
   Future<void> getAllServices() async {
     try {
@@ -333,6 +337,37 @@ Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
       debugPrint("⚠️ Error fetching HomeController : getEarnings : $e\n");
     } finally {
       isEarningsLoading = false;
+      update();
+    }
+  }
+
+  Future<void> getNotifications() async {
+    try {
+      isNotificationsLoading = true;
+      notificationsError = null;
+      update();
+
+      final response = await homeServiceInterface.getNotifications();
+      debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Response Body: ${response.body}");
+
+      final dynamic body = response.body;
+      final decoded = body is String ? jsonDecode(body) : body;
+
+      if (decoded is Map<String, dynamic>) {
+        getNotificationResponseModel = GetNotificationResponseModel.fromJson(decoded);
+      } else {
+        throw Exception('Invalid notifications response');
+      }
+
+      if (response.statusCode != 200 && !(getNotificationResponseModel.success ?? false)) {
+        notificationsError = 'Unable to fetch notifications';
+      }
+    } catch (e) {
+      notificationsError = e.toString();
+      debugPrint("⚠️ Error fetching notifications : $e\n");
+    } finally {
+      isNotificationsLoading = false;
       update();
     }
   }

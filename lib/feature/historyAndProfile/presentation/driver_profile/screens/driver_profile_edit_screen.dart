@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/wide_custom_button.dart';
+import '../../../model/driver_profile_model.dart';
+import '../../../model/update_profile_request_model.dart';
 import '../controller/driver_profile_controller.dart';
 
 class DriverProfileEditScreen extends StatelessWidget {
@@ -296,23 +298,26 @@ class DriverProfileEditScreen extends StatelessWidget {
                           onPressed: controller.isLoading.value
                               ? () {}
                               : () {
-                                  //controller.updateDriverProfile();
                                   controller.updateDriverProfile(
-                                    fullName:
-                                        controller.fullNameController.text,
-                                    phone: controller.phoneController.text,
-                                    streetAddress:
-                                        controller.streetAddressController.text,
-                                    city: controller.cityController.text,
-                                    state: controller.stateController.text,
-                                    zipcode: controller.zipCodeController.text,
-                                    dateOfBirth:
-                                        controller.dateOfBirthController.text,
-                                    emergencyName:
-                                        controller.emergencyNameController.text,
-                                    emergencyPhone: controller
-                                        .emergencyPhoneController
-                                        .text,
+                                    UpdateProfileRequestModel(
+                                      fullName:
+                                          controller.fullNameController.text,
+                                      phoneNumber:
+                                          controller.phoneController.text,
+                                      streetAddress: controller
+                                          .streetAddressController.text,
+                                      city: controller.cityController.text,
+                                      state: controller.stateController.text,
+                                      zipcode: controller.zipCodeController.text,
+                                      dateOfBirth:
+                                          controller.dateOfBirthController.text,
+                                      emergencyContact: EmergencyContact(
+                                        name: controller
+                                            .emergencyNameController.text,
+                                        phoneNumber: controller
+                                            .emergencyPhoneController.text,
+                                      ),
+                                    ),
                                   );
                                 },
                         ),

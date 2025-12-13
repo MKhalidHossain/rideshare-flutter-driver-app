@@ -28,94 +28,7 @@ class RatingsReviewsScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      /* body: Obx((){
-        final reviewData = reviewController.reviewData.value;
-        return       SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Overall Rating Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    // Overall Rating
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 32),
-                        const SizedBox(width: 8),
-                        Text(
-                          '4.9',
-                          style: TextStyle(
-                            color: AppColors.context(context).textColor,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${reviewData?.pagination.totalReviews} Rating',
-                      style: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
 
-                    // Rating Breakdown
-                    // _buildRatingBar('5 stars', reviewData!.starPercentages.fiveStar.toInt(), 843),
-                    // _buildRatingBar('4 stars', reviewData.starPercentages.fourStar.toInt(), 843),
-                    // _buildRatingBar('3 stars', reviewData.starPercentages.threeStar.toInt(), 843),
-                    // _buildRatingBar('2 stars', reviewData.starPercentages.twoStar.toInt(), 843),
-                    // _buildRatingBar('1 stars',reviewData.starPercentages.oneStar.toInt(), 843),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Reviews List
-
-
-              Container(
-                height: double.maxFinite,
-                child:
-                reviewData?.reviews.isEmpty?
-                    Text("no data"):
-                ListView.builder(
-                   itemCount: reviewData?.reviews.length,
-
-                    itemBuilder: (_,index){
-
-                      final review = reviewData!.reviews[index];
-                      return  _buildReviewCard(
-                   // '${reviewData?.reviews.first.customer.fullName}',
-                        '${review.customer.name==null?'Unknown':review.customer.name}',
-                    '${review.ratedAt?.day}',
-                    review.rating.toInt(),
-                    '${review.comment == null||review.comment!.isEmpty?'No Commit':review.comment}',
-                  );
-
-                }),
-              ),
-
-
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-
-      })
-*/
       body: Obx(() {
         final isLoading = reviewController.isLoading.value;
         final reviewData = reviewController.reviewData.value;
@@ -133,12 +46,12 @@ class RatingsReviewsScreen extends StatelessWidget {
           );
         }
 
-        // 🔥 3. No Data State
-        if (reviewData == null || reviewData.reviews.isEmpty) {
-          return const Center(
-            child: Text("No Data Found", style: TextStyle(color: Colors.white)),
-          );
-        }
+        // // 🔥 3. No Data State
+        // if ( reviewData!.reviews.isEmpty) {
+        //   return const Center(
+        //     child: Text("No Data Found", style: TextStyle(color: Colors.white)),
+        //   );
+        // }
 
         // 🔥 4. Data Found → Show UI
         return SingleChildScrollView(
@@ -161,7 +74,7 @@ class RatingsReviewsScreen extends StatelessWidget {
                         const Icon(Icons.star, color: Colors.amber, size: 32),
                         const SizedBox(width: 8),
                         Text(
-                          '${reviewData.averageRating ?? 0.0}',
+                          '${reviewData!.averageRating ?? 0.0}',
                           style: TextStyle(
                             color: AppColors.context(context).textColor,
                             fontSize: 32,
@@ -173,7 +86,7 @@ class RatingsReviewsScreen extends StatelessWidget {
 
                     const SizedBox(height: 8),
                     Text(
-                      '${reviewData.pagination.totalReviews} Rating',
+                      '${reviewData!.pagination.totalReviews} Rating',
                       style: TextStyle(color: Colors.grey[400]),
                     ),
                     // Rating Breakdown

@@ -18,6 +18,7 @@ abstract class HomeRepositoryInterface {
 
   Future<Response> getTripHistory();
   Future<Response> getEarnings();
+  Future<Response> getNotifications();
 //messsage
   Future<Response> sendMessage(SentMessageBody sentMessageBody);
 }

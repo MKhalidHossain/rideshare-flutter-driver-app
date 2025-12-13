@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
+import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/driver_profile/controller/driver_profile_controller.dart';
+import 'package:ridetohealthdriver/feature/auth/presentation/screens/account_security_screen.dart';
+import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/screens/notifications_screen.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../app/screens/rating_review_screen.dart';
 import '../driver_profile/screens/driver_profile_info_screen.dart';
 import '../vehicle_profile/screens/vehicle_details_screen.dart';
-import 'edit_profile_screen.dart';
-import 'notifications_screen.dart';
-import 'terms_and_condition.dart';
-import 'wallet_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -19,6 +18,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   AuthController authController = Get.find<AuthController>();
+  final driverProfileController = Get.put(DriverProfileController());
   // @override
   // void initState() {
   //   //Get.find<ProfileController>().getUserById();
@@ -55,49 +55,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          width: 80,
-                          padding: const EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [
-                                Color(0xffCE0000).withOpacity(0.8),
-                                // Color(0xFFCE0000),
-                                Color(0xff7B0100).withOpacity(0.8),
-                              ],
+                        Obx(() {
+                          final profile = driverProfileController
+                              .driverProfile
+                              .value
+                              ?.profileData;
+                          final imageUrl = profile?.profileImage;
+                          return Container(
+                            width: 80,
+                            height: 80,
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0xffCE0000).withOpacity(0.8),
+                                  Color(0xff7B0100).withOpacity(0.8),
+                                ],
+                              ),
                             ),
-                          ),
-                          child: ClipOval(
-                            child:
-                                Image.asset('assets/images/user5.png') ??
-                                Image.network(
-                                  '',
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Center(
-                                      child: Icon(
-                                        Icons.person_outline,
-                                        size: 30,
-                                        color: Colors.grey,
-                                      ),
-                                    );
-                                  },
-                                ),
-                          ),
-                        ),
+                            child: ClipOval(
+                              child: imageUrl != null && imageUrl.isNotEmpty
+                                  ? Image.network(
+                                      imageUrl,
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return const Center(
+                                              child: Icon(
+                                                Icons.person_outline,
+                                                size: 30,
+                                                color: Colors.grey,
+                                              ),
+                                            );
+                                          },
+                                    )
+                                  : Image.asset(
+                                      'assets/images/user5.png',
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          );
+                        }),
                         SizedBox(width: 12),
 
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            'John Doe'.text22White(),
+                            Obx(
+                              () =>
+                                  (driverProfileController
+                                              .fullName
+                                              .value
+                                              .isNotEmpty
+                                          ? driverProfileController
+                                                .fullName
+                                                .value
+                                          : 'Unknown')
+                                      .text22White(),
+                            ),
                             SizedBox(height: 4),
-                            'driver@gmail.com'.text14White(),
-                            '(555) 123-4567'.text14White(),
+                            Obx(
+                              () =>
+                                  (driverProfileController
+                                              .email
+                                              .value
+                                              .isNotEmpty
+                                          ? driverProfileController.email.value
+                                          : '')
+                                      .text14White(),
+                            ),
+                            Obx(
+                              () =>
+                                  (driverProfileController
+                                              .phone
+                                              .value
+                                              .isNotEmpty
+                                          ? driverProfileController.phone.value
+                                          : '')
+                                      .text14White(),
+                            ),
                             SizedBox(height: 4),
                           ],
                         ),
@@ -194,6 +236,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     _divider(),
                     _buildMenuItem(
+                      Icons.shield_outlined,
+                      "Account Security",
+                      "Change password & devices",
+                      onTap: () {
+                        Get.to(() => const AccountSecurityScreen());
+                      },
+                    ),
+                    _divider(),
+                    _buildMenuItem(
                       Icons.notifications_outlined,
                       "Manage Notifications",
                       "Customize alerts",
@@ -279,8 +330,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                       ),
                                       onPressed: () async {
-                                        await Get.find<AuthController>().logOut();
-
+                                        await Get.find<AuthController>()
+                                            .logOut();
                                       },
                                       child: Text(
                                         "Yes",

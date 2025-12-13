@@ -63,6 +63,11 @@ class HomeRepository
   }
 
   @override
+  Future<Response> getNotifications() async{
+    return await apiClient.getData(Urls.getNotifications);
+  }
+
+  @override
   Future<Response> getEarnings() async{
     return await apiClient.getData(Urls.getEarnings);
   }

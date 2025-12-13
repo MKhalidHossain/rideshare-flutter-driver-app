@@ -3,16 +3,19 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../../core/constants/urls.dart';
 import '../../../../../utils/app_constants.dart';
+import '../../../../../helpers/remote/data/api_client.dart';
 import '../../../model/driver_profile_model.dart';
+import '../../../model/update_profile_request_model.dart';
+import '../../../model/update_profile_response_model.dart';
 import '../screens/driver_profile_info_screen.dart';
 
 class DriverProfileController extends GetxController {
+  final ApiClient apiClient = Get.find<ApiClient>();
   // ------------------------- FORM & CONTROLLERS -------------------------
   final formKey = GlobalKey<FormState>();
 
@@ -69,7 +72,6 @@ class DriverProfileController extends GetxController {
 
   // ------------------------- GET PROFILE -------------------------
   Future<void> getDriverProfile() async {
-    const String url = Urls.baseUrl + Urls.getDriverProfile;
     isLoading.value = true;
 
     try {
@@ -81,30 +83,26 @@ class DriverProfileController extends GetxController {
         return;
       }
 
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+      apiClient.updateHeader(token);
+      final response = await apiClient.getData(Urls.getDriverProfile);
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        driverProfile.value = DriverProfileResponse.fromJson(data);
+        final dynamic body = response.body;
+        final decoded = body is String ? json.decode(body) : body;
+        driverProfile.value = DriverProfileResponse.fromJson(decoded);
 
         final profile = driverProfile.value?.profileData;
 
         print("======== PROFILE  RESPONSE: $profile");
         if (profile != null) {
           // SET VARIABLES + TEXT CONTROLLERS
-          fullName.value = profile.fullName;
-          fullNameController.text = profile.fullName;
+          fullName.value = profile.fullName ?? '';
+          fullNameController.text = profile.fullName ?? '';
 
-          email.value = profile.email;
+          email.value = profile.email ?? '';
 
-          phone.value = profile.phoneNumber;
-          phoneController.text = profile.phoneNumber;
+          phone.value = profile.phoneNumber ?? '';
+          phoneController.text = profile.phoneNumber ?? '';
 
           dateOfBirth.value = profile.dateOfBirth ?? '';
           dateOfBirthController.text = profile.dateOfBirth ?? '';
@@ -189,18 +187,7 @@ class DriverProfileController extends GetxController {
     }
   }
 
-  Future<void> updateDriverProfile({
-    required String fullName,
-    required String phone,
-    required String streetAddress,
-    required String city,
-    required String state,
-    required String zipcode,
-    required String dateOfBirth,
-    required String emergencyName,
-    required String emergencyPhone,
-  }) async {
-    const String url = Urls.baseUrl + Urls.updateDriverProfile;
+  Future<void> updateDriverProfile(UpdateProfileRequestModel requestModel) async {
     isLoading.value = true;
 
     try {
@@ -212,48 +199,36 @@ class DriverProfileController extends GetxController {
         return;
       }
 
-      var request = http.MultipartRequest('PUT', Uri.parse(url));
-      request.headers['Authorization'] = 'Bearer $token';
+      apiClient.updateHeader(token);
 
-      request.fields['full_name'] = fullName;
-      request.fields['phone_number'] = phone;
-      request.fields['street_address'] = streetAddress;
-      request.fields['city'] = city;
-      request.fields['state'] = state;
-      request.fields['zipcode'] = zipcode;
-      request.fields['date_of_birth'] = dateOfBirth;
-      request.fields['emergency_contact_name'] = emergencyName;
-      request.fields['emergency_contact_phone'] = emergencyPhone;
+      final body = requestModel.toJson()..removeWhere((key, value) => value == null);
+      final response = await apiClient.putData(Urls.updateDriverProfile, body);
 
-      if (profileImage.value != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'profile_image',
-            profileImage.value!.path,
-          ),
-        );
-      }
+      if (response.statusCode == 200 && (response.body != null)) {
+        final decoded =
+            response.body is String ? json.decode(response.body) : response.body;
+        final parsed = decoded is Map<String, dynamic>
+            ? UpdateProfileResponseModel.fromJson(decoded)
+            : null;
 
-      print("========= SENDING PROFILE UPDATE REQUEST =========");
-
-      final streamedResponse = await request.send();
-      final responseBody = await streamedResponse.stream.bytesToString();
-
-      print("========= UPDATE RESPONSE =========");
-      print("Status Code: ${streamedResponse.statusCode}");
-      print("Body: $responseBody");
-
-      if (streamedResponse.statusCode == 200) {
-        print(
-          "--------------------------------------*********---------------Profile updated successfully!",
-        );
+        if (parsed?.data != null) {
+          driverProfile.value = DriverProfileResponse(
+            success: parsed?.success,
+            profileData: ProfileData.fromJson(parsed!.data!.toJson()),
+            driverData: driverProfile.value?.driverData,
+          );
+        }
         await getDriverProfile();
-        Get.snackbar(
-          "Success",
-          "Profile updated successfully",
-          backgroundColor: Colors.green,
-        );
-        Get.to(() => DriverProfileInfoScreen());
+        final ctx = Get.context;
+        if (ctx != null) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(
+              content: Text(parsed?.message ?? 'Profile updated successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        Get.off(() => const DriverProfileInfoScreen());
       } else {
         print("Failed to update profile");
       }

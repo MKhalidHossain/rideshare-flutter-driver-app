@@ -13,6 +13,7 @@ class RideHistoryPage extends StatefulWidget {
 
 class _RideHistoryPageState extends State<RideHistoryPage> {
   late final HomeController _homeController;
+  String _selectedFilter = 'all';
 
   @override
   void initState() {
@@ -111,6 +112,7 @@ class _RideHistoryPageState extends State<RideHistoryPage> {
         child: GetBuilder<HomeController>(
           builder: (controller) {
             final rides = controller.getTripHistoryResponseModel.data?.rides ?? [];
+            final filteredRides = _filterRides(rides);
             return Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -128,11 +130,23 @@ class _RideHistoryPageState extends State<RideHistoryPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      filterButton("All Rides", selected: true),
+                      filterButton(
+                        "All Rides",
+                        selected: _selectedFilter == 'all',
+                        onTap: () => setState(() => _selectedFilter = 'all'),
+                      ),
                       const SizedBox(width: 18),
-                      filterButton("Completed"),
+                      filterButton(
+                        "Completed",
+                        selected: _selectedFilter == 'completed',
+                        onTap: () => setState(() => _selectedFilter = 'completed'),
+                      ),
                       const SizedBox(width: 18),
-                      filterButton("Cancelled"),
+                      filterButton(
+                        "Cancelled",
+                        selected: _selectedFilter == 'cancelled',
+                        onTap: () => setState(() => _selectedFilter = 'cancelled'),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -175,9 +189,9 @@ class _RideHistoryPageState extends State<RideHistoryPage> {
                           onRefresh: controller.getTripHistory,
                           child: ListView.separated(
                             physics: const AlwaysScrollableScrollPhysics(),
-                            itemCount: rides.length,
+                            itemCount: filteredRides.length,
                             separatorBuilder: (_, __) => const SizedBox(height: 12),
-                            itemBuilder: (_, index) => _buildRideCard(rides[index]),
+                            itemBuilder: (_, index) => _buildRideCard(filteredRides[index]),
                           ),
                         );
                       },
@@ -192,23 +206,46 @@ class _RideHistoryPageState extends State<RideHistoryPage> {
     );
   }
 
-  Widget filterButton(String title, {bool selected = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: selected ? const Color(0xFF840B0E) : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade500),
-      ),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14,
-          color: selected ? Colors.white : Colors.grey[300],
-          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+  Widget filterButton(
+    String title, {
+    bool selected = false,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF840B0E) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade500),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            color: selected ? Colors.white : Colors.grey[300],
+            fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+          ),
         ),
       ),
     );
+  }
+
+  List<Rides> _filterRides(List<Rides> rides) {
+    switch (_selectedFilter) {
+      case 'completed':
+        return rides
+            .where((r) => (r.status ?? '').toLowerCase() == 'completed')
+            .toList();
+      case 'cancelled':
+        return rides
+            .where((r) => (r.status ?? '').toLowerCase() == 'cancelled')
+            .toList();
+      case 'all':
+      default:
+        return rides;
+    }
   }
 }
 

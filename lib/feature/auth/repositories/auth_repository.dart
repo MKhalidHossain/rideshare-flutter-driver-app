@@ -30,8 +30,20 @@ class AuthRepository implements AuthRepositoryInterface {
   Future changePassword(String currentPassword, String newPassword) async {
     return await apiClient.postData(Urls.changePassword, {
       'currentPassword': currentPassword,
+      'oldPassword': currentPassword,
       'newPassword': newPassword,
+      'confirmPassword': newPassword,
     });
+  }
+
+  @override
+  Future getLoginHistory() async {
+    return await apiClient.getData(Urls.getLoginHistory);
+  }
+
+  @override
+  Future logoutAllDevices() async {
+    return await apiClient.postData(Urls.logoutAllDevices, {});
   }
 
   @override
