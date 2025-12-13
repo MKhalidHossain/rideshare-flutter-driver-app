@@ -17,7 +17,7 @@ class DriverProfileEditScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -65,7 +65,7 @@ class DriverProfileEditScreen extends StatelessWidget {
                                       height: 100,
                                       fit: BoxFit.cover,
                                     )
-                                  : Image.asset(
+                                  : Image.network(
                                       controller.profileImageUrl.value,
                                       width: 100,
                                       height: 100,
@@ -112,7 +112,7 @@ class DriverProfileEditScreen extends StatelessWidget {
                       () => Text(
                         controller.fullName.value.isNotEmpty
                             ? controller.fullName.value
-                            : 'Alex Johnson',
+                            : '',
                         style: TextStyle(
                           color: AppColors.context(context).textColor,
                           fontSize: 16,
@@ -140,9 +140,11 @@ class DriverProfileEditScreen extends StatelessWidget {
                 // Contact Information Section
                 _buildSectionTitle('Contact Information'),
                 const SizedBox(height: 16),
+                
 
                 _buildCustomTextField(
                   title: 'Full Name',
+                  
                   controller: controller.fullNameController,
                   focusNode: controller.fullNameFocus,
                   nextFocusNode: controller.phoneFocus,
@@ -294,7 +296,24 @@ class DriverProfileEditScreen extends StatelessWidget {
                           onPressed: controller.isLoading.value
                               ? () {}
                               : () {
-                                  controller.saveProfile();
+                                  //controller.updateDriverProfile();
+                                  controller.updateDriverProfile(
+                                    fullName:
+                                        controller.fullNameController.text,
+                                    phone: controller.phoneController.text,
+                                    streetAddress:
+                                        controller.streetAddressController.text,
+                                    city: controller.cityController.text,
+                                    state: controller.stateController.text,
+                                    zipcode: controller.zipCodeController.text,
+                                    dateOfBirth:
+                                        controller.dateOfBirthController.text,
+                                    emergencyName:
+                                        controller.emergencyNameController.text,
+                                    emergencyPhone: controller
+                                        .emergencyPhoneController
+                                        .text,
+                                  );
                                 },
                         ),
                       ),
@@ -324,6 +343,88 @@ class DriverProfileEditScreen extends StatelessWidget {
       ),
     );
   }
+
+  /*   Widget _buildCustomTextField({
+    required String title,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required FocusNode? nextFocusNode,
+    TextInputType keyboardType = TextInputType.text,
+    required String? Function(String?) validator,
+    bool obscureText = false,
+    Widget? suffixIcon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          
+          controller: controller,
+          focusNode: focusNode,
+          keyboardType: keyboardType,
+          validator: validator,
+          obscureText: obscureText,
+          textInputAction: nextFocusNode != null
+              ? TextInputAction.next
+              : TextInputAction.done,
+          onFieldSubmitted: (_) {
+            if (nextFocusNode != null) {
+              FocusScope.of(Get.context!).requestFocus(nextFocusNode);
+            } else {
+              FocusScope.of(Get.context!).unfocus();
+            }
+          },
+          cursorColor: Colors.grey,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+          ),
+          decoration: InputDecoration(
+            suffixIcon: suffixIcon,
+            hintText: title,
+            hintStyle: const TextStyle(color: Colors.grey),
+            filled: true,
+            fillColor: Colors.grey.withOpacity(0.1),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFF626671),
+                width: 1.5,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFF626671),
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
+  } */
 
   Widget _buildCustomTextField({
     required String title,
@@ -358,6 +459,42 @@ class DriverProfileEditScreen extends StatelessWidget {
           textInputAction: nextFocusNode != null
               ? TextInputAction.next
               : TextInputAction.done,
+          onChanged: (value) {
+            // TextField value update Rx variable
+            switch (title) {
+              case 'Full Name':
+                Get.find<DriverProfileController>().fullName.value = value;
+                break;
+              case 'Phone Number':
+                // Emergency contact phone and main phone নাম একই, তাই একটু চেক করতে হবে
+                if (focusNode ==
+                    Get.find<DriverProfileController>().phoneFocus) {
+                  Get.find<DriverProfileController>().phone.value = value;
+                } else {
+                  Get.find<DriverProfileController>().emergencyPhone.value =
+                      value;
+                }
+                break;
+              case 'Street Address':
+                Get.find<DriverProfileController>().streetAddress.value = value;
+                break;
+              case 'City':
+                Get.find<DriverProfileController>().city.value = value;
+                break;
+              case 'State':
+                Get.find<DriverProfileController>().state.value = value;
+                break;
+              case 'Zip Code':
+                Get.find<DriverProfileController>().zipCode.value = value;
+                break;
+              case 'Date of Birth':
+                Get.find<DriverProfileController>().dateOfBirth.value = value;
+                break;
+              case 'Name': // Emergency Contact Name
+                Get.find<DriverProfileController>().emergencyName.value = value;
+                break;
+            }
+          },
           onFieldSubmitted: (_) {
             if (nextFocusNode != null) {
               FocusScope.of(Get.context!).requestFocus(nextFocusNode);

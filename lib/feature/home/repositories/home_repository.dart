@@ -63,6 +63,11 @@ class HomeRepository
   }
 
   @override
+  Future<Response> getEarnings() async{
+    return await apiClient.getData(Urls.getEarnings);
+  }
+
+  @override
   Future<Response> sendMessage(SentMessageBody sentMessageBody) async{
     return await apiClient.postData(Urls.sendMessage, sentMessageBody.toJson());
   }

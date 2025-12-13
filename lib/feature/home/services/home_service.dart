@@ -57,6 +57,11 @@ class HomeService implements HomeServiceInterface {
   }
 
   @override
+  Future<Response> getEarnings() async{
+    return await historyAndProfileRepositoryInterface.getEarnings();
+  }
+
+  @override
   Future<Response> sendMessage(SentMessageBody sentMessageBody) async{
     return await historyAndProfileRepositoryInterface.sendMessage(sentMessageBody);
   }

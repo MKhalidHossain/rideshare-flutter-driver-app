@@ -52,7 +52,21 @@ class _RideHistoryPageState extends State<RideHistoryPage> {
     return DateFormat('h:mm a').format(parsed);
   }
 
-  String _formatFare(int? fare) {
+  double? _fareForRide(Rides ride) {
+    final finalFare = ride.finalFare;
+    if (finalFare != null && finalFare > 0) {
+      return finalFare.toDouble();
+    }
+
+    final totalFare = ride.totalFare;
+    if (totalFare != null && totalFare > 0) {
+      return totalFare.toDouble();
+    }
+
+    return (finalFare ?? totalFare)?.toDouble();
+  }
+
+  String _formatFare(num? fare) {
     if (fare == null) return '--';
     return '\$${fare.toDouble().toStringAsFixed(2)}';
   }
@@ -63,7 +77,7 @@ class _RideHistoryPageState extends State<RideHistoryPage> {
       time: _formatTime(ride.createdAt),
       status: _statusLabel(ride.status),
       statusColor: _statusColor(ride.status),
-      price: _formatFare(ride.finalFare ?? ride.totalFare),
+      price: _formatFare(_fareForRide(ride)),
       pickup: ride.pickupLocation?.address ?? 'Pickup not available',
       dropoff: ride.dropoffLocation?.address ?? 'Dropoff not available',
     );

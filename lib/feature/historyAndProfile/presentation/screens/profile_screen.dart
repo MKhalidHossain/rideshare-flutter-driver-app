@@ -4,6 +4,9 @@ import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../app/screens/rating_review_screen.dart';
+import '../driver_profile/screens/driver_profile_info_screen.dart';
+import '../vehicle_profile/screens/vehicle_details_screen.dart';
 import 'edit_profile_screen.dart';
 import 'notifications_screen.dart';
 import 'terms_and_condition.dart';
@@ -48,50 +51,123 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Colors.white10,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: Column(
                   children: [
-                    Container(
-                      width: 80,
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [
-                            Color(0xffCE0000).withOpacity(0.8),
-                            // Color(0xFFCE0000),
-                            Color(0xff7B0100).withOpacity(0.8),
+                    Row(
+                      children: [
+                        Container(
+                          width: 80,
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                Color(0xffCE0000).withOpacity(0.8),
+                                // Color(0xFFCE0000),
+                                Color(0xff7B0100).withOpacity(0.8),
+                              ],
+                            ),
+                          ),
+                          child: ClipOval(
+                            child:
+                                Image.asset('assets/images/user5.png') ??
+                                Image.network(
+                                  '',
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                      child: Icon(
+                                        Icons.person_outline,
+                                        size: 30,
+                                        color: Colors.grey,
+                                      ),
+                                    );
+                                  },
+                                ),
+                          ),
+                        ),
+                        SizedBox(width: 12),
+
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            'John Doe'.text22White(),
+                            SizedBox(height: 4),
+                            'driver@gmail.com'.text14White(),
+                            '(555) 123-4567'.text14White(),
+                            SizedBox(height: 4),
                           ],
                         ),
-                      ),
-                      child: ClipOval(
-                        child:
-                            Image.asset('assets/images/user5.png') ??
-                            Image.network(
-                              '',
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
-                                  child: Icon(
-                                    Icons.person_outline,
-                                    size: 30,
-                                    color: Colors.grey,
-                                  ),
-                                );
-                              },
-                            ),
-                      ),
+
+                        SizedBox(height: 4),
+                        Spacer(),
+                      ],
                     ),
-                    SizedBox(width: 12),
-                    'John Doe'.text22White(),
-                    SizedBox(height: 4),
-                    Spacer(),
+
+                    Divider(color: Colors.white54, thickness: 0.5),
+                    Row(
+                      children: [
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.star, color: Colors.amber, size: 16),
+                                SizedBox(width: 6),
+                                '4.9'.text14White(),
+                              ],
+                            ),
+                            SizedBox(height: 4),
+                            'Rating'.text14White(),
+                          ],
+                        ),
+
+                        Spacer(),
+                        Column(
+                          children: [
+                            SizedBox(width: 6),
+                            '852'.text14White(),
+                            SizedBox(height: 4),
+                            'Riders'.text14White(),
+                          ],
+                        ),
+                        Spacer(),
+                        Column(
+                          children: [
+                            SizedBox(width: 6),
+                            '17 jan 2023'.text14White(),
+                            SizedBox(height: 4),
+                            'Member since'.text14White(),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
+
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+
+                child: Column(children: [Row(children: [
+                        
+                      ],
+                    )]),
+              ),
+            ),
+
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -100,19 +176,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     //SizedBox(height: 12),
                     _buildMenuItem(
                       Icons.person_outline,
-                      "Profile",
+                      "Profile Information",
                       "Customize your profile",
                       onTap: () {
-                        Get.to(() => EditProfile());
+                        Get.to(() => DriverProfileInfoScreen());
                       },
                     ),
                     _divider(),
                     _buildMenuItem(
                       Icons.wallet_outlined,
-                      "Wallet",
+                      "Vehicle Details",
                       "Term of services",
                       onTap: () {
-                        Get.to(() => WalletScreen());
+                        Get.to(() => VehicleDetailsScreen());
                       },
                     ),
 
@@ -128,10 +204,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _divider(),
                     _buildMenuItem(
                       Icons.help_outline,
-                      "Terms & Conditions",
-                      "Terms & Services",
+                      "Rating Review",
+                      "",
                       onTap: () {
-                        Get.to(TermsAndCondition());
+                        Get.to(RatingsReviewsScreen());
                       },
                     ),
                     _divider(),
@@ -203,8 +279,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                       ),
                                       onPressed: () async {
-                                        await Get.find<AuthController>()
-                                            .logOut();
+                                        await Get.find<AuthController>().logOut();
+
                                       },
                                       child: Text(
                                         "Yes",

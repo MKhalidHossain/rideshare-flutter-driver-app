@@ -17,6 +17,7 @@ abstract class HomeRepositoryInterface {
   Future<Response> cancelRide(String rideId);
 
   Future<Response> getTripHistory();
+  Future<Response> getEarnings();
 //messsage
   Future<Response> sendMessage(SentMessageBody sentMessageBody);
 }

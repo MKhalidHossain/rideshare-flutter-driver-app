@@ -21,6 +21,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
     super.initState();
     homeController = Get.find<HomeController>();
     homeController.getTripHistory();
+    homeController.getEarnings();
   }
 
   @override
@@ -108,26 +109,48 @@ class _EarningsScreenState extends State<EarningsScreen> {
   }
 
   Widget _buildEarningsSummaryCard() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF454A57),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Earnings Summary',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
+    return GetBuilder<HomeController>(
+      builder: (homeController) {
+        final earningsData = homeController.getEarningsResponseModel.data;
+        final summary = earningsData != null && earningsData.isNotEmpty ? earningsData.first : null;
+        final totalEarnings = (summary?.totalEstimatedFare ?? 0).toDouble();
+        final ridesCompleted = summary?.totalRides ?? 0;
+
+        Widget content;
+        if (homeController.isEarningsLoading) {
+          content = const Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          );
+        } else if (homeController.earningsError != null) {
+          content = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                homeController.earningsError ?? 'Unable to fetch earnings',
+                style: const TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: homeController.getEarnings,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF79262C),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+                child: const Text(
+                  'Retry',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else {
+          content = Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
@@ -138,36 +161,29 @@ class _EarningsScreenState extends State<EarningsScreen> {
                     style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                   const SizedBox(height: 4),
-                  Obx(
-                    () => Text(
-                      '\$${controller.todayEarnings.value.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  Text(
+                    '\$${totalEarnings.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Obx(
-                    () => Text(
-                      'Rides Completed\n${controller.ridesCompleted.value}',
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
+                  Text(
+                    'Rides Completed\n$ridesCompleted',
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],
               ),
               ElevatedButton(
-                onPressed: () => controller.withdrawEarnings(),
+                onPressed: () => controller.withdrawEarnings(totalEarnings),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF79262C),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    //vertical: 6,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                 ),
                 child: const Text(
                   'Withdraw',
@@ -178,9 +194,33 @@ class _EarningsScreenState extends State<EarningsScreen> {
                 ),
               ),
             ],
+          );
+        }
+
+        return Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFF454A57),
+            borderRadius: BorderRadius.circular(12),
           ),
-        ],
-      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Earnings Summary',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 16),
+              content,
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -363,7 +403,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
       if (parsed == null) continue;
 
       final key = DateFormat('yyyy-MM-dd').format(parsed.toUtc());
-      final fare = (ride.finalFare ?? ride.totalFare ?? 0).toDouble();
+      final fare = _fareForRide(ride) ?? 0;
 
       final existing = grouped[key];
       if (existing != null) {
@@ -384,6 +424,20 @@ class _EarningsScreenState extends State<EarningsScreen> {
       ..sort((a, b) => b.date.compareTo(a.date));
 
     return list;
+  }
+
+  double? _fareForRide(Rides ride) {
+    final finalFare = ride.finalFare;
+    if (finalFare != null && finalFare > 0) {
+      return finalFare.toDouble();
+    }
+
+    final totalFare = ride.totalFare;
+    if (totalFare != null && totalFare > 0) {
+      return totalFare.toDouble();
+    }
+
+    return (finalFare ?? totalFare)?.toDouble();
   }
 }
 

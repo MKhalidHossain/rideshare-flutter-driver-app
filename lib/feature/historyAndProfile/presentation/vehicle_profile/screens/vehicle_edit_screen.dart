@@ -71,7 +71,12 @@ class VehicleEditScreen extends StatelessWidget {
                                       fit: BoxFit.cover,
                                     )
                                   : Image.network(
-                                      controller.vehicleImageUrl.value,
+                                      controller
+                                              .vehicleData
+                                              .value
+                                              ?.service
+                                              .serviceImage ??
+                                          '',
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) {
@@ -219,6 +224,7 @@ class VehicleEditScreen extends StatelessWidget {
                       : null,
                 ),
 
+                /* 
                 _buildCustomTextField(
                   title: 'Expiry Date',
                   controller: controller.expiryDateController,
@@ -226,12 +232,11 @@ class VehicleEditScreen extends StatelessWidget {
                   nextFocusNode: null,
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.calendar_today, color: Colors.grey),
-                    onPressed: () => controller.selectDate(context),
+                   // onPressed: () => controller.selectDate(context),
                   ),
                   validator: (value) =>
                       value?.isEmpty == true ? 'Expiry date is required' : null,
-                ),
-
+                ), */
                 const SizedBox(height: 40),
 
                 // Action Buttons
