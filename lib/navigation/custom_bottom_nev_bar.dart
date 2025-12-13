@@ -29,7 +29,7 @@ class CustomBottomNavBar extends StatelessWidget {
             context,
 
             iconPathSelected: 'assets/icons/dollarIconRed.png',
-            iconPathUnselected: 'assets/icons/earningLight.png',
+            iconPathUnselected: 'assets/icons/dollar-2.png',
             label: 'Earning',
             index: 1,
           ),
