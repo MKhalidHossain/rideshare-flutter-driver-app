@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,7 +10,9 @@ import '../../../helpers/custom_snackbar.dart';
 import '../../../helpers/remote/data/api_checker.dart';
 import '../../../helpers/remote/data/api_client.dart';
 import '../../../helpers/remote/data/socket_client.dart';
+import '../domain/model/change_password_request_model.dart';
 import '../domain/model/change_password_response_model.dart';
+import '../domain/model/get_login_history_response_model.dart';
 import '../domain/model/login_user_response_model.dart';
 import '../domain/model/registration_user_response_model.dart';
 import '../domain/model/request_password_reset_response_model.dart';
@@ -19,6 +23,7 @@ import '../presentation/screens/user_login_screen.dart';
 import '../presentation/screens/user_signup_screen.dart';
 import '../presentation/screens/verify_otp_screen.dart';
 import '../sevices/auth_service_interface.dart';
+import '../../historyAndProfile/presentation/screens/profile_screen.dart';
 
 class AuthController extends GetxController implements GetxService {
   final AuthServiceInterface authServiceInterface;
@@ -199,6 +204,7 @@ void setRegistrationData({
   RegistrationResponseModel? registrationResponseModel;
   LogInResponseModel? logInResponseModel;
   ChangePasswordResponseModel? changePasswordResponseModel;
+  GetLoginHistoryResponseModel? getLoginHistoryResponseModel;
   RequestPasswordResetResponseModel? requestPasswordResetResponseModel;
   ResetPasswordWithOtpResponseModel? resetPasswordWithOtpResponseModel;
   VerifyOtpResponseModel? verifyOtpResponseModel;
@@ -680,26 +686,38 @@ void setRegistrationData({
     update();
   }
 
-  Future<void> changePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {
+  Future<void> changePassword(ChangePasswordRequestModel request) async {
     changePasswordIsLoading = true;
     update();
 
     try {
       Response? response = await authServiceInterface.changePassword(
-        currentPassword,
-        newPassword,
+        request.currentPassword,
+        request.newPassword,
       );
 
       print("Check the response data-> ${response}");
 
-      if (response!.statusCode == 200) {
-        showCustomSnackBar('Password Change Successfully');
-        // logOut();
-        Get.offAll(() => UserLoginScreen());
-      } else {
+      if (response != null && response.statusCode == 200) {
+        final body = response.body;
+        final success = body is Map<String, dynamic>
+            ? (body['success'] as bool?) ?? false
+            : false;
+        final message = body is Map<String, dynamic> ? body['message'] : null;
+
+        if (success) {
+          showCustomSnackBar(
+            message ?? 'Password changed successfully',
+            isError: false,
+          );
+          Get.offAll(() => ProfileScreen());
+        } else {
+          showCustomSnackBar(
+            message ?? 'Invalid credentials. Please check your current password.',
+            isError: true,
+          );
+        }
+      } else if (response != null) {
         ApiChecker.checkApi(response);
       }
     } catch (e) {
@@ -712,6 +730,65 @@ void setRegistrationData({
 
     changePasswordIsLoading = false;
     update();
+  }
+
+  /// Fetch login history
+  bool isLoginHistoryLoading = false;
+  String? loginHistoryError;
+
+  Future<void> fetchLoginHistory() async {
+    isLoginHistoryLoading = true;
+    loginHistoryError = null;
+    update();
+
+    try {
+      final response = await authServiceInterface.getLoginHistory();
+      if (response == null) {
+        loginHistoryError = 'Unable to fetch login history';
+        return;
+      }
+
+      final body = response.body;
+      final decoded = body is String ? jsonDecode(body) : body;
+      if (response.statusCode == 200 && decoded is Map<String, dynamic>) {
+        getLoginHistoryResponseModel =
+            GetLoginHistoryResponseModel.fromJson(decoded);
+        final list = getLoginHistoryResponseModel?.loginHistory ?? [];
+        if (list.isEmpty) {
+          loginHistoryError = 'No login history found';
+        }
+      } else {
+        loginHistoryError =
+            decoded is Map<String, dynamic> ? (decoded['message'] ?? 'Unable to fetch login history') : 'Unable to fetch login history';
+      }
+    } catch (e) {
+      loginHistoryError = e.toString();
+    } finally {
+      isLoginHistoryLoading = false;
+      update();
+    }
+  }
+
+  Future<void> logoutAllDevices() async {
+    try {
+      final response = await authServiceInterface.logoutAllDevices();
+      if (response != null && response.statusCode == 200) {
+        showCustomSnackBar(
+          response.body?['message'] ?? 'Logged out from all devices',
+          isError: false,
+        );
+      } else {
+        showCustomSnackBar(
+          response?.body?['message'] ?? 'Could not log out from all devices',
+          isError: true,
+        );
+      }
+    } catch (e) {
+      showCustomSnackBar(
+        'Could not log out from all devices',
+        isError: true,
+      );
+    }
   }
 
   bool updateFcm = false;

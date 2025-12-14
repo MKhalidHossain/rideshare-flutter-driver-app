@@ -1,80 +1,253 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
+import 'package:ridetohealthdriver/feature/home/domain/response_model/get_ride_history_response_model.dart';
 
-
-class RideHistoryPage extends StatelessWidget {
+class RideHistoryPage extends StatefulWidget {
   const RideHistoryPage({super.key});
+
+  @override
+  State<RideHistoryPage> createState() => _RideHistoryPageState();
+}
+
+class _RideHistoryPageState extends State<RideHistoryPage> {
+  late final HomeController _homeController;
+  String _selectedFilter = 'all';
+
+  @override
+  void initState() {
+    super.initState();
+    _homeController = Get.find<HomeController>();
+    _homeController.getTripHistory();
+  }
+
+  Color _statusColor(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+        return Colors.green;
+      case 'cancelled':
+        return const Color(0xFFD32F2F);
+      default:
+        return Colors.orangeAccent;
+    }
+  }
+
+  String _statusLabel(String? status) {
+    if (status == null || status.isEmpty) return 'Unknown';
+    final lower = status.toLowerCase();
+    return lower[0].toUpperCase() + lower.substring(1);
+  }
+
+  String _formatDate(String? date) {
+    if (date == null) return '--';
+    final parsed = DateTime.tryParse(date);
+    if (parsed == null) return '--';
+    return DateFormat('MMMM d, y').format(parsed);
+  }
+
+  String _formatTime(String? date) {
+    if (date == null) return '--';
+    final parsed = DateTime.tryParse(date);
+    if (parsed == null) return '--';
+    return DateFormat('h:mm a').format(parsed);
+  }
+
+  double? _fareForRide(Rides ride) {
+    final finalFare = ride.finalFare;
+    if (finalFare != null && finalFare > 0) {
+      return finalFare.toDouble();
+    }
+
+    final totalFare = ride.totalFare;
+    if (totalFare != null && totalFare > 0) {
+      return totalFare.toDouble();
+    }
+
+    return (finalFare ?? totalFare)?.toDouble();
+  }
+
+  String _formatFare(num? fare) {
+    if (fare == null) return '--';
+    return '\$${fare.toDouble().toStringAsFixed(2)}';
+  }
+
+  Widget _buildRideCard(Rides ride) {
+    return RideCard(
+      date: _formatDate(ride.createdAt),
+      time: _formatTime(ride.createdAt),
+      status: _statusLabel(ride.status),
+      statusColor: _statusColor(ride.status),
+      price: _formatFare(_fareForRide(ride)),
+      pickup: ride.pickupLocation?.address ?? 'Pickup not available',
+      dropoff: ride.dropoffLocation?.address ?? 'Dropoff not available',
+    );
+  }
+
+  Widget _buildError(HomeController controller) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            controller.tripHistoryError ?? 'Something went wrong',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white70),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: controller.getTripHistory,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF2C3141),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Ride History",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+        child: GetBuilder<HomeController>(
+          builder: (controller) {
+            final rides = controller.getTripHistoryResponseModel.data?.rides ?? [];
+            final filteredRides = _filterRides(rides);
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  filterButton("All Rides", selected: true),
-                  SizedBox(width: 18),
-                  filterButton("Completed"),
-                  SizedBox(width: 18),
-                  filterButton("Cancelled"),
+                  const Text(
+                    "Ride History",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      filterButton(
+                        "All Rides",
+                        selected: _selectedFilter == 'all',
+                        onTap: () => setState(() => _selectedFilter = 'all'),
+                      ),
+                      const SizedBox(width: 18),
+                      filterButton(
+                        "Completed",
+                        selected: _selectedFilter == 'completed',
+                        onTap: () => setState(() => _selectedFilter = 'completed'),
+                      ),
+                      const SizedBox(width: 18),
+                      filterButton(
+                        "Cancelled",
+                        selected: _selectedFilter == 'cancelled',
+                        onTap: () => setState(() => _selectedFilter = 'cancelled'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: Builder(
+                      builder: (_) {
+                        if (controller.isTripHistoryLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(color: Colors.white),
+                          );
+                        }
+
+                        if (controller.tripHistoryError != null) {
+                          return _buildError(controller);
+                        }
+
+                        if (rides.isEmpty) {
+                          return RefreshIndicator(
+                            color: Colors.white,
+                            backgroundColor: const Color(0xFF3C4356),
+                            onRefresh: controller.getTripHistory,
+                            child: ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: const [
+                                SizedBox(height: 80),
+                                Center(
+                                  child: Text(
+                                    'No rides found yet',
+                                    style: TextStyle(color: Colors.white70),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return RefreshIndicator(
+                          color: Colors.white,
+                          backgroundColor: const Color(0xFF3C4356),
+                          onRefresh: controller.getTripHistory,
+                          child: ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: filteredRides.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (_, index) => _buildRideCard(filteredRides[index]),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 40),
-              RideCard(
-                date: "June 27, 2025",
-                time: "2:30 PM",
-                status: "Completed",
-                statusColor: Colors.green,
-                price: "\$18.50",
-              ),
-              const SizedBox(height: 12),
-              RideCard(
-                date: "June 27, 2025",
-                time: "2:30 PM",
-                status: "Cancelled",
-                statusColor: Color(0xFFD32F2F),
-                price: "\$18.50",
-              ),
-            ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget filterButton(
+    String title, {
+    bool selected = false,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF840B0E) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade500),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            color: selected ? Colors.white : Colors.grey[300],
+            fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
       ),
     );
   }
 
-  Widget filterButton(String title, {bool selected = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: selected ? Color(0xFF840B0E) : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade500),
-      ),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14,
-          color: selected ? Colors.white : Colors.grey[300],
-          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-        ),
-      ),
-    );
+  List<Rides> _filterRides(List<Rides> rides) {
+    switch (_selectedFilter) {
+      case 'completed':
+        return rides
+            .where((r) => (r.status ?? '').toLowerCase() == 'completed')
+            .toList();
+      case 'cancelled':
+        return rides
+            .where((r) => (r.status ?? '').toLowerCase() == 'cancelled')
+            .toList();
+      case 'all':
+      default:
+        return rides;
+    }
   }
-} 
+}
 
 class RideCard extends StatelessWidget {
   final String date;
@@ -82,6 +255,8 @@ class RideCard extends StatelessWidget {
   final String status;
   final Color statusColor;
   final String price;
+  final String pickup;
+  final String dropoff;
 
   const RideCard({
     super.key,
@@ -90,6 +265,8 @@ class RideCard extends StatelessWidget {
     required this.status,
     required this.statusColor,
     required this.price,
+    required this.pickup,
+    required this.dropoff,
   });
 
   @override
@@ -141,8 +318,7 @@ class RideCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 20),
-          //const Divider(color: Colors.grey, height: 20),
+          const SizedBox(height: 20),
           Row(
             children: [
               Column(
@@ -156,23 +332,23 @@ class RideCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       "Pickup",
                       style: TextStyle(color: Colors.white),
                     ),
                     Text(
-                      "123 Main St, San Francisco, CA",
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      pickup,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
-                    SizedBox(height: 8),
-                    Text(
+                    const SizedBox(height: 8),
+                    const Text(
                       "Destination",
                       style: TextStyle(color: Colors.white),
                     ),
                     Text(
-                      "456 Market St, San Francisco, CA",
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      dropoff,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                 ),

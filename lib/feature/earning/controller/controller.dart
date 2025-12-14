@@ -14,10 +14,11 @@ class EarningsController extends GetxController {
   }
   
   // Method to withdraw earnings
-  void withdrawEarnings() {
+  void withdrawEarnings([double? amount]) {
+    final value = amount ?? todayEarnings.value;
     Get.snackbar(
       'Withdraw',
-      'Withdrawing \$${todayEarnings.value} to ${selectedPaymentMethod.value}',
+      'Withdrawing \$${value.toStringAsFixed(2)} to ${selectedPaymentMethod.value}',
       snackPosition: SnackPosition.BOTTOM,
     );
   }

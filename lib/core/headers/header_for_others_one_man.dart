@@ -5,7 +5,7 @@ import '../widgets/three_icon_image_for_header.dart';
 
 class HeaderForOthers extends StatelessWidget {
   final bool isShowSearch;
-  final String text;
+  final String? text;
   final String? image;
 
   const HeaderForOthers({super.key,  this.isShowSearch =true, required this.text, this.image});

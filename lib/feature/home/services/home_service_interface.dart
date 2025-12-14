@@ -15,6 +15,9 @@ abstract class HomeServiceInterface {
 // ride
   Future<Response> acceptRide(String rideId);
   Future<Response> cancelRide(String rideId);
+  Future<Response> getTripHistory();
+  Future<Response> getEarnings();
+  Future<Response> getNotifications();
 
 //messsage
   Future<Response> sendMessage(SentMessageBody sentMessageBody);

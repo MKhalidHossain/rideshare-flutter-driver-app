@@ -22,6 +22,16 @@ class AuthService implements AuthServiceInterface {
   }
 
   @override
+  Future getLoginHistory() async {
+    return await authRepositoryInterface.getLoginHistory();
+  }
+
+  @override
+  Future logoutAllDevices() async {
+    return await authRepositoryInterface.logoutAllDevices();
+  }
+
+  @override
   bool clearSharedAddress() {
     return authRepositoryInterface.clearSharedAddress();
   }

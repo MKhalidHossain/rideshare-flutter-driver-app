@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import '../utils/constants/app_colors.dart';
+
+import '../constants/app_colors.dart';
+
+
 
 class OutlinedTextFieldWidget extends StatefulWidget {
   final TextEditingController controller;
@@ -28,7 +31,7 @@ class OutlinedTextFieldWidget extends StatefulWidget {
 
 class _OutlinedTextFieldWidgetState extends State<OutlinedTextFieldWidget> {
   @override
-  bool _obscureText = false;
+  bool obscureText = false;
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +52,7 @@ class _OutlinedTextFieldWidgetState extends State<OutlinedTextFieldWidget> {
             controller: widget.controller,
             keyboardType: widget.textInputType,
             style: TextStyle(color: AppColors.context(context).textColor),
-            obscureText: _obscureText,
+            obscureText: obscureText,
             decoration: InputDecoration(
               // labelText: isLable && lebel != null ? lebel : null,
               contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
@@ -61,13 +64,13 @@ class _OutlinedTextFieldWidgetState extends State<OutlinedTextFieldWidget> {
                   widget.isObsecure
                       ? IconButton(
                         icon: Icon(
-                          _obscureText
+                          obscureText
                               ? Icons.visibility
                               : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscureText = !_obscureText;
+                            obscureText = !obscureText;
                           });
                         },
                       )

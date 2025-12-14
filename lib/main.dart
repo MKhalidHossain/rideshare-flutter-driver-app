@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/app.dart';
+import 'package:ridetohealthdriver/core/onboarding/presentation/screens/constantSpashScreen.dart';
+import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
-import 'core/onboarding/presentation/screens/constantSpashScreen.dart';
-import 'feature/auth/controllers/auth_controller.dart';
+
+
 import 'feature/map/bindings/initial_binding.dart';
 import 'helpers/dependency_injection.dart';
-// import 'package:ridetohealthdriver/feature/earning/presentation/screen/ride_history_screen.dart';
-
-// import 'app.dart';
-// import 'feature/earning/presentation/screen/earning_screen.dart';
-// import 'feature/identity/presentation/screens/verify_identity_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
+
   await initDI();
   // socket();
   runApp( MyApp());

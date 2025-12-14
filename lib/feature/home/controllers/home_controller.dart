@@ -8,9 +8,12 @@ import 'package:ridetohealthdriver/feature/home/domain/response_model/send_messa
 import 'package:ridetohealthdriver/payment/domain/connect_stripe_account_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_all_services_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_nearby_vehicles_response_model.dart';
+import 'package:ridetohealthdriver/feature/home/domain/response_model/get_ride_history_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_service_by_id_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/get_vehicle_by_service_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/domain/response_model/toggle_online_status_response_model.dart';
+import 'package:ridetohealthdriver/feature/earning/domain/get_earnings_response_model.dart';
+import 'package:ridetohealthdriver/feature/auth/domain/model/get_notification_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/services/home_service_interface.dart';
 
 import '../domain/request_model/sent_message_body.dart';
@@ -41,6 +44,15 @@ class HomeController extends GetxController {
 
   AcceptRideResponseModel acceptRideResponseModel = AcceptRideResponseModel();
   CancelRideResponseModel cancelRideResponseModel = CancelRideResponseModel();
+  GetTripHistoryResponseModel getTripHistoryResponseModel = GetTripHistoryResponseModel();
+  bool isTripHistoryLoading = false;
+  String? tripHistoryError;
+  GetEarningsResponseModel getEarningsResponseModel = GetEarningsResponseModel();
+  bool isEarningsLoading = false;
+  String? earningsError;
+  GetNotificationResponseModel getNotificationResponseModel = GetNotificationResponseModel();
+  bool isNotificationsLoading = false;
+  String? notificationsError;
 
   SendMessageResposeModel sendMessageResposeModel = SendMessageResposeModel();
 
@@ -266,6 +278,100 @@ Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
       isDriverAvailable = previousAvailable;
     } finally {
       isTogglingStatus = false;
+      update();
+    }
+  }
+
+  Future<void> getTripHistory() async {
+    try {
+      isTripHistoryLoading = true;
+      tripHistoryError = null;
+      update();
+
+      final response = await homeServiceInterface.getTripHistory();
+      debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Response Body: ${response.body}");
+
+      final dynamic body = response.body;
+      final decoded = body is String ? jsonDecode(body) : body;
+
+      if (decoded is Map<String, dynamic>) {
+        getTripHistoryResponseModel = GetTripHistoryResponseModel.fromJson(decoded);
+      } else {
+        throw Exception('Invalid trip history response');
+      }
+
+      if (response.statusCode != 200 &&
+          !(getTripHistoryResponseModel.success ?? false)) {
+        tripHistoryError = 'Unable to fetch ride history';
+      }
+    } catch (e) {
+      tripHistoryError = e.toString();
+      debugPrint("⚠️ Error fetching HomeController : getTripHistory : $e\n");
+    } finally {
+      isTripHistoryLoading = false;
+      update();
+    }
+  }
+
+  Future<void> getEarnings() async {
+    try {
+      isEarningsLoading = true;
+      earningsError = null;
+      update();
+
+      final response = await homeServiceInterface.getEarnings();
+      debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Response Body: ${response.body}");
+
+      final dynamic body = response.body;
+      final decoded = body is String ? jsonDecode(body) : body;
+
+      if (decoded is Map<String, dynamic>) {
+        getEarningsResponseModel = GetEarningsResponseModel.fromJson(decoded);
+      } else {
+        throw Exception('Invalid earnings response');
+      }
+
+      if (response.statusCode != 200 && !(getEarningsResponseModel.success ?? false)) {
+        earningsError = 'Unable to fetch earnings';
+      }
+    } catch (e) {
+      earningsError = e.toString();
+      debugPrint("⚠️ Error fetching HomeController : getEarnings : $e\n");
+    } finally {
+      isEarningsLoading = false;
+      update();
+    }
+  }
+
+  Future<void> getNotifications() async {
+    try {
+      isNotificationsLoading = true;
+      notificationsError = null;
+      update();
+
+      final response = await homeServiceInterface.getNotifications();
+      debugPrint(" Status Code: ${response.statusCode}");
+      debugPrint(" Response Body: ${response.body}");
+
+      final dynamic body = response.body;
+      final decoded = body is String ? jsonDecode(body) : body;
+
+      if (decoded is Map<String, dynamic>) {
+        getNotificationResponseModel = GetNotificationResponseModel.fromJson(decoded);
+      } else {
+        throw Exception('Invalid notifications response');
+      }
+
+      if (response.statusCode != 200 && !(getNotificationResponseModel.success ?? false)) {
+        notificationsError = 'Unable to fetch notifications';
+      }
+    } catch (e) {
+      notificationsError = e.toString();
+      debugPrint("⚠️ Error fetching notifications : $e\n");
+    } finally {
+      isNotificationsLoading = false;
       update();
     }
   }

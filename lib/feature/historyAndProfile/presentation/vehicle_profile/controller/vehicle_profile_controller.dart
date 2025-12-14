@@ -1,11 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../../core/constants/urls.dart';
+import '../../../../../utils/app_constants.dart';
+import '../model/vehicle_model.dart';
 
 class VehicleController extends GetxController {
   // Form key
   final formKey = GlobalKey<FormState>();
+  var vehicleData = Rxn<VehicleData>();
 
   // Controllers
   final makeController = TextEditingController();
@@ -34,112 +43,78 @@ class VehicleController extends GetxController {
   var vehicleImage = Rx<File?>(null);
   var vehicleImageUrl = '/placeholder.svg?height=150&width=300'.obs;
 
-  // Reactive text values
-  var make = 'Toyota'.obs;
-  var model = 'Camry'.obs;
-  var year = '2019'.obs;
-  var color = 'Silver'.obs;
-  var licensePlate = 'ABC1234'.obs;
-  var vin = '1HGCM82633A123456'.obs;
-  var insuranceProvider = 'AllState Insurance'.obs;
-  var policyNumber = 'POL-123456789'.obs;
-  var expiryDate = '2027-12-31'.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadVehicleData();
-    setupTextListeners();
+    //loadVehicleData();
+    getVehicleDetails();
+    //setupTextListeners();
   }
 
   @override
-  void onClose() {
-    // Dispose controllers
-    makeController.dispose();
-    modelController.dispose();
-    yearController.dispose();
-    colorController.dispose();
-    licensePlateController.dispose();
-    vinController.dispose();
-    insuranceProviderController.dispose();
-    policyNumberController.dispose();
-    expiryDateController.dispose();
 
-    // Dispose focus nodes
-    makeFocus.dispose();
-    modelFocus.dispose();
-    yearFocus.dispose();
-    colorFocus.dispose();
-    licensePlateFocus.dispose();
-    vinFocus.dispose();
-    insuranceProviderFocus.dispose();
-    policyNumberFocus.dispose();
-    expiryDateFocus.dispose();
+  //============= get vehicle details====================
+  Future<void> getVehicleDetails() async {
+    const String url = Urls.baseUrl + Urls.getVehiclesDetails;
+    isLoading.value = true;
 
-    super.onClose();
-  }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(AppConstants.token);
 
-  void loadVehicleData() {
-    // Load data into controllers
-    makeController.text = make.value;
-    modelController.text = model.value;
-    yearController.text = year.value;
-    colorController.text = color.value;
-    licensePlateController.text = licensePlate.value;
-    vinController.text = vin.value;
-    insuranceProviderController.text = insuranceProvider.value;
-    policyNumberController.text = policyNumber.value;
-    expiryDateController.text = expiryDate.value;
-  }
+      if (token == null || token.isEmpty) {
+        print("⚠️ No token found in SharedPreferences!");
+        isLoading.value = false;
+        return;
+      }
 
-  void setupTextListeners() {
-    // Listen to text changes and update reactive variables
-    makeController.addListener(() => make.value = makeController.text);
-    modelController.addListener(() => model.value = modelController.text);
-    yearController.addListener(() => year.value = yearController.text);
-    colorController.addListener(() => color.value = colorController.text);
-    licensePlateController.addListener(
-      () => licensePlate.value = licensePlateController.text,
-    );
-    vinController.addListener(() => vin.value = vinController.text);
-    insuranceProviderController.addListener(
-      () => insuranceProvider.value = insuranceProviderController.text,
-    );
-    policyNumberController.addListener(
-      () => policyNumber.value = policyNumberController.text,
-    );
-    expiryDateController.addListener(
-      () => expiryDate.value = expiryDateController.text,
-    );
-  }
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-  Future<void> selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime(2027, 12, 31),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2050),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Colors.red,
-              onPrimary: Colors.white,
-              surface: Color(0xFF2C2C2C),
-              onSurface: Colors.white,
-            ),
-          ),
-          child: child!,
+      print("============Status Code: ${response.statusCode}");
+
+      /*  if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        print(
+          "======================✅ API Response: vehicle details*********** $data",
         );
-      },
-    );
-    if (picked != null) {
-      final formattedDate =
-          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-      expiryDateController.text = formattedDate;
-      expiryDate.value = formattedDate;
+        vehicleData.value = VehicleData.fromJson(data['data']);
+        print("=====================✅ Profile fetched successfully!");
+        setVehicleData(vehicleData.value);
+      } */
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print(
+          "======================✅ API Response: vehicle details*********** $data",
+        );
+
+        // Old: vehicleData.value = VehicleData.fromJson(data['data']);
+
+        vehicleData.value = VehicleData.fromJson(data['data']);
+
+        print("=====================✅ Profile fetched successfully!");
+        //  setVehicleData(vehicleData.value);
+      } else {
+        print("❌ Failed to fetch profile: ${response.body}");
+      }
+    } catch (e) {
+      print(
+        "==========================⚠️ Error fetching  API Response: vehicle details: $e",
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
+
+
 
   Future<void> pickVehicleImage() async {
     try {

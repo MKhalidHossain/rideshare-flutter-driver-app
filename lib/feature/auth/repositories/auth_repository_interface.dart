@@ -20,6 +20,8 @@ abstract class AuthRepositoryInterface {
   Future<dynamic> forgetPassword(String? emailOrPhone);
   Future<dynamic> resetPassword(String emailOrPhone, String newPassword);
   Future<dynamic> changePassword(String currentPassword, String newPassword);
+  Future<dynamic> getLoginHistory();
+  Future<dynamic> logoutAllDevices();
 
   Future<dynamic> accessAndRefreshToken(String refreshToken);
 

@@ -6,9 +6,7 @@ class Urls {
 
   // static const String baseUrl = 'https://ridetohealth-backend.onrender.com/api';
 
-  static const String socketUrl = 'http://10.10.5.85:5001'; 
-
-
+  static const String socketUrl = 'http://10.10.5.85:5001';
 
   // ------------------------ Authentication ------------------------
 
@@ -19,10 +17,15 @@ class Urls {
   static const String forgetPassword = '/auth/request-password-reset';
   static const String resetPasswordWithOtp = '/auth/reset-password';
   static const String changePassword = '/auth/change-password';
+  static const String getLoginHistory = '/driver/get-login-history';
+  static const String logoutAllDevices = '/auth/logout-all-devices';
   static const String logOut = '/auth/logout';
+  static const String getNotifications = '/notification';
+  static const String driverProfile = "/driver/profile";
 
   // ------------------------ User Management ------------------------
   static const String getProfile = '/user/profile';
+
   static const String updateProfile = '/user/profile';
   static const String uploadProfileImage = '/user/profile/image';
   static const String updateLocation = '/user/location';
@@ -39,7 +42,7 @@ class Urls {
   static const String updateNotificationSettings =
       '/user/notification-settings';
 
-  static const String connectStripeAccount = '/stripe/driver/create-account';    
+  static const String connectStripeAccount = '/stripe/driver/create-account';
 
   // ------------------------ Category------------------------
   static const String allCategories = '/admin/categories';
@@ -65,6 +68,9 @@ class Urls {
   static const String getEarnings = '/driver/earnings';
   static const String requestWithdrawal = '/driver/withdrawal';
   static const String getDriverReviews = '/driver/reviews';
+  static const String getVehiclesDetails = '/driver/get-vehicle';
+
+  static const String getReviews = '/driver/reviews?page=1&limit=10';
 
   // ------------------------ Service Management ------------------------
   static const String getAllServices = '/service';
@@ -81,7 +87,6 @@ class Urls {
 
   // ------------------------ Payment Management ------------------------
   static const String sendMessage = '/socket/send-message';
-
 
   // // ------------------------ Admin Management ------------------------
   // static const String getAllUsers = '/admin/users';

@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:intl/intl.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
+import '../controller/rating_controller.dart';
 
 class RatingsReviewsScreen extends StatelessWidget {
   const RatingsReviewsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final reviewController = Get.put(ReviewController());
     return AppScaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.transparent,
         elevation: 0,
 
@@ -22,85 +28,131 @@ class RatingsReviewsScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Overall Rating Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  // Overall Rating
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 32),
-                      const SizedBox(width: 8),
-                      Text(
-                        '4.9',
-                        style: TextStyle(
-                          color: AppColors.context(context).textColor,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
+
+      body: Obx(() {
+        final isLoading = reviewController.isLoading.value;
+        final reviewData = reviewController.reviewData.value;
+        final error = reviewController.errorMessage.value;
+
+        // 🔥 1. Loading State
+        if (isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        // 🔥 2. Error State
+        if (error.isNotEmpty) {
+          return Center(
+            child: Text(error, style: TextStyle(color: Colors.white)),
+          );
+        }
+
+        // // 🔥 3. No Data State
+        // if ( reviewData!.reviews.isEmpty) {
+        //   return const Center(
+        //     child: Text("No Data Found", style: TextStyle(color: Colors.white)),
+        //   );
+        // }
+
+        // 🔥 4. Data Found → Show UI
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Overall Rating Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 32),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${reviewData!.averageRating ?? 0.0}',
+                          style: TextStyle(
+                            color: AppColors.context(context).textColor,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '843 Rating',
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
 
-                  // Rating Breakdown
-                  _buildRatingBar('5 stars', 720, 843),
-                  _buildRatingBar('4 stars', 90, 843),
-                  _buildRatingBar('3 stars', 25, 843),
-                  _buildRatingBar('2 stars', 10, 843),
-                  _buildRatingBar('1 stars', 8, 843),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      '${reviewData!.pagination.totalReviews} Rating',
+                      style: TextStyle(color: Colors.grey[400]),
+                    ),
+                    // Rating Breakdown
+                    _buildRatingBar(
+                      '5 stars',
+                      reviewData!.starPercentages.fiveStar.toInt(),
+                      843,
+                    ),
+                    _buildRatingBar(
+                      '4 stars',
+                      reviewData.starPercentages.fourStar.toInt(),
+                      843,
+                    ),
+                    _buildRatingBar(
+                      '3 stars',
+                      reviewData.starPercentages.threeStar.toInt(),
+                      843,
+                    ),
+                    _buildRatingBar(
+                      '2 stars',
+                      reviewData.starPercentages.twoStar.toInt(),
+                      843,
+                    ),
+                    _buildRatingBar(
+                      '1 stars',
+                      reviewData.starPercentages.oneStar.toInt(),
+                      843,
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // Reviews List
-            _buildReviewCard(
-              'Sarah M.',
-              '2 days ago',
-              5,
-              'John was an excellent driver! Very professional and got me to my destination quickly and safely.',
-            ),
+              // Reviews List
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: reviewData.reviews.length,
+                itemBuilder: (_, index) {
+                  final review = reviewData.reviews[index];
+                  // Date formatting
+                  final reviewDate = review.ratedAt != null
+                      ? DateFormat('dd MMM yyyy').format(review.ratedAt!)
+                      : 'Unknown';
 
-            _buildReviewCard(
-              'Sarah M.',
-              '2 days ago',
-              4,
-              'John was an excellent driver! Very professional and got me to my destination quickly and safely.',
-            ),
+                  return _buildReviewCard(
+                    review.customer.name ?? "Unknown",
 
-            _buildReviewCard(
-              'Sarah M.',
-              '2 days ago',
-              3,
-              'John was an excellent driver! Very professional and got me to my destination quickly and safely.',
-            ),
+                    review.ratedAt != null
+                        ? reviewController.timeAgo(review.ratedAt!)
+                        : "Unknown",
+                    //  reviewDate,
+                    review.rating.toInt(),
+                    review.comment?.isEmpty ?? true
+                        ? "No Comment"
+                        : review.comment!,
+                  );
+                },
+              ),
 
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      }),
     );
   }
 

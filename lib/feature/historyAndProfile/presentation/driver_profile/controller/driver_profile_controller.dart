@@ -1,13 +1,25 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../../core/constants/urls.dart';
+import '../../../../../utils/app_constants.dart';
+import '../../../../../helpers/remote/data/api_client.dart';
+import '../../../model/driver_profile_model.dart';
+import '../../../model/update_profile_request_model.dart';
+import '../../../model/update_profile_response_model.dart';
+import '../screens/driver_profile_info_screen.dart';
 
 class DriverProfileController extends GetxController {
-  // Form key
+  final ApiClient apiClient = Get.find<ApiClient>();
+  // ------------------------- FORM & CONTROLLERS -------------------------
   final formKey = GlobalKey<FormState>();
 
-  // Controllers
+  // Text Controllers
   final fullNameController = TextEditingController();
   final phoneController = TextEditingController();
   final streetAddressController = TextEditingController();
@@ -29,95 +41,192 @@ class DriverProfileController extends GetxController {
   final emergencyNameFocus = FocusNode();
   final emergencyPhoneFocus = FocusNode();
 
-  // Observable variables
+  // ------------------------- OBSERVABLE VARIABLES -------------------------
+  var driverProfile = Rxn<DriverProfileResponse>();
   var isLoading = false.obs;
+
   var profileImage = Rx<File?>(null);
-  var profileImageUrl = 'assets/images/user5.png'.obs;
+  var profileImageUrl = ''.obs;
+  var isUploadingImage = false.obs;
 
-  // Reactive text values
-  var fullName = 'Alex Johnson'.obs;
-  var phone = '(555) 123-4567'.obs;
-  var streetAddress = '123 Main Street'.obs;
-  var city = 'San Francisco'.obs;
-  var state = 'CA'.obs;
-  var zipCode = '94105'.obs;
-  var dateOfBirth = '1985-06-15'.obs;
-  var emergencyName = 'Mary Smith'.obs;
-  var emergencyPhone = '(555) 987-6543'.obs;
-  var email = 'john.smith@example.com'.obs;
+  var fullName = ''.obs;
+  var email = ''.obs;
+  var phone = ''.obs;
+  var streetAddress = ''.obs;
+  var city = ''.obs;
+  var state = ''.obs;
+  var zipCode = ''.obs;
+  var dateOfBirth = ''.obs;
+  var emergencyName = ''.obs;
+  var emergencyPhone = ''.obs;
 
+  // Full Address Getter
+  String get fullAddress =>
+      '${streetAddress.value}, ${city.value}, ${state.value} ${zipCode.value}';
+
+  // ------------------------- INIT -------------------------
   @override
   void onInit() {
     super.onInit();
-    loadProfileData();
-    setupTextListeners();
+    getDriverProfile();
   }
 
-  @override
-  void onClose() {
-    // Dispose controllers
-    fullNameController.dispose();
-    phoneController.dispose();
-    streetAddressController.dispose();
-    cityController.dispose();
-    stateController.dispose();
-    zipCodeController.dispose();
-    dateOfBirthController.dispose();
-    emergencyNameController.dispose();
-    emergencyPhoneController.dispose();
+  // ------------------------- GET PROFILE -------------------------
+  Future<void> getDriverProfile() async {
+    isLoading.value = true;
 
-    // Dispose focus nodes
-    fullNameFocus.dispose();
-    phoneFocus.dispose();
-    streetAddressFocus.dispose();
-    cityFocus.dispose();
-    stateFocus.dispose();
-    zipCodeFocus.dispose();
-    dateOfBirthFocus.dispose();
-    emergencyNameFocus.dispose();
-    emergencyPhoneFocus.dispose();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(AppConstants.token);
 
-    super.onClose();
+      if (token == null || token.isEmpty) {
+        isLoading.value = false;
+        return;
+      }
+
+      apiClient.updateHeader(token);
+      final response = await apiClient.getData(Urls.getDriverProfile);
+
+      if (response.statusCode == 200) {
+        final dynamic body = response.body;
+        final decoded = body is String ? json.decode(body) : body;
+        driverProfile.value = DriverProfileResponse.fromJson(decoded);
+
+        final profile = driverProfile.value?.profileData;
+
+        print("======== PROFILE  RESPONSE: $profile");
+        if (profile != null) {
+          // SET VARIABLES + TEXT CONTROLLERS
+          fullName.value = profile.fullName ?? '';
+          fullNameController.text = profile.fullName ?? '';
+
+          email.value = profile.email ?? '';
+
+          phone.value = profile.phoneNumber ?? '';
+          phoneController.text = profile.phoneNumber ?? '';
+
+          dateOfBirth.value = profile.dateOfBirth ?? '';
+          dateOfBirthController.text = profile.dateOfBirth ?? '';
+
+          profileImageUrl.value = profile.profileImage ?? '';
+
+          emergencyName.value = profile.emergencyContact?.name ?? '';
+          emergencyNameController.text = profile.emergencyContact?.name ?? '';
+
+          emergencyPhone.value = profile.emergencyContact?.phoneNumber ?? '';
+          emergencyPhoneController.text =
+              profile.emergencyContact?.phoneNumber ?? '';
+
+          streetAddress.value = profile.streetAddress ?? '';
+          streetAddressController.text = profile.streetAddress ?? '';
+
+          city.value = profile.city ?? '';
+          cityController.text = profile.city ?? '';
+
+          state.value = profile.state ?? '';
+          stateController.text = profile.state ?? '';
+
+          zipCode.value = profile.zipcode ?? '';
+          zipCodeController.text = profile.zipcode ?? '';
+        }
+      } else {
+        print(
+          "=============================        Failed to fetch profile: ${response.body}",
+        );
+      }
+    } catch (e) {
+      print("====================   Error fetching profile: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  void loadProfileData() {
-    // Load data into controllers
-    fullNameController.text = fullName.value;
-    phoneController.text = phone.value;
-    streetAddressController.text = streetAddress.value;
-    cityController.text = city.value;
-    stateController.text = state.value;
-    zipCodeController.text = zipCode.value;
-    dateOfBirthController.text = dateOfBirth.value;
-    emergencyNameController.text = emergencyName.value;
-    emergencyPhoneController.text = emergencyPhone.value;
+  // ------------------------- PICK IMAGE -------------------------
+  Future<void> pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 300,
+        maxHeight: 300,
+        imageQuality: 80,
+      );
+
+      if (image != null) {
+        profileImage.value = File(image.path);
+        await uploadProfileImage(image);
+      }
+    } catch (e) {
+      print("Failed to pick image: $e");
+    }
   }
 
-  void setupTextListeners() {
-    // Listen to text changes and update reactive variables
-    fullNameController.addListener(
-      () => fullName.value = fullNameController.text,
-    );
-    phoneController.addListener(() => phone.value = phoneController.text);
-    streetAddressController.addListener(
-      () => streetAddress.value = streetAddressController.text,
-    );
-    cityController.addListener(() => city.value = cityController.text);
-    stateController.addListener(() => state.value = stateController.text);
-    zipCodeController.addListener(() => zipCode.value = zipCodeController.text);
-    dateOfBirthController.addListener(
-      () => dateOfBirth.value = dateOfBirthController.text,
-    );
-    emergencyNameController.addListener(
-      () => emergencyName.value = emergencyNameController.text,
-    );
-    emergencyPhoneController.addListener(
-      () => emergencyPhone.value = emergencyPhoneController.text,
-    );
-  }
+  Future<void> uploadProfileImage(XFile image) async {
+    if (isUploadingImage.value) return;
+    isUploadingImage.value = true;
 
-  String get fullAddress =>
-      '${streetAddress.value} ${city.value}, ${state.value} ${zipCode.value}';
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(AppConstants.token);
+
+      if (token != null && token.isNotEmpty) {
+        apiClient.updateHeader(token);
+      }
+
+      final response = await apiClient.uploadProfileImage(
+        Urls.uploadProfileImage,
+        image,
+        fileFieldName: 'image',
+      );
+
+      final success =
+          response.statusCode == 200 || response.statusCode == 201;
+
+      String? remoteImageUrl;
+      final body = response.body;
+      if (body is Map) {
+        final data = body['data'];
+        if (data is Map && data['profileImage'] is String) {
+          remoteImageUrl = data['profileImage'] as String;
+        } else if (body['profileImage'] is String) {
+          remoteImageUrl = body['profileImage'] as String;
+        } else if (body['image'] is String) {
+          remoteImageUrl = body['image'] as String;
+        }
+      }
+
+      if (remoteImageUrl != null && remoteImageUrl.isNotEmpty) {
+        profileImageUrl.value = remoteImageUrl;
+      }
+
+      if (success) {
+        await getDriverProfile();
+        Get.snackbar(
+          'Success',
+          'Profile image uploaded successfully',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          response.statusText ?? 'Failed to upload profile image',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to upload profile image',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      print("Failed to upload image: $e");
+    } finally {
+      isUploadingImage.value = false;
+    }
+  }
 
   Future<void> selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -147,61 +256,55 @@ class DriverProfileController extends GetxController {
     }
   }
 
-  Future<void> pickImage() async {
-    try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 300,
-        maxHeight: 300,
-        imageQuality: 80,
-      );
+  Future<void> updateDriverProfile(UpdateProfileRequestModel requestModel) async {
+    isLoading.value = true;
 
-      if (image != null) {
-        profileImage.value = File(image.path);
-        Get.snackbar(
-          'Success',
-          'Profile image selected successfully!',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(AppConstants.token);
+
+      if (token == null || token.isEmpty) {
+        isLoading.value = false;
+        return;
+      }
+
+      apiClient.updateHeader(token);
+
+      final body = requestModel.toJson()..removeWhere((key, value) => value == null);
+      final response = await apiClient.putData(Urls.updateDriverProfile, body);
+
+      if (response.statusCode == 200 && (response.body != null)) {
+        final decoded =
+            response.body is String ? json.decode(response.body) : response.body;
+        final parsed = decoded is Map<String, dynamic>
+            ? UpdateProfileResponseModel.fromJson(decoded)
+            : null;
+
+        if (parsed?.data != null) {
+          driverProfile.value = DriverProfileResponse(
+            success: parsed?.success,
+            profileData: ProfileData.fromJson(parsed!.data!.toJson()),
+            driverData: driverProfile.value?.driverData,
+          );
+        }
+        await getDriverProfile();
+        final ctx = Get.context;
+        if (ctx != null) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(
+              content: Text(parsed?.message ?? 'Profile updated successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        Get.off(() => const DriverProfileInfoScreen());
+      } else {
+        print("Failed to update profile");
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to pick image: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    }
-  }
-
-  Future<void> saveProfile() async {
-    if (formKey.currentState!.validate()) {
-      isLoading.value = true;
-
-      try {
-        // Simulate API call
-        await Future.delayed(const Duration(seconds: 2));
-
-        Get.snackbar(
-          'Success',
-          'Profile updated successfully!',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-
-        Get.back();
-      } catch (e) {
-        Get.snackbar(
-          'Error',
-          'Failed to update profile: $e',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      } finally {
-        isLoading.value = false;
-      }
+      print("Error updating profile: $e");
+    } finally {
+      isLoading.value = false;
     }
   }
 }
