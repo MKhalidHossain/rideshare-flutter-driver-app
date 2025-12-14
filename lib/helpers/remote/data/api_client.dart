@@ -279,6 +279,40 @@ class ApiClient extends GetxService {
     }
   }
 
+  Future<Response> uploadProfileImage(
+    String uri,
+    XFile imageFile, {
+    Map<String, String>? headers,
+    String fileFieldName = 'image',
+  }) async {
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse(appBaseUrln + uri),
+      );
+
+      final requestHeaders = Map<String, String>.from(headers ?? _mainHeaders);
+      requestHeaders.remove('Content-Type');
+      request.headers.addAll(requestHeaders);
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          fileFieldName,
+          imageFile.path,
+          filename: imageFile.name,
+        ),
+      );
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      return handleResponse(response, uri);
+    } catch (e) {
+      print('Error uploading profile image: $e');
+      return Response(statusCode: 1, statusText: noInternetMessage);
+    }
+  }
+
   Future<Response> patchMultipartData(
     String uri, {
     Map<String, String>? fields,

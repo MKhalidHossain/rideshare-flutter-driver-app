@@ -8,12 +8,6 @@ import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_
 
 import 'feature/map/bindings/initial_binding.dart';
 import 'helpers/dependency_injection.dart';
-import 'helpers/remote/data/api_client.dart';
-// import 'package:ridetohealthdriver/feature/earning/presentation/screen/ride_history_screen.dart';
-
-// import 'app.dart';
-// import 'feature/earning/presentation/screen/earning_screen.dart';
-// import 'feature/identity/presentation/screens/verify_identity_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();

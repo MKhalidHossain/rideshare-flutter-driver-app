@@ -47,6 +47,7 @@ class DriverProfileController extends GetxController {
 
   var profileImage = Rx<File?>(null);
   var profileImageUrl = ''.obs;
+  var isUploadingImage = false.obs;
 
   var fullName = ''.obs;
   var email = ''.obs;
@@ -153,9 +154,77 @@ class DriverProfileController extends GetxController {
 
       if (image != null) {
         profileImage.value = File(image.path);
+        await uploadProfileImage(image);
       }
     } catch (e) {
       print("Failed to pick image: $e");
+    }
+  }
+
+  Future<void> uploadProfileImage(XFile image) async {
+    if (isUploadingImage.value) return;
+    isUploadingImage.value = true;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(AppConstants.token);
+
+      if (token != null && token.isNotEmpty) {
+        apiClient.updateHeader(token);
+      }
+
+      final response = await apiClient.uploadProfileImage(
+        Urls.uploadProfileImage,
+        image,
+        fileFieldName: 'image',
+      );
+
+      final success =
+          response.statusCode == 200 || response.statusCode == 201;
+
+      String? remoteImageUrl;
+      final body = response.body;
+      if (body is Map) {
+        final data = body['data'];
+        if (data is Map && data['profileImage'] is String) {
+          remoteImageUrl = data['profileImage'] as String;
+        } else if (body['profileImage'] is String) {
+          remoteImageUrl = body['profileImage'] as String;
+        } else if (body['image'] is String) {
+          remoteImageUrl = body['image'] as String;
+        }
+      }
+
+      if (remoteImageUrl != null && remoteImageUrl.isNotEmpty) {
+        profileImageUrl.value = remoteImageUrl;
+      }
+
+      if (success) {
+        await getDriverProfile();
+        Get.snackbar(
+          'Success',
+          'Profile image uploaded successfully',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          response.statusText ?? 'Failed to upload profile image',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to upload profile image',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      print("Failed to upload image: $e");
+    } finally {
+      isUploadingImage.value = false;
     }
   }
 

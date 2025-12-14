@@ -1,5 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:ridetohealthdriver/core/constants/urls.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
+import 'package:ridetohealthdriver/helpers/remote/data/api_client.dart';
+import 'package:ridetohealthdriver/utils/app_constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../../core/widgets/wide_custom_button.dart';
 
 class EditProfile extends StatefulWidget {
@@ -20,6 +29,12 @@ class _EditProfileState extends State<EditProfile> {
   final FocusNode emailFocus = FocusNode();
   final FocusNode phoneFocus = FocusNode();
 
+  final ApiClient apiClient = Get.find<ApiClient>();
+  final ImagePicker imagePicker = ImagePicker();
+
+  XFile? selectedImage;
+  String? uploadedImageUrl;
+  bool isUploadingImage = false;
   bool isEditing = false; // Track whether user is editing
 
   @override
@@ -39,6 +54,191 @@ class _EditProfileState extends State<EditProfile> {
     emailFocus.dispose();
     phoneFocus.dispose();
     super.dispose();
+  }
+
+  void _showImageSourceSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from gallery'),
+              onTap: () => _onImageSourceSelected(ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera),
+              title: const Text('Take a photo'),
+              onTap: () => _onImageSourceSelected(ImageSource.camera),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onImageSourceSelected(ImageSource source) {
+    Navigator.of(context).pop();
+    _pickImage(source);
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final image = await imagePicker.pickImage(
+      source: source,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      setState(() {
+        selectedImage = image;
+      });
+      await _uploadProfileImage(image);
+    }
+  }
+
+  Future<void> _uploadProfileImage(XFile image) async {
+    if (isUploadingImage) return;
+    setState(() {
+      isUploadingImage = true;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(AppConstants.token);
+
+      if (token != null && token.isNotEmpty) {
+        apiClient.updateHeader(token);
+      }
+
+      final response = await apiClient.uploadProfileImage(
+        Urls.uploadProfileImage,
+        image,
+        fileFieldName: 'image',
+      );
+
+      final success =
+          response.statusCode == 200 || response.statusCode == 201;
+
+      String? remoteImageUrl;
+      final body = response.body;
+      if (body is Map) {
+        final data = body['data'];
+
+        if (body['image'] is String) {
+          remoteImageUrl = body['image'] as String;
+        } else if (data is Map && data['image'] is String) {
+          remoteImageUrl = data['image'] as String;
+        } else if (data is Map && data['profileImage'] is String) {
+          remoteImageUrl = data['profileImage'] as String;
+        } else if (body['profileImage'] is String) {
+          remoteImageUrl = body['profileImage'] as String;
+        }
+      }
+
+      if (remoteImageUrl != null && remoteImageUrl.isNotEmpty && mounted) {
+        setState(() {
+          uploadedImageUrl = remoteImageUrl;
+        });
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              success
+                  ? 'Profile image updated'
+                  : (response.statusText ?? 'Failed to update profile image'),
+            ),
+            backgroundColor: success ? Colors.green : Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update profile image'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isUploadingImage = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildProfileImage() {
+    Widget imageWidget;
+
+    if (selectedImage != null) {
+      imageWidget = Image.file(
+        File(selectedImage!.path),
+        fit: BoxFit.cover,
+        width: 170,
+        height: 170,
+      );
+    } else if (uploadedImageUrl != null && uploadedImageUrl!.isNotEmpty) {
+      imageWidget = Image.network(
+        uploadedImageUrl!,
+        fit: BoxFit.cover,
+        width: 170,
+        height: 170,
+        errorBuilder: (_, __, ___) => Image.asset(
+          'assets/images/user6.png',
+          fit: BoxFit.cover,
+          width: 170,
+          height: 170,
+        ),
+      );
+    } else {
+      imageWidget = Image.asset(
+        'assets/images/user6.png',
+        fit: BoxFit.cover,
+        width: 170,
+        height: 170,
+      );
+    }
+
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [
+                Color(0xffCE0000).withOpacity(0.8),
+                Color(0xff7B0100).withOpacity(0.8),
+              ],
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: imageWidget,
+          ),
+        ),
+        if (isUploadingImage)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black45,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   @override
@@ -88,7 +288,7 @@ class _EditProfileState extends State<EditProfile> {
                 child: Stack(
                   children: [
                     Container(
-                      margin: EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(0),
@@ -114,86 +314,30 @@ class _EditProfileState extends State<EditProfile> {
                                   color: Colors.grey.withOpacity(0.1),
                                   spreadRadius: 2,
                                   blurRadius: 4,
-                                  offset: Offset(
-                                    0,
-                                    2,
-                                  ), // changes position of shadow
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            child:
-                                // widget.userProfile.avatar != null &&
-                                //         widget
-                                //             .userProfile
-                                //             .avatar!
-                                //             .isNotEmpty
-                                // ? Image.network(
-                                //   widget.userProfile.avatar!,
-                                //   width: 170,
-                                //   height: 170,
-                                //   fit: BoxFit.cover,
-                                //   errorBuilder:
-                                //       (context, error, stackTrace) =>
-                                //           Image.asset(
-                                //             'assets/images/person.png',
-                                //             width: 170,
-                                //             height: 170,
-                                //             fit: BoxFit.cover,
-                                //           ),
-                                // )
-                                //:
-                                Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(16),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Color(0xffCE0000).withOpacity(0.8),
-                                        // Color(0xFFCE0000),
-                                        Color(0xff7B0100).withOpacity(0.8),
-                                      ],
-                                    ),
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Image.asset(
-                                      'assets/images/user6.png',
-                                      fit: BoxFit.cover,
-                                      width: 170,
-                                      height: 170,
-                                    ),
-                                  ),
-                                ),
+                            child: _buildProfileImage(),
                           ),
                           const SizedBox(height: 10),
-                          //(
-
-                          //widget.userProfile.name ??
-
-                          //'Mr. User Name')
                           'Mr. User Name'.text24White(),
                         ],
                       ),
                     ),
-
-                    Positioned(
-                      top: 120,
-                      bottom: 0,
-                      left: 170,
-
-                      child: isEditing
-                          ? GestureDetector(
-                              onTap: () {},
-                              child: Image.asset(
-                                'assets/icons/edit.png',
-                                // fit: BoxFit.fitWidth,
-                                height: 35,
-                                width: 35,
-                              ),
-                            )
-                          : Container(),
-                    ),
+                    if (isEditing)
+                      Positioned(
+                        top: 120,
+                        left: 170,
+                        child: GestureDetector(
+                          onTap: _showImageSourceSheet,
+                          child: Image.asset(
+                            'assets/icons/edit.png',
+                            height: 35,
+                            width: 35,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
