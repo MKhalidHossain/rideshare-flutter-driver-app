@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 height: 200,
                 // height: _controller.value.size.height * 0.25,
                 child: Image.asset(
-                  'assets/images/logo.jpg',
+                  'assets/images/logo.png',
                   height: 200,
                   width: 230,
                   fit: BoxFit.contain,
