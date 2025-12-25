@@ -1,7 +1,7 @@
 class UpdateDriverLocationResponesModel {
-  final bool ?success;
-  final String ?message;
-  final DriverLocationData ?data;
+  final bool? success;
+  final String? message;
+  final DriverLocationData? data;
 
   UpdateDriverLocationResponesModel({
      this.success,
@@ -12,9 +12,11 @@ class UpdateDriverLocationResponesModel {
   factory UpdateDriverLocationResponesModel.fromJson(
       Map<String, dynamic> json) {
     return UpdateDriverLocationResponesModel(
-      success: json['success'] as bool,
-      message: json['message'] as String,
-      data: DriverLocationData.fromJson(json['data'] as Map<String, dynamic>),
+      success: json['success'] as bool?,
+      message: json['message'] as String?,
+      data: json['data'] is Map<String, dynamic>
+          ? DriverLocationData.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -22,28 +24,41 @@ class UpdateDriverLocationResponesModel {
     return {
       'success': success,
       'message': message,
-      'data': data!.toJson(),
+      'data': data?.toJson(),
     };
   }
 }
 
 class DriverLocationData {
-  final DriverLocation location;
+  final String? driverId;
+  final DriverLocation? location;
+  final double? heading;
+  final double? speed;
 
   DriverLocationData({
-    required this.location,
+    this.driverId,
+    this.location,
+    this.heading,
+    this.speed,
   });
 
   factory DriverLocationData.fromJson(Map<String, dynamic> json) {
     return DriverLocationData(
-      location:
-          DriverLocation.fromJson(json['location'] as Map<String, dynamic>),
+      driverId: json['driverId']?.toString(),
+      location: json['location'] is Map<String, dynamic>
+          ? DriverLocation.fromJson(json['location'] as Map<String, dynamic>)
+          : null,
+      heading: (json['heading'] as num?)?.toDouble(),
+      speed: (json['speed'] as num?)?.toDouble(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'location': location.toJson(),
+      'driverId': driverId,
+      'location': location?.toJson(),
+      'heading': heading,
+      'speed': speed,
     };
   }
 }

@@ -64,7 +64,7 @@ class Urls {
   static const String registerDriver = '/driver/register';
   static const String getDriverProfile = '/driver/profile';
   static const String updateDriverProfile = '/driver/profile';
-  static const String updateDriverLocation = '/driver/location';
+  static const String updateDriverLocation = '/socket/location-update';
   static const String toggleOnlineStatus = '/driver/online-status';
   static const String getTripHistory = '/driver/trip-history';
   static const String getEarnings = '/driver/earnings';

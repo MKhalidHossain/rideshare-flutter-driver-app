@@ -3,6 +3,7 @@ import 'package:ridetohealthdriver/feature/home/domain/request_model/sent_messag
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/urls.dart';
+import '../domain/request_model/update_driver_location_request_model.dart';
 import '../../../helpers/remote/data/api_client.dart';
 import 'home_repository_interface.dart';
 
@@ -43,8 +44,12 @@ class HomeRepository
   }
   
   @override
-  Future<Response> updateDriverLocation() async{
-    return await apiClient.putData(Urls.updateDriverLocation, {});
+  Future<Response> updateDriverLocation(
+      UpdateDriverLocationRequestModel request) async {
+    return await apiClient.postData(
+      Urls.updateDriverLocation,
+      request.toJson(),
+    );
   }
   
   @override

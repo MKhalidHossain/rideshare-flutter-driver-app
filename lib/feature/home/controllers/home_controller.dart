@@ -17,6 +17,7 @@ import 'package:ridetohealthdriver/feature/auth/domain/model/get_notification_re
 import 'package:ridetohealthdriver/feature/home/services/home_service_interface.dart';
 
 import '../domain/request_model/sent_message_body.dart';
+import '../domain/request_model/update_driver_location_request_model.dart';
 import '../domain/response_model/update_driver_location_respones_model.dart';
 
 class HomeController extends GetxController {
@@ -197,27 +198,34 @@ Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
 
 
 
-  Future<void> updateDriverLocation() async {
+  Future<void> updateDriverLocation(
+      UpdateDriverLocationRequestModel request) async {
     try {
       isLoading = true;
       update();
 
-      final response = await homeServiceInterface.updateDriverLocation();
+      debugPrint('📍 updateDriverLocation request: ${request.toJson()}');
+      final response = await homeServiceInterface.updateDriverLocation(request);
 
       debugPrint(" Status Code: ${response.statusCode}");
       debugPrint(" Response Body: ${response.body}");
 
-       if (response.statusCode == 200) {
+      final dynamic body = response.body;
+      final decoded = body is String ? jsonDecode(body) : body;
+
+      if (response.statusCode == 200) {
         print("✅ updateDriverLocation : for HomeController fetched successfully \n");
-        updateDriverLocationResponesModel = UpdateDriverLocationResponesModel.fromJson(
-          response.body,
+        updateDriverLocationResponesModel =
+            UpdateDriverLocationResponesModel.fromJson(
+          decoded,
         );
 
         isLoading = false;
         update();
       } else {
-          updateDriverLocationResponesModel = UpdateDriverLocationResponesModel.fromJson(
-          response.body,
+        updateDriverLocationResponesModel =
+            UpdateDriverLocationResponesModel.fromJson(
+          decoded,
         );
       }
 

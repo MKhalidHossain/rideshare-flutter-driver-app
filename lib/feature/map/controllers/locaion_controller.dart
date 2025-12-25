@@ -46,7 +46,7 @@ class LocationController extends GetxController {
     });
   }
 
-  Future<void> requestLocationPermission() async {
+  Future<bool> requestLocationPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -55,28 +55,57 @@ class LocationController extends GetxController {
     isLocationPermissionGranted.value =
         permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always;
+    return isLocationPermissionGranted.value;
   }
 
   Future<void> getCurrentLocation() async {
     try {
-      if (isLocationPermissionGranted.value) {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
-        currentPosition.value = position;
-        currentLocation.value = LatLng(position.latitude, position.longitude); // Set currentLocation
-        pickupLocation.value = LatLng(position.latitude, position.longitude);
-        await getAddressFromCoordinates(position.latitude, position.longitude, true);
-        updateMapMarkers();
-        // Move camera to current location if map controller is ready
-        if (mapController.value != null && currentLocation.value != null) {
-          mapController.value!.animateCamera(
-            CameraUpdate.newLatLngZoom(currentLocation.value!, 14.0),
-          );
-        }
-      }
+      await refreshCurrentPosition(updateAddress: true, moveCamera: true);
     } catch (e) {
       Get.snackbar('Error', 'Failed to get current location: $e');
+    }
+  }
+
+  Future<Position?> refreshCurrentPosition({
+    bool updateAddress = false,
+    bool moveCamera = false,
+  }) async {
+    try {
+      print('📍 refreshCurrentPosition: start');
+      if (!isLocationPermissionGranted.value) {
+        final granted = await requestLocationPermission();
+        print('📍 Location permission granted: $granted');
+        if (!granted) {
+          return null;
+        }
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      print(
+        '📍 Current position: ${position.latitude}, ${position.longitude} (heading: ${position.heading}, speed: ${position.speed})',
+      );
+      currentPosition.value = position;
+      currentLocation.value = LatLng(position.latitude, position.longitude);
+      pickupLocation.value = LatLng(position.latitude, position.longitude);
+      if (updateAddress) {
+        await getAddressFromCoordinates(
+          position.latitude,
+          position.longitude,
+          true,
+        );
+      }
+      updateMapMarkers();
+      if (moveCamera && mapController.value != null) {
+        mapController.value!.animateCamera(
+          CameraUpdate.newLatLngZoom(currentLocation.value!, 14.0),
+        );
+      }
+      return position;
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to get current location: $e');
+      return null;
     }
   }
 

@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,6 +7,7 @@ import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/core/widgets/normal_custom_button.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
+import 'package:ridetohealthdriver/feature/home/domain/request_model/update_driver_location_request_model.dart';
 import 'package:ridetohealthdriver/helpers/remote/data/socket_client.dart';
 import '../../../../home/domain/request_model/incoming_ride_request.dart';
 import '../../../controllers/app_controller.dart';
@@ -40,6 +41,9 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
   late final AuthController authController;
   IncomingRideRequest? _incomingRide;
   bool _isProcessingAction = false;
+  bool _isUpdatingLocation = false;
+  Timer? _locationUpdateTimer;
+  String? _activeRideId;
 
   final LocationController locationController = Get.find<LocationController>();
   final BookingController bookingController = Get.find<BookingController>();
@@ -52,6 +56,102 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
 
     authController = Get.find<AuthController>();
     _listenForRideRequests();
+    _initializeLocation();
+    if (homeController.isDriverOnline) {
+      _startLocationUpdates();
+    }
+  }
+
+  Future<void> _initializeLocation() async {
+    debugPrint('📍 HomeScreenDriver: initialize location');
+    await locationController.refreshCurrentPosition(
+      updateAddress: true,
+      moveCamera: true,
+    );
+
+    if (locationController.currentLocation.value == null) {
+      debugPrint('📍 HomeScreenDriver: using fallback location');
+      final fallbackLocation = HomeScreenDriver._initialPosition.target;
+      locationController.setPickupLocation(fallbackLocation);
+      if (locationController.mapController.value != null) {
+        locationController.mapController.value!.animateCamera(
+          CameraUpdate.newLatLngZoom(fallbackLocation, 14.0),
+        );
+      }
+      return;
+    }
+
+    debugPrint('📍 HomeScreenDriver: sending initial location update');
+    await _sendLocationUpdate();
+  }
+
+  Future<void> _sendLocationUpdate() async {
+    if (_isUpdatingLocation) return;
+    if (authController.logInResponseModel?.data?.user?.id == null) {
+      debugPrint('📍 driverId not ready, continuing with token auth');
+    }
+
+    _isUpdatingLocation = true;
+    try {
+      final position = await locationController.refreshCurrentPosition(
+        updateAddress: false,
+        moveCamera: false,
+      );
+      if (position == null) {
+        debugPrint('📍 Location update skipped: no position');
+        return;
+      }
+
+      final request = UpdateDriverLocationRequestModel(
+        latitude: position.latitude,
+        longitude: position.longitude,
+        heading: position.heading,
+        speed: position.speed,
+        rideId: _activeRideId,
+      );
+
+      debugPrint(
+        '📍 Update location payload: ${request.toJson()}',
+      );
+      await homeController.updateDriverLocation(request);
+      debugPrint('📍 Location update sent to backend');
+    } finally {
+      _isUpdatingLocation = false;
+    }
+  }
+
+  void _startLocationUpdates() {
+    if (_locationUpdateTimer != null) return;
+    debugPrint('📍 Start periodic location updates');
+    _locationUpdateTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) async {
+        if (!homeController.isDriverOnline) {
+          debugPrint('📍 Stop periodic updates: driver offline');
+          _stopLocationUpdates();
+          return;
+        }
+        await _sendLocationUpdate();
+      },
+    );
+  }
+
+  void _stopLocationUpdates() {
+    debugPrint('📍 Stop periodic location updates');
+    _locationUpdateTimer?.cancel();
+    _locationUpdateTimer = null;
+  }
+
+  Future<void> _handleOnlineToggle(bool value) async {
+    debugPrint('📍 Toggle online status: $value');
+    await homeController.toggleOnlineStatus(value);
+    if (!mounted) return;
+
+    if (homeController.isDriverOnline) {
+      _startLocationUpdates();
+    } else {
+      _stopLocationUpdates();
+    }
   }
 
   void _listenForRideRequests() {
@@ -91,6 +191,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
   @override
   void dispose() {
     socketClient.off('ride_request');
+    _stopLocationUpdates();
     super.dispose();
   }
 
@@ -170,8 +271,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
                               value: controller.isDriverOnline,
                               onChanged: controller.isTogglingStatus
                                   ? null
-                                  : (value) =>
-                                      controller.toggleOnlineStatus(value),
+                                  : (value) => _handleOnlineToggle(value),
                             );
                           },
                         ),
@@ -318,6 +418,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
         final rideToSend = _incomingRide;
         setState(() {
           _incomingRide = null;
+          _activeRideId = acceptedData?.rideId;
         });
         appController.showSuccessSnackbar(message);
         Get.to(
@@ -630,5 +731,3 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
     );
   }
 }
-
-

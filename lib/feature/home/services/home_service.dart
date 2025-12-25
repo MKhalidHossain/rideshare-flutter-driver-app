@@ -2,6 +2,7 @@ import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:ridetohealthdriver/feature/home/domain/request_model/sent_message_body.dart';
 import 'package:ridetohealthdriver/feature/home/repositories/home_repository_interface.dart';
 import 'home_service_interface.dart';
+import '../domain/request_model/update_driver_location_request_model.dart';
 
 class HomeService implements HomeServiceInterface {
   final HomeRepositoryInterface
@@ -37,8 +38,11 @@ class HomeService implements HomeServiceInterface {
   }
   
   @override
-  Future<Response> updateDriverLocation() async{
-    return await historyAndProfileRepositoryInterface.updateDriverLocation();
+  Future<Response> updateDriverLocation(
+      UpdateDriverLocationRequestModel request) async {
+    return await historyAndProfileRepositoryInterface.updateDriverLocation(
+      request,
+    );
   }
   
   @override
