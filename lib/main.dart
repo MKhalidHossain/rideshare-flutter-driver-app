@@ -66,6 +66,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      navigatorKey: Get.key,
       title: 'RidezToHealth',
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(

@@ -1,6 +1,8 @@
 // lib/feature/map/controllers/locaion_controller.dart
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -62,7 +64,7 @@ class LocationController extends GetxController {
     try {
       await refreshCurrentPosition(updateAddress: true, moveCamera: true);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to get current location: $e');
+      _safeSnackbar('Error', 'Failed to get current location: $e');
     }
   }
 
@@ -104,7 +106,7 @@ class LocationController extends GetxController {
       }
       return position;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to get current location: $e');
+      _safeSnackbar('Error', 'Failed to get current location: $e');
       return null;
     }
   }
@@ -131,7 +133,7 @@ class LocationController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to get address: $e');
+      _safeSnackbar('Error', 'Failed to get address: $e');
     }
   }
 
@@ -281,7 +283,7 @@ class LocationController extends GetxController {
         setDestinationLocation(LatLng(locations.first.latitude, locations.first.longitude));
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to get coordinates for selected address: $e');
+      _safeSnackbar('Error', 'Failed to get coordinates for selected address: $e');
     }
   }
 
@@ -307,8 +309,31 @@ class LocationController extends GetxController {
         setDestinationLocation(LatLng(locations.first.latitude, locations.first.longitude));
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to get coordinates for saved address: $e');
+      _safeSnackbar('Error', 'Failed to get coordinates for saved address: $e');
     }
+  }
+
+  void _safeSnackbar(String title, String message) {
+    final snackBar = GetSnackBar(
+      title: title,
+      message: message,
+      duration: const Duration(seconds: 3),
+      snackPosition: SnackPosition.BOTTOM,
+    );
+
+    if (Get.overlayContext == null) {
+      debugPrint('⚠️ Snackbar skipped: no overlay context yet.');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (Get.overlayContext != null) {
+          Get.showSnackbar(snackBar);
+        } else {
+          debugPrint('⚠️ Snackbar skipped: overlay still unavailable.');
+        }
+      });
+      return;
+    }
+
+    Get.showSnackbar(snackBar);
   }
 }
 

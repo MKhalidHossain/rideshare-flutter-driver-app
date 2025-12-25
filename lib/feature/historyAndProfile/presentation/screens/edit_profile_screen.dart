@@ -107,7 +107,7 @@ class _EditProfileState extends State<EditProfile> {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(AppConstants.token);
+      final token = prefs.getString(AppConstants.accessToken);
 
       if (token != null && token.isNotEmpty) {
         apiClient.updateHeader(token);

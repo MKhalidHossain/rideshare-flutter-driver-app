@@ -101,16 +101,38 @@ class AppController extends GetxController {
   
   // Utility methods
   void showSnackbar(String title, String message, {Color? backgroundColor}) {
-    Get.snackbar(
-      title,
-      message,
-      backgroundColor: backgroundColor ?? Colors.grey[800],
-      colorText: Colors.white,
+    final snackBar = GetSnackBar(
+      titleText: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      messageText: Text(
+        message,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: backgroundColor ?? Colors.grey[800]!,
       snackPosition: SnackPosition.BOTTOM,
       margin: EdgeInsets.all(16),
       borderRadius: 8,
       duration: Duration(seconds: 3),
     );
+
+    if (Get.overlayContext == null) {
+      debugPrint('⚠️ Snackbar skipped: no overlay context yet.');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (Get.overlayContext != null) {
+          Get.showSnackbar(snackBar);
+        } else {
+          debugPrint('⚠️ Snackbar skipped: overlay still unavailable.');
+        }
+      });
+      return;
+    }
+
+    Get.showSnackbar(snackBar);
   }
   
   void showSuccessSnackbar(String message) {

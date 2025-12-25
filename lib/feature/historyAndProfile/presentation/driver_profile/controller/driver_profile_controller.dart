@@ -77,7 +77,7 @@ class DriverProfileController extends GetxController {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(AppConstants.token);
+      final token = prefs.getString(AppConstants.accessToken);
 
       if (token == null || token.isEmpty) {
         isLoading.value = false;
@@ -167,7 +167,7 @@ class DriverProfileController extends GetxController {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(AppConstants.token);
+      final token = prefs.getString(AppConstants.accessToken);
 
       if (token != null && token.isNotEmpty) {
         apiClient.updateHeader(token);
@@ -261,7 +261,7 @@ class DriverProfileController extends GetxController {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(AppConstants.token);
+      final token = prefs.getString(AppConstants.accessToken);
 
       if (token == null || token.isEmpty) {
         isLoading.value = false;

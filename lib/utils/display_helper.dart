@@ -15,34 +15,38 @@ void showCustomSnackBar(
   String? subMessage,
 }) {
   Get.closeCurrentSnackbar();
-  Get.showSnackbar(
-    GetSnackBar(
-      dismissDirection: DismissDirection.horizontal,
-      margin: const EdgeInsets.all(10).copyWith(right: 18),
-      duration: Duration(seconds: seconds),
-      backgroundColor:
-          Get.isDarkMode
-              ? Colors.grey.shade800
-              : Theme.of(Get.context!).textTheme.titleMedium!.color!,
-      borderRadius: 10,
-      messageText: Row(
-        children: [
-          const SizedBox(width: 20),
-          Expanded(
-            child: SizedBox(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    message,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+  final context = Get.context ?? Get.overlayContext;
+  final fallbackColor = Colors.grey.shade800;
+  final backgroundColor = Get.isDarkMode
+      ? fallbackColor
+      : (context != null
+          ? Theme.of(context).textTheme.titleMedium?.color ?? fallbackColor
+          : fallbackColor);
+
+  final snackBar = GetSnackBar(
+    dismissDirection: DismissDirection.horizontal,
+    margin: const EdgeInsets.all(10).copyWith(right: 18),
+    duration: Duration(seconds: seconds),
+    backgroundColor: backgroundColor,
+    borderRadius: 10,
+    messageText: Row(
+      children: [
+        const SizedBox(width: 20),
+        Expanded(
+          child: SizedBox(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
-                  subMessage != null
-                      ? Text(
+                ),
+                subMessage != null
+                    ? Text(
                         subMessage,
                         style: TextStyle(
                           fontSize: 20,
@@ -50,13 +54,26 @@ void showCustomSnackBar(
                           color: Colors.white,
                         ),
                       )
-                      : const SizedBox(),
-                ],
-              ),
+                    : const SizedBox(),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
+
+  if (Get.overlayContext == null) {
+    debugPrint('⚠️ Snackbar skipped: no overlay context yet.');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.overlayContext != null) {
+        Get.showSnackbar(snackBar);
+      } else {
+        debugPrint('⚠️ Snackbar skipped: overlay still unavailable.');
+      }
+    });
+    return;
+  }
+
+  Get.showSnackbar(snackBar);
 }

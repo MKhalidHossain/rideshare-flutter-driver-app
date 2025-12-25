@@ -61,7 +61,7 @@ class VehicleController extends GetxController {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(AppConstants.token);
+      final token = prefs.getString(AppConstants.accessToken);
 
       if (token == null || token.isEmpty) {
         print("⚠️ No token found in SharedPreferences!");

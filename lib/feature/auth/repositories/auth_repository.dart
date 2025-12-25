@@ -59,7 +59,7 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   String getUserToken() {
-    final token = sharedPreferences.getString(AppConstants.token) ?? '';
+    final token = sharedPreferences.getString(AppConstants.accessToken) ?? '';
     apiClient.updateHeader(token);
     return token;
   }
@@ -81,7 +81,7 @@ class AuthRepository implements AuthRepositoryInterface {
   @override
   bool isLoggedIn() {
     try {
-      final token = sharedPreferences.getString(AppConstants.token);
+      final token = sharedPreferences.getString(AppConstants.accessToken);
       return token != null && token.isNotEmpty;
     } catch (e) {
       print(e);
@@ -204,7 +204,7 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   Future<bool?> saveUserToken(String token, String refreshToken) async {
-    final isSaved = await sharedPreferences.setString(AppConstants.token, token);
+    final isSaved = await sharedPreferences.setString(AppConstants.accessToken, token);
     await sharedPreferences.setString(AppConstants.refreshToken, refreshToken);
     apiClient.updateHeader(token);
     return isSaved;

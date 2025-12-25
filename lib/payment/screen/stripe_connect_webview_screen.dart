@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 
 class StripeConnectWebViewScreen extends StatefulWidget {
   final String initialUrl;
@@ -47,12 +48,9 @@ class _StripeConnectWebViewScreenState
           onNavigationRequest: (request) async {
             debugPrint("Navigating to: ${request.url}");
             if (request.url.contains("driver/onboarding/success")) {
-              await Get.showSnackbar(
-                const GetSnackBar(
-                  title: 'Success',
-                  message: 'Stripe onboarding completed successfully.',
-                  duration: Duration(seconds: 3),
-                ),
+              showCustomSnackBar(
+                'Stripe onboarding completed successfully.',
+                isError: false,
               );
               Navigator.of(context).pop(true);
               return NavigationDecision.prevent;

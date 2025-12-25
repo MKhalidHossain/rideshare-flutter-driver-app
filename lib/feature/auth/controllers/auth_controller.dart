@@ -315,7 +315,7 @@ void setRegistrationData({
 
       showCustomSnackBar(response.body['message'] ??
           'Registration successful! Please verify your email.');
-      showCustomSnackBar('Check your email to verify your account.');
+      // showCustomSnackBar('Check your email to verify your account.');
 
     } else {
       _isLoading = false;
@@ -470,15 +470,17 @@ void setRegistrationData({
     } else if (response.statusCode == 202) {
       if (response.body['data']['is_phone_verified'] == 0) {}
     } else if (response.statusCode == 400) {
-      Get.offAll(()=>UserSignupScreen());
       showCustomSnackBar('Sorry you have no account, please create a account');
-    }
-    else if (response.statusCode == 401) {
       Get.offAll(()=>UserSignupScreen());
-      showCustomSnackBar(
-  'Login Failed',
-  subMessage: 'The email or password you entered is incorrect. Please try again.',
-);
+      
+    }
+    else if (response.statusCode == 401) { 
+    showCustomSnackBar(
+      'Login Failed',
+      subMessage: 'The email or password you entered is incorrect. Please try again.',
+    );
+      Get.offAll(()=>UserSignupScreen());
+
 
     }
     
@@ -498,8 +500,10 @@ void setRegistrationData({
 
     if (isLoggedIn() == false) {
       if (response!.statusCode == 200) {
-        showCustomSnackBar('You have logout Successfully');
         Get.offAll(() => UserLoginScreen());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showCustomSnackBar('You have logout Successfully');
+        });
       } else {
         logging = false;
         ApiChecker.checkApi(response);

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class AppConstants {
 
-  static const String token = 'token';
+  static const String accessToken = 'token';
   static const String refreshToken = 'refresh_token';
 
   static const String kSelfie  = 'Selfie Photo';

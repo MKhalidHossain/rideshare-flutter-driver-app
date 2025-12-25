@@ -28,7 +28,7 @@ class ReviewController extends GetxController {
     isLoading.value = true;
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(AppConstants.token);
+      final token = prefs.getString(AppConstants.accessToken);
       isLoading(true);
       final response = await http.get(
         Uri.parse(url),
