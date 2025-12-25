@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:ridetohealthdriver/app.dart';
 import 'package:ridetohealthdriver/core/onboarding/presentation/screens/constantSpashScreen.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
