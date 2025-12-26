@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 
 class LocationController extends GetxController {
   // Location state
@@ -314,26 +315,11 @@ class LocationController extends GetxController {
   }
 
   void _safeSnackbar(String title, String message) {
-    final snackBar = GetSnackBar(
-      title: title,
-      message: message,
-      duration: const Duration(seconds: 3),
-      snackPosition: SnackPosition.BOTTOM,
+    showAppSnackBar(
+      title,
+      message,
+      seconds: 3,
     );
-
-    if (Get.overlayContext == null) {
-      debugPrint('⚠️ Snackbar skipped: no overlay context yet.');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (Get.overlayContext != null) {
-          Get.showSnackbar(snackBar);
-        } else {
-          debugPrint('⚠️ Snackbar skipped: overlay still unavailable.');
-        }
-      });
-      return;
-    }
-
-    Get.showSnackbar(snackBar);
   }
 }
 

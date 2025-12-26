@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../../../../../core/widgets/wide_custom_button.dart';
@@ -457,7 +458,7 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
   void _updatePassword() {
     if (_formKey.currentState!.validate()) {
       // Handle password update logic here
-      Get.snackbar(
+      showAppSnackBar(
         'Success',
         'Password updated successfully!',
         backgroundColor: Colors.green,
@@ -472,7 +473,7 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
   }
 
   void _logoutDevice(String deviceInfo) {
-    Get.snackbar(
+    showAppSnackBar(
       'Device Logged Out',
       'Successfully logged out from $deviceInfo',
       backgroundColor: Colors.orange,
@@ -500,7 +501,7 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
           TextButton(
             onPressed: () {
               Get.back();
-              Get.snackbar(
+              showAppSnackBar(
                 'Success',
                 'Logged out from all devices successfully!',
                 backgroundColor: Colors.red,

@@ -5,6 +5,7 @@ import 'package:ridetohealthdriver/app.dart';
 import 'package:ridetohealthdriver/core/onboarding/presentation/screens/constantSpashScreen.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
+import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_signup_screen.dart';
 
 
 import 'feature/map/bindings/initial_binding.dart';
@@ -51,10 +52,10 @@ class _MyAppState extends State<MyApp> {
   //   return isFirstTimeInstaled;
   // }
 
-  whichPageToNext(bool isFirstTimeInstaled) {
-    // if (isFirstTimeInstaled) {
-    //   return SplashScreen(nextScreen: Onboarding1());
-    // } else 
+  whichPageToNext(bool _isFirstTimeInstaled) {
+    if (_isFirstTimeInstaled) {
+      return UserSignupScreen();
+    } else 
     if (authController.isLoggedIn()) {
       return AppMain();
     } else {

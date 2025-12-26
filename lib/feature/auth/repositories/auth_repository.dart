@@ -64,10 +64,12 @@ class AuthRepository implements AuthRepositoryInterface {
     return token;
   }
 
-  // @override
-  // bool isFirstTimeInstall() {
-  //   return sharedPreferences.containsKey(AppConstants.token);
-  // }
+    @override
+  String getUserId() {
+    final userId = sharedPreferences.getString(AppConstants.userId) ?? '';
+    apiClient.updateHeader(userId);
+    return userId;
+  }
 
   @override
   bool isFirstTimeInstall() {
@@ -209,6 +211,12 @@ class AuthRepository implements AuthRepositoryInterface {
     apiClient.updateHeader(token);
     return isSaved;
   }
+
+    @override
+  Future<bool?> saveUserId(String userId) async{
+    return await sharedPreferences.setString(AppConstants.userId, userId);
+  }
+
 
   @override
   void setFirstTimeInstall() {

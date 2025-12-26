@@ -351,7 +351,7 @@ final TextEditingController _nameController = TextEditingController();
                                               // Form Validation
                                               if (!_formKey.currentState!
                                                   .validate()) {
-                                                Get.snackbar(
+                                                showAppSnackBar(
                                                   'Error',
                                                   'Please fill all required fields correctly',
                                                   snackPosition:

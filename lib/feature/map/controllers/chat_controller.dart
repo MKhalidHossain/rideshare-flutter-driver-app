@@ -579,6 +579,7 @@
 
 
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 import '../../../helpers/remote/data/socket_client.dart';
 import '../domain/models/message.dart';
 
@@ -843,11 +844,11 @@ class ChatController extends GetxController {
   }
   
   void reportMessage(String messageId) {
-    Get.snackbar('Report Submitted', 'Thank you for reporting this message');
+    showAppSnackBar('Report Submitted', 'Thank you for reporting this message');
   }
   
   void blockUser() {
-    Get.snackbar('User Blocked', 'This user has been blocked');
+    showAppSnackBar('User Blocked', 'This user has been blocked');
     endChat();
   }
   
@@ -858,7 +859,7 @@ class ChatController extends GetxController {
     Future.delayed(Duration(seconds: 2), () {
       isConnected.value = true;
       supportAgentStatus.value = 'Online';
-      Get.snackbar('Connected', 'You are now connected to support');
+      showAppSnackBar('Connected', 'You are now connected to support');
     });
   }
   
@@ -880,4 +881,3 @@ class ChatController extends GetxController {
     ).toList();
   }
 }
-

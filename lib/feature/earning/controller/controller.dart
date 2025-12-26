@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 
 class EarningsController extends GetxController {
   // Observable for tracking selected payment method
@@ -16,10 +17,9 @@ class EarningsController extends GetxController {
   // Method to withdraw earnings
   void withdrawEarnings([double? amount]) {
     final value = amount ?? todayEarnings.value;
-    Get.snackbar(
+    showAppSnackBar(
       'Withdraw',
       'Withdrawing \$${value.toStringAsFixed(2)} to ${selectedPaymentMethod.value}',
-      snackPosition: SnackPosition.BOTTOM,
     );
   }
   

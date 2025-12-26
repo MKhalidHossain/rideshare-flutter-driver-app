@@ -46,6 +46,12 @@ class AuthService implements AuthServiceInterface {
     return authRepositoryInterface.getUserToken();
   }
 
+    @override
+  String getUserId() {
+    return authRepositoryInterface.getUserId();
+  }
+
+
   @override
   bool isFirstTimeInstall() {
     return authRepositoryInterface.isFirstTimeInstall();
@@ -118,6 +124,11 @@ class AuthService implements AuthServiceInterface {
   @override
   Future<bool?> saveUserToken(String token, String refreshToken) async {
     return await authRepositoryInterface.saveUserToken(token, refreshToken);
+  }
+
+      @override
+  Future<bool?> saveUserId(String userId) async{
+   return await authRepositoryInterface.saveUserId(userId);
   }
 
   @override

@@ -21,24 +21,24 @@ class ApiClient extends GetxService {
 
   final int timeoutInSeconds = 30;
 
-  late String _token;
+  late String _accessToken;
   // late Map<String, String> _mainHeaders;
 
   ApiClient({required this.appBaseUrl, required this.sharedPreferences}) {
-    _token = sharedPreferences.getString(AppConstants.accessToken) ?? '';
+    _accessToken = sharedPreferences.getString(AppConstants.accessToken) ?? '';
     if (kDebugMode) {
-      print('Token: $_token');
+      print('Token: $_accessToken');
     }
-    updateHeader(_token);
+    updateHeader(_accessToken);
   }
 
 
     Map<String, String> getHeader(){
-    _token = sharedPreferences.getString(AppConstants.accessToken) ?? '';
+    _accessToken = sharedPreferences.getString(AppConstants.accessToken) ?? '';
      Map<String, String> header = {
       'Content-Type': 'application/json; charset=UTF-8',
       'Accept': 'application/json',
-      'Authorization': 'Bearer $_token',
+      'Authorization': 'Bearer $_accessToken',
     };
     return header;
   }
@@ -53,9 +53,9 @@ class ApiClient extends GetxService {
     print(
       'User Token ${token.toString()} ================================== from api Client ',
     );
-    _token = token;
+    _accessToken = token;
 
-    print('New header: from api client : _token || updateedToken : $_token');
+    print('New header: from api client : _token || updateedToken : $_accessToken');
   }
 
   Future<Response> getData(

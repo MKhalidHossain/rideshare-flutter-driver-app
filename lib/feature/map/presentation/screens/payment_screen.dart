@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 import '../../controllers/app_controller.dart';
 import '../../controllers/booking_controller.dart';
 import 'chat_screen.dart';
@@ -154,7 +155,10 @@ class PaymentScreen extends StatelessWidget {
                     title: 'Add Payment Method',
                     subtitle: 'Add a new payment method',
                     isSelected: false,
-                    onTap: () => Get.snackbar('Info', 'Add payment method feature coming soon!'),
+                    onTap: () => showAppSnackBar(
+                      'Info',
+                      'Add payment method feature coming soon!',
+                    ),
                   ),
                 ],
               ),

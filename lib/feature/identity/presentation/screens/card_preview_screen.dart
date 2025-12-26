@@ -294,10 +294,9 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
     else if (selfie == null) err = 'Selfie photo is required';
 
     if (err != null) {
-      Get.snackbar(
+      showAppSnackBar(
         'Missing information',
         err,
-        snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
         margin: const EdgeInsets.all(12),
@@ -657,4 +656,3 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
 //     );
 //   }
 // }
-

@@ -436,23 +436,27 @@ void setRegistrationData({
     }
     if (response!.statusCode == 200) {
       Map map = response.body;
-      String token = '';
+      String accessToken = '';
       String refreshToken = '';
+      String userId = '';
 
-      print(token.toString());
+      print(accessToken.toString());
 
       logInResponseModel = LogInResponseModel.fromJson(response.body);
 
       refreshToken = logInResponseModel!.data!.refreshToken!;
-      token = logInResponseModel!.data!.accessToken!;
+      accessToken = logInResponseModel!.data!.accessToken!;
+      userId = logInResponseModel!.data!.user!.id!;
       print(
         'accessToken ${logInResponseModel!.data!.accessToken}} NOW Iwalker',
       );
       print('refreshToken $refreshToken NOW Iwalker');
       print(
-        'User Token $token  ================================== from comtroller ',
+        'User Token $accessToken  ================================== from comtroller ',
       );
-      await setUserToken(token, refreshToken);
+
+      await setUserId(userId);
+      await setUserToken(accessToken, refreshToken);
 
       socketClient.emit('join-driver', {
           'driverId': logInResponseModel!.data!.user!.id,  // ei key ta backend expect korche
@@ -508,7 +512,7 @@ void setRegistrationData({
         logging = false;
         ApiChecker.checkApi(response);
         print(response.body['message'] + ' for logout from controller');
-        Get.snackbar('Error', response.body['message']);
+        showAppSnackBar('Error', response.body['message']);
         Get.offAll(() => UserLoginScreen());
       }
     } else {
@@ -857,9 +861,19 @@ void setRegistrationData({
     return authServiceInterface.getUserToken();
   }
 
+ String getUserId() {
+    return authServiceInterface.getUserId();
+  }
+
+
   Future<void> setUserToken(String token, String refreshToken) async {
     await authServiceInterface.saveUserToken(token, refreshToken);
   }
+
+      Future<void> setUserId(String userId) async {
+    await authServiceInterface.saveUserId(userId);
+  }
+
 
   Future<bool> getFirsTimeInstall() async {
     return authServiceInterface.isFirstTimeInstall();

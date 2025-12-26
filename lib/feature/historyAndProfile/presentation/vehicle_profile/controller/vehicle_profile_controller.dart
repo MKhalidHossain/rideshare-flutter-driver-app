@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 
 import '../../../../../core/constants/urls.dart';
 import '../../../../../utils/app_constants.dart';
@@ -128,7 +129,7 @@ class VehicleController extends GetxController {
 
       if (image != null) {
         vehicleImage.value = File(image.path);
-        Get.snackbar(
+        showAppSnackBar(
           'Success',
           'Vehicle image selected successfully!',
           backgroundColor: Colors.green,
@@ -136,7 +137,7 @@ class VehicleController extends GetxController {
         );
       }
     } catch (e) {
-      Get.snackbar(
+      showAppSnackBar(
         'Error',
         'Failed to pick image: $e',
         backgroundColor: Colors.red,
@@ -153,7 +154,7 @@ class VehicleController extends GetxController {
         // Simulate API call
         await Future.delayed(const Duration(seconds: 2));
 
-        Get.snackbar(
+        showAppSnackBar(
           'Success',
           'Vehicle details updated successfully!',
           backgroundColor: Colors.green,
@@ -162,7 +163,7 @@ class VehicleController extends GetxController {
 
         Get.back();
       } catch (e) {
-        Get.snackbar(
+        showAppSnackBar(
           'Error',
           'Failed to update vehicle: $e',
           backgroundColor: Colors.red,

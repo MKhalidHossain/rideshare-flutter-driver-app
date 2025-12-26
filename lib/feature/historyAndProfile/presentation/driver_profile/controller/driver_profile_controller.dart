@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 
 import '../../../../../core/constants/urls.dart';
 import '../../../../../utils/app_constants.dart';
@@ -201,14 +202,14 @@ class DriverProfileController extends GetxController {
 
       if (success) {
         await getDriverProfile();
-        Get.snackbar(
+        showAppSnackBar(
           'Success',
           'Profile image uploaded successfully',
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
       } else {
-        Get.snackbar(
+        showAppSnackBar(
           'Error',
           response.statusText ?? 'Failed to upload profile image',
           backgroundColor: Colors.red,
@@ -216,7 +217,7 @@ class DriverProfileController extends GetxController {
         );
       }
     } catch (e) {
-      Get.snackbar(
+      showAppSnackBar(
         'Error',
         'Failed to upload profile image',
         backgroundColor: Colors.red,
