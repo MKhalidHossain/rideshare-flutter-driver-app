@@ -5,6 +5,7 @@ import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart
 import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/driver_profile/controller/driver_profile_controller.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/account_security_screen.dart';
 import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/screens/notifications_screen.dart';
+import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/screens/privacy_policy_screen.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../app/screens/rating_review_screen.dart';
@@ -266,7 +267,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Icons.shield_outlined,
                       "Privacy policy",
                       'Privacy policy',
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(PrivacyPolicyScreen());
+                      },
                     ),
                     _divider(),
                     _buildMenuItem(
