@@ -385,7 +385,8 @@ final TextEditingController _nameController = TextEditingController();
                                               if (_passwordController.text !=
                                                   _confirmPasswordController
                                                       .text) {
-                                                showCustomSnackBar(
+                                                
+                                                (
                                                   'Error',
                                                   subMessage:
                                                       'Passwords do not match',

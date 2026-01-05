@@ -42,8 +42,16 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
       final cameras = await availableCameras();
       if (cameras.isEmpty) return setState(() => _cameraError = true);
 
+      final isSelfie = widget.whichImage == AppConstants.kSelfie;
+      final preferredDirection =
+          isSelfie ? CameraLensDirection.front : CameraLensDirection.back;
+      final selectedCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == preferredDirection,
+        orElse: () => cameras.first,
+      );
+
       _cameraController = CameraController(
-        widget.whichImage != 'Selfie Photo' ? cameras[0] : cameras[1],
+        selectedCamera,
         ResolutionPreset.max,
         enableAudio: false,
       );
@@ -315,7 +323,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
               key: _cameraKey,
               children: [
                 CameraPreview(_cameraController!),
-                widget.whichImage != 'Selfie Photo'
+                widget.whichImage != AppConstants.kSelfie
                     ? _buildOverlay()
                     : SizedBox(),
                 _buildHeader(),
