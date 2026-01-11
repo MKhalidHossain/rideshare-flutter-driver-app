@@ -316,8 +316,8 @@ class DriverProfileEditScreen extends StatelessWidget {
                               : 'Save Changes',
                           onPressed: controller.isLoading.value
                               ? () {}
-                              : () {
-                                  controller.updateDriverProfile(
+                              : () async {
+                                  await controller.updateDriverProfile(
                                     UpdateProfileRequestModel(
                                       fullName:
                                           controller.fullNameController.text,

@@ -136,12 +136,11 @@ class UserLoginScreenState extends State<UserLoginScreen> {
 
                                   WideCustomButton(
                                     text: 'Sign in',
-                                    onPressed: () {
-                                      authController.login(
+                                    onPressed: () async {
+                                      await authController.login(
                                         _emailController.text,
                                         _passwordController.text,
                                       );
-                                      // Get.to(() => AppMain());
                                     },
                                   ),
                                   const SizedBox(height: 8),

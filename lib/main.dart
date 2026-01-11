@@ -15,6 +15,7 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
 
+
   await initDI();
   // socket();
   runApp( MyApp());

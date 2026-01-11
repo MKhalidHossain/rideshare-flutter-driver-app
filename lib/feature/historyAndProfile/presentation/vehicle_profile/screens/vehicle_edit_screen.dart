@@ -273,8 +273,8 @@ class VehicleEditScreen extends StatelessWidget {
                               : 'Save Changes',
                           onPressed: controller.isLoading.value
                               ? () {}
-                              : () {
-                                  controller.saveVehicle();
+                              : () async {
+                                  await controller.saveVehicle();
                                 },
                         ),
                       ),

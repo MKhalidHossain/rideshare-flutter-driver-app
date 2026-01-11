@@ -131,16 +131,11 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                             /// Send OTP Button
                             WideCustomButton(
                               text: 'Send OTP',
-                              onPressed: () {
-                                authController.forgetPassword(
+                              onPressed: () async {
+                                await authController.forgetPassword(
                                   _emailController.text,
                                   otpVerifyType,
                                 );
-                                // Get.to(
-                                //   () => VerifyOtpScreen(
-                                //     email: _emailController.text,
-                                //   ),
-                                // );
                               },
                             ),
                             SizedBox(height: height * 0.02),

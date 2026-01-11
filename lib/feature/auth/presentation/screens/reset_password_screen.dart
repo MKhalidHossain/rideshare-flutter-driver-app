@@ -221,7 +221,7 @@ class _RestartPasswordState extends State<ResetChangePassword> {
                             /// Send OTP Button
                             WideCustomButton(
                               text: 'Continue',
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
                                   if (!_passwordsMatch) {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -245,7 +245,7 @@ class _RestartPasswordState extends State<ResetChangePassword> {
                                         _newPasswordController.text;
                                     final String repPass =
                                         _repeatPasswordController.text;
-                                    authController.resetPassword(
+                                    await authController.resetPassword(
                                       widget.userEmail,
                                       pass,
                                     );

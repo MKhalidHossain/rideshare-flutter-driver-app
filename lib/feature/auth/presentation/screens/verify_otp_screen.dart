@@ -174,8 +174,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                             /// Send OTP Button
                             WideCustomButton(
                               text: 'Verify OTP',
-                              onPressed: () {
-                                authController.verifyOtp(
+                              onPressed: () async {
+                                await authController.verifyOtp(
                                   widget.email,
                                   pinController.text,
                                   widget.otpVerifyType,
