@@ -3,7 +3,6 @@ class ConnectStripeAccountResponseModel {
   final String? accountId;
   final String? message;
   final String? url;
-
   ConnectStripeAccountResponseModel({
     required this.success,
     this.accountId,
@@ -14,11 +13,38 @@ class ConnectStripeAccountResponseModel {
   factory ConnectStripeAccountResponseModel.fromJson(
     Map<String, dynamic> json,
   ) {
+    final dynamic data = json['data'];
+    final Map<String, dynamic>? dataMap =
+        data is Map<String, dynamic> ? data : null;
+
+    final dynamic rawSuccess = json['success'] ?? json['status'];
+    final bool success = rawSuccess == true ||
+        rawSuccess == 1 ||
+        rawSuccess == 'success' ||
+        rawSuccess == 'true';
+
+    final String? message = (json['message'] ?? json['error']) as String?;
+    final String? accountId = (json['accountId'] ??
+        json['stripeAccountId'] ??
+        json['stripe_account_id']) as String?;
+    final String? url = (json['url'] ??
+        json['link'] ??
+        json['accountLink'] ??
+        json['account_link'] ??
+        json['onboardingUrl'] ??
+        json['onboarding_url'] ??
+        dataMap?['url'] ??
+        dataMap?['link'] ??
+        dataMap?['accountLink'] ??
+        dataMap?['account_link'] ??
+        dataMap?['onboardingUrl'] ??
+        dataMap?['onboarding_url']) as String?;
+
     return ConnectStripeAccountResponseModel(
-      success: json['success'] == true,
-      accountId: json['accountId'] as String?,
-      message: json['message'] as String?,
-      url: json['url'] as String?,
+      success: success,
+      accountId: accountId,
+      message: message,
+      url: url,
     );
   }
 

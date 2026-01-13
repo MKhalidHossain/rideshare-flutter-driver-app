@@ -3,6 +3,8 @@ import '../controllers/app_controller.dart';
 import '../controllers/booking_controller.dart';
 import '../controllers/chat_controller.dart';
 import '../controllers/locaion_controller.dart';
+import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
+import 'package:ridetohealthdriver/feature/home/services/home_service_interface.dart';
 
 class InitialBinding extends Bindings {
   @override
@@ -12,6 +14,12 @@ class InitialBinding extends Bindings {
     Get.put(LocationController(), permanent: true);
     Get.put(BookingController(), permanent: true);
     Get.put(ChatController(), permanent: true);
+    if (!Get.isRegistered<HomeController>()) {
+      Get.put<HomeController>(
+        HomeController(Get.find<HomeServiceInterface>()),
+        permanent: true,
+      );
+    }
   }
 }
 

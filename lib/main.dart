@@ -14,8 +14,6 @@ import 'helpers/dependency_injection.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
-
-
   await initDI();
   // socket();
   runApp( MyApp());

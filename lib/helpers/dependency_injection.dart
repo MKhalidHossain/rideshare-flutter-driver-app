@@ -2,17 +2,17 @@ import 'package:get/get.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/urls.dart';
-import '../../feature/auth/controllers/auth_controller.dart';
+import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 
-import '../../feature/auth/repositories/auth_repository.dart';
-import '../../feature/auth/repositories/auth_repository_interface.dart';
-import '../../feature/auth/sevices/auth_service.dart';
-import '../../feature/auth/sevices/auth_service_interface.dart';
-import '../feature/home/controllers/home_controller.dart';
-import '../feature/home/repositories/home_repository.dart';
-import '../feature/home/repositories/home_repository_interface.dart';
-import '../feature/home/services/home_service.dart';
-import '../feature/home/services/home_service_interface.dart';
+import 'package:ridetohealthdriver/feature/auth/repositories/auth_repository.dart';
+import 'package:ridetohealthdriver/feature/auth/repositories/auth_repository_interface.dart';
+import 'package:ridetohealthdriver/feature/auth/sevices/auth_service.dart';
+import 'package:ridetohealthdriver/feature/auth/sevices/auth_service_interface.dart';
+import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
+import 'package:ridetohealthdriver/feature/home/repositories/home_repository.dart';
+import 'package:ridetohealthdriver/feature/home/repositories/home_repository_interface.dart';
+import 'package:ridetohealthdriver/feature/home/services/home_service.dart';
+import 'package:ridetohealthdriver/feature/home/services/home_service_interface.dart';
 import 'remote/data/api_client.dart';
 import 'remote/data/socket_client.dart';
 
