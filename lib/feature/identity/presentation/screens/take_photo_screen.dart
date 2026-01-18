@@ -20,11 +20,16 @@ class TakePhotoScreen extends StatefulWidget {
   State<TakePhotoScreen> createState() => _TakePhotoScreenState();
 }
 
-class _TakePhotoScreenState extends State<TakePhotoScreen> {
+class _TakePhotoScreenState extends State<TakePhotoScreen>
+    with WidgetsBindingObserver {
   CameraController? _cameraController;
   late AuthController authController;
   bool _isCameraInitialized = false;
   bool _cameraError = false;
+  bool _showSettingsButton = false;
+  bool _isCapturing = false;
+  String _cameraErrorMessage =
+      'Camera not available.\nPlease check permissions.';
   double _currentZoomLevel = 1.0;
   bool _isCardAligned = false;
   final GlobalKey _cameraKey = GlobalKey();
@@ -32,15 +37,38 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeCamera();
     authController = Get.find<AuthController>();
+    _simulateCardDetection();
   }
 
   Future<void> _initializeCamera() async {
     final status = await Permission.camera.request();
-    if (status.isGranted) {
+    if (!mounted) return;
+    if (!status.isGranted) {
+      _showSettingsButton =
+          status.isPermanentlyDenied || status.isRestricted;
+      _cameraErrorMessage = _showSettingsButton
+          ? 'Camera permission is permanently denied.\nPlease enable it in Settings.'
+          : 'Camera permission denied.\nPlease allow access to continue.';
+      setState(() => _cameraError = true);
+      return;
+    }
+
+    try {
+      if (_cameraController != null) {
+        await _cameraController?.dispose();
+        _cameraController = null;
+      }
       final cameras = await availableCameras();
-      if (cameras.isEmpty) return setState(() => _cameraError = true);
+      if (cameras.isEmpty) {
+        setState(() {
+          _cameraErrorMessage = 'No cameras found on this device.';
+          _cameraError = true;
+        });
+        return;
+      }
 
       final isSelfie = widget.whichImage == AppConstants.kSelfie;
       final preferredDirection =
@@ -50,30 +78,61 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
         orElse: () => cameras.first,
       );
 
-      _cameraController = CameraController(
-        selectedCamera,
-        ResolutionPreset.max,
-        enableAudio: false,
-      );
-
       try {
+        _cameraController = CameraController(
+          selectedCamera,
+          ResolutionPreset.high,
+          enableAudio: false,
+        );
         await _cameraController!.initialize();
-        setState(() => _isCameraInitialized = true);
-      } catch (_) {
-        setState(() => _cameraError = true);
+        if (!mounted) return;
+        setState(() {
+          _isCameraInitialized = true;
+          _cameraError = false;
+        });
+      } catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _cameraErrorMessage = 'Failed to initialize camera.';
+          _cameraError = true;
+        });
       }
-    } else {
-      setState(() => _cameraError = true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _cameraErrorMessage = 'Failed to access cameras on this device.';
+        _cameraError = true;
+      });
     }
   }
 
   @override
   void dispose() {
     _cameraController?.dispose();
+    _cameraController = null;
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final controller = _cameraController;
+    if (controller == null || !controller.value.isInitialized) return;
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      controller.dispose();
+      _cameraController = null;
+      _isCameraInitialized = false;
+    } else if (state == AppLifecycleState.resumed) {
+      _initializeCamera();
+    }
+  }
+
   void _simulateCardDetection() {
+    if (widget.whichImage == AppConstants.kSelfie) {
+      _isCardAligned = true;
+      return;
+    }
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) setState(() => _isCardAligned = true);
     });
@@ -81,10 +140,15 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
 
 
   void _capturePhoto() async {
-  if (!_isCardAligned || !_cameraController!.value.isInitialized) return;
+  final controller = _cameraController;
+  if (!_isCardAligned || controller == null || !controller.value.isInitialized) {
+    return;
+  }
+  if (_isCapturing || controller.value.isTakingPicture) return;
 
   try {
-    final file = await _cameraController!.takePicture();
+    _isCapturing = true;
+    final file = await controller.takePicture();
 
     // ---------- SELFIE PHOTO ----------
     if (widget.whichImage == AppConstants.kSelfie) {
@@ -126,21 +190,26 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
     final imageW = image.width;
     final imageH = image.height;
 
-    final cropX = (left / screenW * imageW).toInt();
-    final cropY = (top / screenH * imageH).toInt();
-    final cropW = (overlayW / screenW * imageW).toInt();
-    final cropH = (overlayH / screenH * imageH).toInt();
+    final cropX = (left / screenW * imageW).round();
+    final cropY = (top / screenH * imageH).round();
+    final cropW = (overlayW / screenW * imageW).round();
+    final cropH = (overlayH / screenH * imageH).round();
+
+    final safeX = _clampInt(cropX, 0, imageW - 1);
+    final safeY = _clampInt(cropY, 0, imageH - 1);
+    final safeW = _clampInt(cropW, 1, imageW - safeX);
+    final safeH = _clampInt(cropH, 1, imageH - safeY);
 
     final cropped = img.copyCrop(
       image,
-      x: cropX,
-      y: cropY,
-      width: cropW,
-      height: cropH,
+      x: safeX,
+      y: safeY,
+      width: safeW,
+      height: safeH,
     );
 
     final croppedFile = await File('${file.path}_cropped.jpg')
-        .writeAsBytes(img.encodeJpg(cropped));
+        .writeAsBytes(img.encodeJpg(cropped, quality: 85));
 
     // ---------- ASSIGN TO CORRECT FIELD ----------
     if (widget.whichImage == AppConstants.kGovId) {
@@ -179,6 +248,8 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text("Failed: $e")));
+  } finally {
+    _isCapturing = false;
   }
 }
 
@@ -309,10 +380,14 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
     setState(() => _currentZoomLevel = zoom);
   }
 
+  int _clampInt(int value, int min, int max) {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+  }
+
   @override
   Widget build(BuildContext context) {
-    _simulateCardDetection();
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: _cameraError
@@ -325,7 +400,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
                 CameraPreview(_cameraController!),
                 widget.whichImage != AppConstants.kSelfie
                     ? _buildOverlay()
-                    : SizedBox(),
+                    : const SizedBox.shrink(),
                 _buildHeader(),
                 _buildBottomControls(),
               ],
@@ -462,11 +537,21 @@ class _TakePhotoScreenState extends State<TakePhotoScreen> {
     );
   }
 
-  Widget _buildErrorMessage() => const Center(
-    child: Text(
-      'Camera not available.\nPlease check permissions.',
-      style: TextStyle(color: Colors.white),
-      textAlign: TextAlign.center,
+  Widget _buildErrorMessage() => Center(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          _cameraErrorMessage,
+          style: const TextStyle(color: Colors.white),
+          textAlign: TextAlign.center,
+        ),
+        if (_showSettingsButton)
+          TextButton(
+            onPressed: openAppSettings,
+            child: const Text('Open Settings'),
+          ),
+      ],
     ),
   );
 }

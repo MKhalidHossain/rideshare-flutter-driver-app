@@ -59,7 +59,11 @@ void showBlurredBottomSheet(BuildContext context) {
                             children: [
                               InkWell(
                                 onTap: () {
-                                  Get.to(TakePhotoScreen(whichImage: AppConstants.kGovId ,));
+                                  Get.to(
+                                    () => TakePhotoScreen(
+                                      whichImage: AppConstants.kGovId,
+                                    ),
+                                  );
                                 },
                                 child: Container(
                                   height: 65,
@@ -103,7 +107,11 @@ void showBlurredBottomSheet(BuildContext context) {
                               ),
                               InkWell(
                                 onTap: () {
-                                  Get.to(TakePhotoScreen(whichImage: AppConstants.kDriving));
+                                  Get.to(
+                                    () => TakePhotoScreen(
+                                      whichImage: AppConstants.kDriving,
+                                    ),
+                                  );
                                 },
                                 child: Container(
                                   height: 65,
@@ -147,7 +155,11 @@ void showBlurredBottomSheet(BuildContext context) {
                               
                               InkWell(
                                 onTap: () {
-                                  Get.to(TakePhotoScreen(whichImage: AppConstants.kSelfie,));
+                                  Get.to(
+                                    () => TakePhotoScreen(
+                                      whichImage: AppConstants.kSelfie,
+                                    ),
+                                  );
                                 },
                                 child: Container(
                                   height: 65,

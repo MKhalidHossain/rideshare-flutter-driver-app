@@ -1,6 +1,7 @@
 // lib/feature/identity/presentation/screens/card_preview_screen.dart
 
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
@@ -39,6 +40,7 @@ class CardPreviewScreen extends StatefulWidget {
 
 class _CardPreviewScreenState extends State<CardPreviewScreen> {
   late AuthController authController;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -52,12 +54,6 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
     final dLicense = authController.license; // Driving Licence image (XFile?)
     final nid     = authController.nid;     // Government ID image (XFile?)
     final selfie  = authController.selfie;  // Selfie image (XFile?)
-
-    final titleStyle = const TextStyle(
-      color: Colors.white,
-      fontSize: 18,
-      fontWeight: FontWeight.w600,
-    );
 
     return Scaffold(
       // backgroundColor: Colors.black, // dark bg → better contrast for white text
@@ -88,6 +84,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
 
                 // ---------------- GOVERNMENT ID ----------------
                 _buildImageBlock(
+                  context: context,
                   title: "Government ID",
                   // Prefer controller.nid, fall back to navigation argument
                   path: nid?.path ?? widget.governmentId,
@@ -100,6 +97,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
 
                 // ---------------- DRIVING LICENCE ----------------
                 _buildImageBlock(
+                  context: context,
                   title: "Driving Licence",
                   // Prefer controller.license, fall back to navigation argument
                   path: dLicense?.path ?? widget.driveingLicence,
@@ -112,6 +110,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
 
                 // ---------------- SELFIE PHOTO ----------------
                 _buildImageBlock(
+                  context: context,
                   title: "Selfie Photo",
                   // Prefer controller.selfie, fall back to navigation argument
                   path: selfie?.path ?? widget.selfiePhoto,
@@ -136,11 +135,13 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
   // IMAGE BLOCK WITH RETAKE BUTTON
   // ============================================================
   Widget _buildImageBlock({
+    required BuildContext context,
     required String title,
     required String path,
     required VoidCallback retakeOnTap,
   }) {
     final hasImage = _fileLooksValid(path);
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
 
     return Container(
       width: double.infinity,
@@ -173,7 +174,20 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
               height: 220,
               color: Colors.white10,
               child: hasImage
-                  ? Image.file(File(path), fit: BoxFit.cover)
+                  ? LayoutBuilder(
+                      builder: (context, constraints) {
+                        final cacheWidth =
+                            (constraints.maxWidth * pixelRatio).round();
+                        return Image.file(
+                          File(path),
+                          fit: BoxFit.cover,
+                          filterQuality: FilterQuality.low,
+                          cacheWidth: cacheWidth > 0 ? cacheWidth : null,
+                          gaplessPlayback: true,
+                          errorBuilder: (_, __, ___) => _buildShimmer(),
+                        );
+                      },
+                    )
                   : _buildShimmer(),
             ),
           ),
@@ -265,6 +279,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
   // Submit: validate controller fields and call register()
   // ============================================================
   Future<void> _submitRegistration() async {
+    if (_isSubmitting || authController.isLoading) return;
     // Pull everything from controller; these should have been filled earlier
     // via UserSignupScreen.setRegistrationData(...) and TakePhotoScreen.
     final name   = authController.name.trim();
@@ -279,6 +294,9 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
     final license = authController.license;
     final nid     = authController.nid;
     final selfie  = authController.selfie;
+    final hasLicense = _fileIsReadable(license);
+    final hasNid = _fileIsReadable(nid);
+    final hasSelfie = _fileIsReadable(selfie);
 
     // Basic validation (client-side)
     String? err;
@@ -289,9 +307,9 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
     else if (nidNo.isEmpty) err = 'National ID number is required';
     else if (srv.isEmpty) err = 'Service type is required';
     else if (pass.isEmpty) err = 'Password is required';
-    else if (license == null) err = 'Driving Licence photo is required';
-    else if (nid == null) err = 'Government ID photo is required';
-    else if (selfie == null) err = 'Selfie photo is required';
+    else if (!hasLicense) err = 'Driving Licence photo is required';
+    else if (!hasNid) err = 'Government ID photo is required';
+    else if (!hasSelfie) err = 'Selfie photo is required';
 
     if (err != null) {
       showAppSnackBar(
@@ -306,6 +324,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
 
     // Call your existing controller.register(...)
     try {
+      setState(() => _isSubmitting = true);
       await authController.register(
         'email_verification', // otpVerifyType
         name,
@@ -327,6 +346,10 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
         'Registration failed',
         isError: true
       );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 
@@ -340,6 +363,12 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
       return false;
     }
     return File(path).existsSync();
+  }
+
+  bool _fileIsReadable(XFile? file) {
+    if (file == null) return false;
+    final f = File(file.path);
+    return f.existsSync() && f.lengthSync() > 0;
   }
 }
 
