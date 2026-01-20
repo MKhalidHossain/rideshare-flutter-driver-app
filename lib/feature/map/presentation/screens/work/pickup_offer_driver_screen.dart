@@ -43,9 +43,13 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   final AppController appController = Get.find<AppController>();
 
   StreamSubscription<Position>? _positionSubscription;
+  Timer? _polylineDebounce;
+  int _polylineRequestId = 0;
   LatLng? _driverLatLng;
   LatLng? _customerPickupLatLng;
   LatLng? _customerDestinationLatLng;
+  LatLng? _lastRouteOrigin;
+  LatLng? _lastRouteTarget;
   bool _isAtPickup = false;
   bool _journeyStarted = false;
   bool _showStartJourneyPopup = false;
@@ -64,6 +68,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   @override
   void dispose() {
     _positionSubscription?.cancel();
+    _polylineDebounce?.cancel();
     super.dispose();
   }
 
@@ -356,18 +361,51 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
         _journeyStarted ? _customerDestinationLatLng : _customerPickupLatLng;
     if (target == null) return;
 
-    locationController.polylines.value = {
-      Polyline(
-        polylineId: PolylineId(_journeyStarted ? 'to_destination' : 'to_pickup'),
-        color: const Color(0xFF0F1323),
-        width: 6,
-        geodesic: true,
-        points: [
-          _driverLatLng!,
-          target,
-        ],
-      ),
-    };
+    if (!_shouldRefreshRoute(_driverLatLng!, target)) return;
+    _polylineDebounce?.cancel();
+    _polylineDebounce = Timer(const Duration(milliseconds: 600), () async {
+      final int requestId = ++_polylineRequestId;
+      final List<LatLng> points = await locationController.getRoutePoints(
+        _driverLatLng!,
+        target,
+      );
+      if (!mounted || requestId != _polylineRequestId) return;
+      final List<LatLng> routePoints =
+          points.isNotEmpty ? points : <LatLng>[_driverLatLng!, target];
+      locationController.polylines.value = {
+        Polyline(
+          polylineId:
+              PolylineId(_journeyStarted ? 'to_destination' : 'to_pickup'),
+          color: const Color(0xFF0F1323),
+          width: 6,
+          geodesic: false,
+          points: routePoints,
+        ),
+      };
+      _lastRouteOrigin = _driverLatLng;
+      _lastRouteTarget = target;
+    });
+  }
+
+  bool _shouldRefreshRoute(LatLng origin, LatLng target) {
+    if (_lastRouteOrigin == null || _lastRouteTarget == null) {
+      return true;
+    }
+    final originMoved = Geolocator.distanceBetween(
+          origin.latitude,
+          origin.longitude,
+          _lastRouteOrigin!.latitude,
+          _lastRouteOrigin!.longitude,
+        ) >
+        30;
+    final targetMoved = Geolocator.distanceBetween(
+          target.latitude,
+          target.longitude,
+          _lastRouteTarget!.latitude,
+          _lastRouteTarget!.longitude,
+        ) >
+        5;
+    return originMoved || targetMoved;
   }
 
   double _distanceInKm(LatLng a, LatLng b) {
@@ -465,6 +503,8 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    debugPrint('🚗 Building PickUpOfferDriverScreen UI...');
     final size = MediaQuery.of(context).size;
     final hasRide =
         widget.incomingRideRequest != null || widget.acceptedRideData != null;

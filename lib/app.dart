@@ -9,7 +9,7 @@ import 'navigation/custom_bottom_nev_bar.dart';
 import 'utils/app_constants.dart';
 
 class AppMain extends StatefulWidget {
-  const AppMain({super.key});
+  const AppMain({super.key,});
 
   @override
   State<AppMain> createState() => _AppMainState();
@@ -28,6 +28,7 @@ class _AppMainState extends State<AppMain> {
     _selectedIndex = 0;
     super.initState();
     _initUserIdAndJoin();
+    // SocketClient().connect(url: )
     super.initState();
   }
 
@@ -54,9 +55,9 @@ class _AppMainState extends State<AppMain> {
   }
 
   void _emitJoin(String id) {
-    socketClient.emit('join-user', {
-      'userId': id, // ei key ta backend expect korche
-    });
+     socketClient.emit('join-driver', {
+          'driverId': id,  // ei key ta backend expect korche
+            });
     print('socket join with sender id To checkkkkkkkikk : from AppMain : $id');
   }
 

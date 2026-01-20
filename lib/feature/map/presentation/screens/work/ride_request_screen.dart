@@ -53,9 +53,9 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
               myLocationButtonEnabled: false,
               onTap: (LatLng position) {
                 // Allow changing destination by tapping on the map
-                locationController.setDestinationLocation(position);
-                locationController
-                    .generatePolyline(); // Regenerate polyline on destination change
+                // locationController.setDestinationLocation(position);
+                // locationController
+                //     .generatePolyline(); // Regenerate polyline on destination change
               },
             ),
 

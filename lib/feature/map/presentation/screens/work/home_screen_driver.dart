@@ -6,6 +6,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/core/widgets/normal_custom_button.dart';
+import 'package:ridetohealthdriver/feature/auth/sevices/auth_service.dart';
+import 'package:ridetohealthdriver/feature/auth/sevices/auth_service_interface.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
 import 'package:ridetohealthdriver/feature/home/domain/request_model/update_driver_location_request_model.dart';
 import 'package:ridetohealthdriver/helpers/remote/data/socket_client.dart';
@@ -154,8 +156,9 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
     }
   }
 
-  void _listenForRideRequests() {
-    final driverId = authController.logInResponseModel?.data?.user?.id;
+  void _listenForRideRequests() async{
+    await Future.delayed(Duration(seconds: 2));
+    final driverId = await authController.getUserId();
      print("socekt  from here ======= $driverId");
     
     // if (driverId != null && driverId.isNotEmpty) {
@@ -173,7 +176,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
 
     // socketClient.off('ride_request');
     socketClient.on('ride_request', (data) {
-      print("socekt emit join from here =======");
+      print("socekt data ${data.toString()} =======");
       print('🚗 Incoming ride request: $data');
       try {
         final request = IncomingRideRequest.fromSocket(data);
@@ -227,9 +230,9 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
               myLocationButtonEnabled: false,
               onTap: (LatLng position) {
                 // Allow changing destination by tapping on the map
-                locationController.setDestinationLocation(position);
-                locationController
-                    .generatePolyline(); // Regenerate polyline on destination change
+                // locationController.setDestinationLocation(position);
+                // locationController
+                //     .generatePolyline(); // Regenerate polyline on destination change
               },
             ),
 

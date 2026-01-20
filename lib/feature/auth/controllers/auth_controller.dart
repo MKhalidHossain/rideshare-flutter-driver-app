@@ -461,6 +461,9 @@ void setRegistrationData({
       socketClient.emit('join-driver', {
           'driverId': logInResponseModel!.data!.user!.id,  // ei key ta backend expect korche
             });
+
+
+            
       print("Join room with id mahbub: ${logInResponseModel!.data!.user!.id}");
 
       Get.offAll(() => AppMain());

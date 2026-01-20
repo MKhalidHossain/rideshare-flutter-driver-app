@@ -22,8 +22,11 @@ Future<void> initDI() async {
 
   socket.connect(
     url: Urls.socketUrl,
-     autoConnect: true
-     );
+    autoConnect: true,
+    //  auth: {
+    //   'token': prefs.getString('token') ?? '',
+    //  },
+    );
 
     //  socket.join('join', data: {"senderId": "driver:1"});
 

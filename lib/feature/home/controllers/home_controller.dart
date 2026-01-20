@@ -94,8 +94,6 @@ class HomeController extends GetxController {
   }
 
   
-  
-  
   Future<void> getNearbyVehicles() async {
     try {
       isLoading = true;
@@ -200,41 +198,41 @@ Future<ConnectStripeAccountResponseModel> connectStripeAccount() async {
 
   Future<void> updateDriverLocation(
       UpdateDriverLocationRequestModel request) async {
-    try {
-      isLoading = true;
-      update();
+    // try {
+    //   isLoading = true;
+    //   update();
 
-      debugPrint('📍 updateDriverLocation request: ${request.toJson()}');
-      final response = await homeServiceInterface.updateDriverLocation(request);
+    //   debugPrint('📍 updateDriverLocation request: ${request.toJson()}');
+    //   final response = await homeServiceInterface.updateDriverLocation(request);
 
-      debugPrint(" Status Code: ${response.statusCode}");
-      debugPrint(" Response Body: ${response.body}");
+    //   debugPrint(" Status Code: ${response.statusCode}");
+    //   debugPrint(" Response Body: ${response.body}");
 
-      final dynamic body = response.body;
-      final decoded = body is String ? jsonDecode(body) : body;
+    //   final dynamic body = response.body;
+    //   final decoded = body is String ? jsonDecode(body) : body;
 
-      if (response.statusCode == 200) {
-        print("✅ updateDriverLocation : for HomeController fetched successfully \n");
-        updateDriverLocationResponesModel =
-            UpdateDriverLocationResponesModel.fromJson(
-          decoded,
-        );
+    //   if (response.statusCode == 200) {
+    //     print("✅ updateDriverLocation : for HomeController fetched successfully \n");
+    //     updateDriverLocationResponesModel =
+    //         UpdateDriverLocationResponesModel.fromJson(
+    //       decoded,
+    //     );
 
-        isLoading = false;
-        update();
-      } else {
-        updateDriverLocationResponesModel =
-            UpdateDriverLocationResponesModel.fromJson(
-          decoded,
-        );
-      }
+    //     isLoading = false;
+    //     update();
+    //   } else {
+    //     updateDriverLocationResponesModel =
+    //         UpdateDriverLocationResponesModel.fromJson(
+    //       decoded,
+    //     );
+    //   }
 
-    }catch (e) {
-      debugPrint("⚠️ Error fetching HomeController : updateDriverLocation : $e\n");
-    } finally {
-      isLoading = false;
-      update();
-    }
+    // }catch (e) {
+    //   debugPrint("⚠️ Error fetching HomeController : updateDriverLocation : $e\n");
+    // } finally {
+    //   isLoading = false;
+    //   update();
+    // }
   }
 
   Future<void> toggleOnlineStatus(bool desiredStatus) async {

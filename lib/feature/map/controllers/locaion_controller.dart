@@ -1,12 +1,11 @@
 // lib/feature/map/controllers/locaion_controller.dart
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ridetohealthdriver/core/constants/app_constant.dart';
 import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 
 class LocationController extends GetxController {
@@ -36,16 +35,17 @@ class LocationController extends GetxController {
   RxString homeAddress = 'Mohakhali DOHS, Dhaka'.obs;
   RxString workAddress = 'Gulshan 2, Dhaka'.obs;
   RxString favoriteAddress = 'Banani, Dhaka'.obs;
+  final Dio _dio = Dio();
 
   @override
   void onInit() {
     super.onInit();
     requestLocationPermission();
     getCurrentLocation();
-    // Listen for changes in pickup or destination to regenerate polyline and distance
+    // Listen for changes in pickup or destination to regenerate route + distance
     everAll([pickupLocation, destinationLocation], (_) {
-      generatePolyline();
-      _calculateDistance(); // Calculate distance whenever locations change
+      print('📍 Pickup or destination changed, updating route... : form initstate ');
+      _updateRoute();
     });
   }
 
@@ -208,41 +208,165 @@ class LocationController extends GetxController {
     }
   }
 
-  // Method to generate polyline
-  void generatePolyline() {
-    polylines.clear();
-    if (pickupLocation.value != null && destinationLocation.value != null) {
-      final String polylineIdVal = 'route_polyline';
-      final PolylineId polylineId = PolylineId(polylineIdVal);
+  /// Public helper if other screens call it directly.
+  // Future<void> generatePolyline() async {
+  //   await _updateRoute();
+  // }
 
-      final Polyline polyline = Polyline(
-        polylineId: polylineId,
-        color: const Color(0xFFC0392B), // Red color for the polyline
-        points: [
-          pickupLocation.value!,
-          destinationLocation.value!,
-        ],
-        width: 5,
-        geodesic: true,
-      );
-      polylines.add(polyline);
+  /// Fetch route points for arbitrary origin/destination (driver screen).
+  Future<List<LatLng>> getRoutePoints(
+    LatLng origin,
+    LatLng destination,
+  ) async {
+    final url =
+        'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&departure_time=now&traffic_model=best_guess&key=${AppConstant.apiKey}';
+
+    try {
+      final response = await _dio.get(url);
+      if (response.statusCode != 200) {
+        return <LatLng>[];
+      }
+      final Map<String, dynamic> data =
+          response.data as Map<String, dynamic>;
+      if (data['status'] != 'OK') {
+        return <LatLng>[];
+      }
+      final List<dynamic> routes = data['routes'] as List<dynamic>;
+      if (routes.isEmpty) {
+        return <LatLng>[];
+      }
+      final String encodedPolyline =
+          (routes.first['overview_polyline'] as Map<String, dynamic>)['points']
+              as String;
+      return _decodePolyline(encodedPolyline);
+    } catch (e) {
+      return <LatLng>[];
     }
   }
 
-  // Method to calculate straight-line distance
-  void _calculateDistance() {
-    if (pickupLocation.value != null && destinationLocation.value != null) {
-      final double calculatedDistance = Geolocator.distanceBetween(
-        pickupLocation.value!.latitude,
-        pickupLocation.value!.longitude,
-        destinationLocation.value!.latitude,
-        destinationLocation.value!.longitude,
-      );
-      // Convert meters to kilometers and round to 1 decimal place
-      distance.value = (calculatedDistance / 1000).toPrecision(1);
-    } else {
+  // void _generateStraightLinePolyline() {
+  //   polylines.clear();
+  //   if (pickupLocation.value == null || destinationLocation.value == null) {
+  //     return;
+  //   }
+  //   const String polylineIdVal = 'route_polyline';
+  //   const PolylineId polylineId = PolylineId(polylineIdVal);
+
+  //   final Polyline polyline = Polyline(
+  //     polylineId: polylineId,
+  //     color: const Color(0xFFC0392B),
+  //     points: [
+  //       pickupLocation.value!,
+  //       destinationLocation.value!,
+  //     ],
+  //     width: 5,
+  //     geodesic: true,
+  //   );
+  //   polylines.add(polyline);
+  // }
+
+  void _calculateStraightLineDistance() {
+    if (pickupLocation.value == null || destinationLocation.value == null) {
       distance.value = 0.0;
+      return;
     }
+    final double calculatedDistance = Geolocator.distanceBetween(
+      pickupLocation.value!.latitude,
+      pickupLocation.value!.longitude,
+      destinationLocation.value!.latitude,
+      destinationLocation.value!.longitude,
+    );
+    distance.value = (calculatedDistance / 1000).toPrecision(1);
+  }
+
+  Future<void> _updateRoute() async {
+    debugPrint('📍 _updateRoute: Generating route polyline and distance...');
+    if (pickupLocation.value == null || destinationLocation.value == null) {
+      distance.value = 0.0;
+      polylines.clear();
+      return;
+    }
+
+    final origin =
+        '${pickupLocation.value!.latitude},${pickupLocation.value!.longitude}';
+    final dest =
+        '${destinationLocation.value!.latitude},${destinationLocation.value!.longitude}';
+
+    final url =
+        'https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$dest&mode=driving&departure_time=now&traffic_model=best_guess&key=${AppConstant.apiKey}';
+    print("Is go to try catch block ?");
+    try {
+      final response = await _dio.get(url);
+
+      debugPrint('Directional reaponse: ${response.data}');
+
+      if (response.statusCode == 200 &&
+          response.data['status'] == 'OK' &&
+          (response.data['routes'] as List).isNotEmpty) {
+        final route = response.data['routes'][0];
+        final leg = route['legs'][0];
+        final int distanceMeters = leg['distance']['value'];
+
+        final String encodedPolyline =
+            route['overview_polyline']['points'] as String;
+
+        final List<LatLng> decodedPoints = _decodePolyline(encodedPolyline);
+
+
+        polylines.clear();
+        polylines.add(
+          Polyline(
+            polylineId: const PolylineId('route_polyline'),
+            color: const Color(0xFF303644),
+            width: 5,
+            points: decodedPoints,
+          ),
+        );
+
+        distance.value = (distanceMeters / 1000.0).toPrecision(1);
+      } else {
+        // _generateStraightLinePolyline();
+        _calculateStraightLineDistance();
+      }
+    } catch (e) {
+      debugPrint("debugPrint('Directional reSPNSE FAILURE');" +e.toString());
+      // _generateStraightLinePolyline();
+      _calculateStraightLineDistance();
+    }
+  }
+
+  List<LatLng> _decodePolyline(String encoded) {
+    final List<LatLng> polyline = <LatLng>[];
+    int index = 0;
+    int lat = 0;
+    int lng = 0;
+
+    while (index < encoded.length) {
+      int result = 0;
+      int shift = 0;
+      int byte;
+      do {
+        byte = encoded.codeUnitAt(index++) - 63;
+        result |= (byte & 0x1f) << shift;
+        shift += 5;
+      } while (byte >= 0x20);
+      final int deltaLat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      lat += deltaLat;
+
+      result = 0;
+      shift = 0;
+      do {
+        byte = encoded.codeUnitAt(index++) - 63;
+        result |= (byte & 0x1f) << shift;
+        shift += 5;
+      } while (byte >= 0x20);
+      final int deltaLng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      lng += deltaLng;
+
+      polyline.add(LatLng(lat / 1e5, lng / 1e5));
+    }
+
+    return polyline;
   }
 
   void searchLocation(String query) {
