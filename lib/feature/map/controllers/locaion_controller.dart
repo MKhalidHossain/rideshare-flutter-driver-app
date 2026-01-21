@@ -283,7 +283,7 @@ class LocationController extends GetxController {
     debugPrint('📍 _updateRoute: Generating route polyline and distance...');
     if (pickupLocation.value == null || destinationLocation.value == null) {
       distance.value = 0.0;
-      polylines.clear();
+      polylines.value = {};
       return;
     }
 
@@ -313,15 +313,14 @@ class LocationController extends GetxController {
         final List<LatLng> decodedPoints = _decodePolyline(encodedPolyline);
 
 
-        polylines.clear();
-        polylines.add(
+        polylines.value = {
           Polyline(
             polylineId: const PolylineId('route_polyline'),
             color: const Color(0xFF303644),
             width: 5,
             points: decodedPoints,
           ),
-        );
+        };
 
         distance.value = (distanceMeters / 1000.0).toPrecision(1);
       } else {
