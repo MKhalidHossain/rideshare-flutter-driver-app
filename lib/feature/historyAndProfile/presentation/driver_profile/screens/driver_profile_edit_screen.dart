@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
@@ -96,8 +97,8 @@ class DriverProfileEditScreen extends StatelessWidget {
                                   child: SizedBox(
                                     width: 24,
                                     height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
+                                    child: LoadingShimmer(
+                                      size: 24,
                                       color: Colors.white,
                                     ),
                                   ),

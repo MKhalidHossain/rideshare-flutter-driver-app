@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:ridetohealthdriver/payment/screen/stripe_connect_webview_screen.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 
 class StripeConnectScreen extends StatefulWidget {
   const StripeConnectScreen({super.key});
@@ -119,10 +120,15 @@ class _StripeConnectScreenState extends State<StripeConnectScreen> {
                   backgroundColor: Colors.blueAccent,
                 ),
                 icon: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 40,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: Center(
+                          child: LoadingShimmer(
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        ),
                       )
                     : const Icon(Icons.link),
                 label: Text(

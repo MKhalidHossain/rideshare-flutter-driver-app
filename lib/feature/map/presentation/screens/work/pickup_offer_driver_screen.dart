@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -557,7 +558,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
               Container(
                 color: Colors.black54,
                 child: const Center(
-                  child: CircularProgressIndicator(color: Colors.red),
+                  child: LoadingShimmer(color: Colors.red),
                 ),
               ),
           ],

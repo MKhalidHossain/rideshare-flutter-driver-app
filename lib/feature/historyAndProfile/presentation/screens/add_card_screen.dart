@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:flutter/services.dart';
 
 class AddCardScreen extends StatefulWidget {
@@ -294,9 +295,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
             ? SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(
+                child: LoadingShimmer(
+                  size: 20,
                   color: Colors.white,
-                  strokeWidth: 2,
                 ),
               )
             : Text(

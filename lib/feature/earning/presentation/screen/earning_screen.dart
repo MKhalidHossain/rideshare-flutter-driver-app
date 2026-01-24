@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
@@ -119,7 +120,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
         Widget content;
         if (homeController.isEarningsLoading) {
           content = const Center(
-            child: CircularProgressIndicator(color: Colors.white),
+            child: LoadingShimmer(color: Colors.white),
           );
         } else if (homeController.earningsError != null) {
           content = Column(
@@ -284,7 +285,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                     builder: (_) {
                       if (homeController.isTripHistoryLoading) {
                         return const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
+                          child: LoadingShimmer(color: Colors.white),
                         );
                       }
 

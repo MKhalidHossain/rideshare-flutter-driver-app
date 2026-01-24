@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ridetohealthdriver/core/constants/urls.dart';
@@ -233,7 +234,7 @@ class _EditProfileState extends State<EditProfile> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Center(
-                child: CircularProgressIndicator(),
+                child: LoadingShimmer(color: Colors.white),
               ),
             ),
           ),

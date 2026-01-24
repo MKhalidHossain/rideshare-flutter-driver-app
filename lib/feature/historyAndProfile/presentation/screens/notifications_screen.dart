@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/feature/auth/domain/model/get_notification_response_model.dart';
@@ -56,9 +57,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         builder: (_) {
                           if (controller.isNotificationsLoading) {
                             return const Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
+                              child: LoadingShimmer(color: Colors.white),
                             );
                           }
                           if (controller.notificationsError != null) {

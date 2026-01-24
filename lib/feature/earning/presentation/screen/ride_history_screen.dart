@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
@@ -155,7 +156,7 @@ class _RideHistoryPageState extends State<RideHistoryPage> {
                       builder: (_) {
                         if (controller.isTripHistoryLoading) {
                           return const Center(
-                            child: CircularProgressIndicator(color: Colors.white),
+                            child: LoadingShimmer(color: Colors.white),
                           );
                         }
 

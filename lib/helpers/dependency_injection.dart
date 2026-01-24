@@ -64,7 +64,10 @@ Future<void> initDI() async {
   Get.lazyPut(() => localHomeRepositoryInterface);
   HomeServiceInterface localHomeServiceInterface = HomeService(Get.find());
   Get.lazyPut(() => localHomeServiceInterface);
-  Get.lazyPut(() => HomeController(localHomeServiceInterface));
+  Get.put<HomeController>(
+    HomeController(Get.find<HomeServiceInterface>()),
+    permanent: true,
+  );
   Get.lazyPut(() => HomeService(Get.find()));
 
   // //////////// Profile Service, Repository and Controller ////////////////////////////////

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
 import 'package:ridetohealthdriver/feature/identity/presentation/screens/verify_identity_screen.dart';
 import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import '../../../../core/validation/validators.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../../core/utils/constants/app_colors.dart';
@@ -99,7 +100,7 @@ final TextEditingController _nameController = TextEditingController();
                 homeController.getAllServicesResponseModel.data;
             print("Service Types: ${serviceTypes?.first.name}");
             return authController.isLoading || homeController.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: LoadingShimmer())
                 : AppScaffold(
                     body: SafeArea(
                       bottom: false,

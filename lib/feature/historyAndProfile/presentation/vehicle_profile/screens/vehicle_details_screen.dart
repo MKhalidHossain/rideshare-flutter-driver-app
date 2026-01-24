@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../controller/vehicle_profile_controller.dart';
@@ -30,7 +31,7 @@ class VehicleDetailsScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: LoadingShimmer());
         }
 
         final vehicleData = controller.vehicleData.value;

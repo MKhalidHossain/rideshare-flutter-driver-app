@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
 import '../controller/rating_controller.dart';
@@ -36,7 +37,7 @@ class RatingsReviewsScreen extends StatelessWidget {
 
         // 🔥 1. Loading State
         if (isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: LoadingShimmer());
         }
 
         // 🔥 2. Error State

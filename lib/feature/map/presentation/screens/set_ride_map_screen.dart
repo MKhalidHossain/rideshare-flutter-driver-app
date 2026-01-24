@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../controllers/app_controller.dart';
@@ -244,7 +245,7 @@ class SetRideMapScreen extends StatelessWidget {
                   ? Container(
                       color: Colors.black54,
                       child: Center(
-                        child: CircularProgressIndicator(color: Colors.red),
+                        child: LoadingShimmer(color: Colors.red),
                       ),
                     )
                   : SizedBox.shrink(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
@@ -218,7 +219,7 @@ class LocationConfirmationScreen extends StatelessWidget {
                   ),
                 ),
                 child: Obx(() => appController.isLoading.value
-                    ? const CircularProgressIndicator(color: Colors.white)
+                    ? const LoadingShimmer(color: Colors.white)
                     : const Text(
                         'Confirm Location',
                         style: TextStyle(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import '../../../controllers/app_controller.dart';
 import '../../../controllers/locaion_controller.dart';
@@ -126,7 +127,7 @@ class _SearchDestinationScreenState extends State<SearchDestinationScreen> {
             if (isSearching)
               Padding(
                 padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(color: Colors.red),
+                child: LoadingShimmer(color: Colors.red),
               )
             else
               Expanded(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import '../../../../core/validation/validators.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_scaffold.dart';
@@ -53,7 +54,7 @@ class UserLoginScreenState extends State<UserLoginScreen> {
     return GetBuilder<AuthController>(
       builder: (authController) {
         return authController.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: LoadingShimmer())
             : AppScaffold(
                 body: Column(
                   children: [

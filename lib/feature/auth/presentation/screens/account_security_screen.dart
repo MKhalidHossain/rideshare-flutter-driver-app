@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
@@ -120,8 +121,8 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
                                 ? const SizedBox(
                                     width: 18,
                                     height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
+                                    child: LoadingShimmer(
+                                      size: 18,
                                       color: Colors.white,
                                     ),
                                   )
@@ -157,7 +158,7 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
                         const Center(
                           child: Padding(
                             padding: EdgeInsets.all(16),
-                            child: CircularProgressIndicator(color: Colors.white),
+                            child: LoadingShimmer(color: Colors.white),
                           ),
                         )
                       else if (controller.loginHistoryError != null)

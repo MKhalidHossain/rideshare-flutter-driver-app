@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../themes/app_color.dart';
 import '../../themes/text_style.dart';
+import '../../widgets/loading_shimmer.dart';
 
 
 
@@ -34,9 +35,9 @@ extension ButtonStyleExtensions on BuildContext {
             ? SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                child: LoadingShimmer(
+                  size: 24,
+                  color: Colors.black,
                 ),
               )
             : Row(
@@ -158,4 +159,3 @@ class SecondaryButton extends StatelessWidget {
 //                     : Colors.black,
 //               ),
 //             ),
-

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 
 import '../../../../utils/app_constants.dart';
 import 'card_preview_screen.dart';
@@ -393,7 +394,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen>
       body: _cameraError
           ? _buildErrorMessage()
           : !_isCameraInitialized
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: LoadingShimmer(color: Colors.white))
           : Stack(
               key: _cameraKey,
               children: [
