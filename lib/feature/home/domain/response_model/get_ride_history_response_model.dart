@@ -1,3 +1,19 @@
+// =====================
+// SAFE PARSERS (GLOBAL)
+// =====================
+double? parseDouble(dynamic value) {
+  if (value == null) return null;
+  return (value as num).toDouble();
+}
+
+int? parseInt(dynamic value) {
+  if (value == null) return null;
+  return (value as num).toInt();
+}
+
+// =====================
+// RESPONSE MODEL
+// =====================
 class GetTripHistoryResponseModel {
   bool? success;
   Data? data;
@@ -9,16 +25,15 @@ class GetTripHistoryResponseModel {
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['success'] = success;
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        'success': success,
+        'data': data?.toJson(),
+      };
 }
 
+// =====================
+// DATA
+// =====================
 class Data {
   List<Rides>? rides;
   Pagination? pagination;
@@ -26,28 +41,24 @@ class Data {
   Data({this.rides, this.pagination});
 
   Data.fromJson(Map<String, dynamic> json) {
-    if (json['rides'] != null) {
-      rides = [];
-      json['rides'].forEach((v) {
-        rides!.add(Rides.fromJson(v));
-      });
-    }
-    pagination =
-        json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
+    rides = (json['rides'] as List?)
+        ?.map((e) => Rides.fromJson(e))
+        .toList();
+
+    pagination = json['pagination'] != null
+        ? Pagination.fromJson(json['pagination'])
+        : null;
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    if (rides != null) {
-      data['rides'] = rides!.map((v) => v.toJson()).toList();
-    }
-    if (pagination != null) {
-      data['pagination'] = pagination!.toJson();
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        'rides': rides?.map((e) => e.toJson()).toList(),
+        'pagination': pagination?.toJson(),
+      };
 }
 
+// =====================
+// RIDES
+// =====================
 class Rides {
   PickupLocation? pickupLocation;
   PickupLocation? dropoffLocation;
@@ -56,15 +67,19 @@ class Rides {
   String? sId;
   CustomerId? customerId;
   String? driverId;
-  int? totalFare;
-  int? actualDistance;
-  int? actualDuration;
-  int? finalFare;
+
+  double? totalFare;
+  double? actualDistance;
+  double? actualDuration;
+  double? finalFare;
+
   String? status;
   String? paymentMethod;
   String? paymentStatus;
-  List<dynamic>? route; // FIXED
+
+  List<dynamic>? route;
   List<Timeline>? timeline;
+
   String? createdAt;
   int? iV;
 
@@ -99,7 +114,6 @@ class Rides {
         : null;
 
     rating = json['rating'] != null ? Rating.fromJson(json['rating']) : null;
-
     commission =
         json['commission'] != null ? Commission.fromJson(json['commission']) : null;
 
@@ -108,72 +122,51 @@ class Rides {
         json['customerId'] != null ? CustomerId.fromJson(json['customerId']) : null;
 
     driverId = json['driverId'];
-    totalFare = json['totalFare'];
-    actualDistance = json['actualDistance'];
-    actualDuration = json['actualDuration'];
-    finalFare = json['finalFare'];
+
+    totalFare = parseDouble(json['totalFare']);
+    actualDistance = parseDouble(json['actualDistance']);
+    actualDuration = parseDouble(json['actualDuration']);
+    finalFare = parseDouble(json['finalFare']);
+
     status = json['status'];
     paymentMethod = json['paymentMethod'];
     paymentStatus = json['paymentStatus'];
 
-    /// FIXED (route list)
     route = json['route'] != null ? List<dynamic>.from(json['route']) : null;
 
-    if (json['timeline'] != null) {
-      timeline = [];
-      json['timeline'].forEach((v) {
-        timeline!.add(Timeline.fromJson(v));
-      });
-    }
+    timeline = (json['timeline'] as List?)
+        ?.map((e) => Timeline.fromJson(e))
+        .toList();
 
     createdAt = json['createdAt'];
-    iV = json['__v'];
+    iV = parseInt(json['__v']);
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    if (pickupLocation != null) {
-      data['pickupLocation'] = pickupLocation!.toJson();
-    }
-    if (dropoffLocation != null) {
-      data['dropoffLocation'] = dropoffLocation!.toJson();
-    }
-    if (rating != null) {
-      data['rating'] = rating!.toJson();
-    }
-    if (commission != null) {
-      data['commission'] = commission!.toJson();
-    }
-
-    data['_id'] = sId;
-    if (customerId != null) {
-      data['customerId'] = customerId!.toJson();
-    }
-
-    data['driverId'] = driverId;
-    data['totalFare'] = totalFare;
-    data['actualDistance'] = actualDistance;
-    data['actualDuration'] = actualDuration;
-    data['finalFare'] = finalFare;
-    data['status'] = status;
-    data['paymentMethod'] = paymentMethod;
-    data['paymentStatus'] = paymentStatus;
-
-    if (route != null) {
-      data['route'] = route;
-    }
-
-    if (timeline != null) {
-      data['timeline'] = timeline!.map((v) => v.toJson()).toList();
-    }
-
-    data['createdAt'] = createdAt;
-    data['__v'] = iV;
-
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        'pickupLocation': pickupLocation?.toJson(),
+        'dropoffLocation': dropoffLocation?.toJson(),
+        'rating': rating?.toJson(),
+        'commission': commission?.toJson(),
+        '_id': sId,
+        'customerId': customerId?.toJson(),
+        'driverId': driverId,
+        'totalFare': totalFare,
+        'actualDistance': actualDistance,
+        'actualDuration': actualDuration,
+        'finalFare': finalFare,
+        'status': status,
+        'paymentMethod': paymentMethod,
+        'paymentStatus': paymentStatus,
+        'route': route,
+        'timeline': timeline?.map((e) => e.toJson()).toList(),
+        'createdAt': createdAt,
+        '__v': iV,
+      };
 }
 
+// =====================
+// PICKUP / DROPOFF
+// =====================
 class PickupLocation {
   List<double>? coordinates;
   String? address;
@@ -182,22 +175,24 @@ class PickupLocation {
   PickupLocation({this.coordinates, this.address, this.type});
 
   PickupLocation.fromJson(Map<String, dynamic> json) {
-    coordinates = json['coordinates'] != null
-        ? List<double>.from(json['coordinates'].map((x) => x.toDouble()))
-        : null;
+    coordinates = (json['coordinates'] as List?)
+        ?.map((e) => (e as num).toDouble())
+        .toList();
+
     address = json['address'];
     type = json['type'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['coordinates'] = coordinates;
-    data['address'] = address;
-    data['type'] = type;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        'coordinates': coordinates,
+        'address': address,
+        'type': type,
+      };
 }
 
+// =====================
+// RATING
+// =====================
 class Rating {
   CustomerToDriver? customerToDriver;
   CustomerToDriver? driverToCustomer;
@@ -214,16 +209,10 @@ class Rating {
         : null;
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    if (customerToDriver != null) {
-      data['customerToDriver'] = customerToDriver!.toJson();
-    }
-    if (driverToCustomer != null) {
-      data['driverToCustomer'] = driverToCustomer!.toJson();
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        'customerToDriver': customerToDriver?.toJson(),
+        'driverToCustomer': driverToCustomer?.toJson(),
+      };
 }
 
 class CustomerToDriver {
@@ -235,13 +224,12 @@ class CustomerToDriver {
     ratedAt = json['ratedAt'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['ratedAt'] = ratedAt;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {'ratedAt': ratedAt};
 }
 
+// =====================
+// COMMISSION
+// =====================
 class Commission {
   double? rate;
   int? amount;
@@ -249,18 +237,19 @@ class Commission {
   Commission({this.rate, this.amount});
 
   Commission.fromJson(Map<String, dynamic> json) {
-    rate = json['rate']?.toDouble();
-    amount = json['amount'];
+    rate = parseDouble(json['rate']);
+    amount = parseInt(json['amount']);
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['rate'] = rate;
-    data['amount'] = amount;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        'rate': rate,
+        'amount': amount,
+      };
 }
 
+// =====================
+// CUSTOMER
+// =====================
 class CustomerId {
   String? sId;
   String? fullName;
@@ -274,15 +263,16 @@ class CustomerId {
     profileImage = json['profileImage'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['_id'] = sId;
-    data['fullName'] = fullName;
-    data['profileImage'] = profileImage;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        '_id': sId,
+        'fullName': fullName,
+        'profileImage': profileImage,
+      };
 }
 
+// =====================
+// TIMELINE
+// =====================
 class Timeline {
   String? status;
   String? timestamp;
@@ -296,15 +286,16 @@ class Timeline {
     sId = json['_id'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['status'] = status;
-    data['timestamp'] = timestamp;
-    data['_id'] = sId;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        'status': status,
+        'timestamp': timestamp,
+        '_id': sId,
+      };
 }
 
+// =====================
+// PAGINATION
+// =====================
 class Pagination {
   int? current;
   int? pages;
@@ -313,16 +304,14 @@ class Pagination {
   Pagination({this.current, this.pages, this.total});
 
   Pagination.fromJson(Map<String, dynamic> json) {
-    current = json['current'];
-    pages = json['pages'];
-    total = json['total'];
+    current = parseInt(json['current']);
+    pages = parseInt(json['pages']);
+    total = parseInt(json['total']);
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['current'] = current;
-    data['pages'] = pages;
-    data['total'] = total;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        'current': current,
+        'pages': pages,
+        'total': total,
+      };
 }
