@@ -68,8 +68,16 @@ class AuthService implements AuthServiceInterface {
   }
 
   @override
-  Future login(String emailOrPhone, String password) async {
-    return await authRepositoryInterface.login(emailOrPhone, password);
+  Future login(
+    String emailOrPhone,
+    String password,
+    Map<String, dynamic> deviceInfo,
+  ) async {
+    return await authRepositoryInterface.login(
+      emailOrPhone,
+      password,
+      deviceInfo,
+    );
   }
 
   @override

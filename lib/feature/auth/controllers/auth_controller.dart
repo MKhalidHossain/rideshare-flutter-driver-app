@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ridetohealthdriver/payment/screen/stripe_connect_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app.dart';
@@ -38,6 +41,58 @@ class AuthController extends GetxController implements GetxService {
   bool get isLoading => _isLoading;
   bool get acceptTerms => _acceptTerms;
   final String _mobileNumber = '';
+
+  Future<Map<String, dynamic>> _buildDeviceInfo() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final deviceInfo = DeviceInfoPlugin();
+
+    String name = 'Unknown device';
+    String os = 'Unknown OS';
+
+    if (kIsWeb) {
+      final webInfo = await deviceInfo.webBrowserInfo;
+      name = webInfo.userAgent ?? 'Web';
+      os = webInfo.platform ?? 'Web';
+    } else {
+      switch (defaultTargetPlatform) {
+        case TargetPlatform.android:
+          final androidInfo = await deviceInfo.androidInfo;
+          name = '${androidInfo.brand} ${androidInfo.model}';
+          os = 'Android ${androidInfo.version.release}';
+          break;
+        case TargetPlatform.iOS:
+          final iosInfo = await deviceInfo.iosInfo;
+          name = (iosInfo.name != null && iosInfo.name!.isNotEmpty)
+              ? iosInfo.name!
+              : (iosInfo.model ?? 'iOS device');
+          os = 'iOS ${iosInfo.systemVersion}';
+          break;
+        case TargetPlatform.macOS:
+          final macInfo = await deviceInfo.macOsInfo;
+          name = macInfo.computerName;
+          os = 'macOS ${macInfo.osRelease}';
+          break;
+        case TargetPlatform.windows:
+          final windowsInfo = await deviceInfo.windowsInfo;
+          name = windowsInfo.computerName;
+          os = 'Windows ${windowsInfo.displayVersion}';
+          break;
+        case TargetPlatform.linux:
+          final linuxInfo = await deviceInfo.linuxInfo;
+          name = linuxInfo.name;
+          os = 'Linux ${linuxInfo.version}';
+          break;
+        default:
+          break;
+      }
+    }
+
+    return {
+      'name': name,
+      'os': os,
+      'appVersion': packageInfo.version,
+    };
+  }
   String get mobileNumber => _mobileNumber;
   XFile? _pickedProfileFile;
   XFile? get pickedProfileFile => _pickedProfileFile;
@@ -426,9 +481,11 @@ void setRegistrationData({
 
     // Response? response = Response();
 
+    final deviceInfo = await _buildDeviceInfo();
     Response? response = await authServiceInterface.login(
       emailOrPhone,
       password,
+      deviceInfo,
     );
 
     if (response == null) {
@@ -895,7 +952,12 @@ void setRegistrationData({
     }
 
     try {
-      final Response? response = await authServiceInterface.login(email, password);
+      final deviceInfo = await _buildDeviceInfo();
+      final Response? response = await authServiceInterface.login(
+        email,
+        password,
+        deviceInfo,
+      );
       if (response != null && response.statusCode == 200) {
         logInResponseModel = LogInResponseModel.fromJson(response.body);
         final accessToken = logInResponseModel?.data?.accessToken;

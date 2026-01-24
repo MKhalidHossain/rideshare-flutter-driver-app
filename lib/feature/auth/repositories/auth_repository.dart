@@ -98,10 +98,15 @@ class AuthRepository implements AuthRepositoryInterface {
   }
 
   @override
-  Future login(String emailOrPhone, String password) async {
+  Future login(
+    String emailOrPhone,
+    String password,
+    Map<String, dynamic> deviceInfo,
+  ) async {
     return await apiClient.postData(Urls.login, {
       'emailOrPhone': emailOrPhone,
       'password': password,
+      'deviceInfo': deviceInfo,
     });
   }
 

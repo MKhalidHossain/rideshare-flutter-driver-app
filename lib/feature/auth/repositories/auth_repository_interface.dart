@@ -15,7 +15,11 @@ abstract class AuthRepositoryInterface {
   XFile selfie,
     
   );
-  Future<dynamic> login(String emailOrPhone, String password);
+  Future<dynamic> login(
+    String emailOrPhone,
+    String password,
+    Map<String, dynamic> deviceInfo,
+  );
   Future<dynamic> verifyOtp(String email, String otp, String type);
   Future<dynamic> forgetPassword(String? emailOrPhone);
   Future<dynamic> resetPassword(String emailOrPhone, String newPassword);
