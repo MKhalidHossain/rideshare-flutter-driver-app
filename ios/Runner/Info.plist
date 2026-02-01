@@ -24,8 +24,10 @@
     <string>????</string>
     <key>CFBundleVersion</key>
     <string>$(FLUTTER_BUILD_NUMBER)</string>
-    <key>LSRequiresIPhoneOS</key>
-    <true/>
+    <key>LSRequiresIPhoneO
+    
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
 
     <!-- ✅ Add these to fix 90683 errors -->
     <key>NSCameraUsageDescription</key>
