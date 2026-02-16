@@ -46,9 +46,14 @@ class AuthService implements AuthServiceInterface {
     return authRepositoryInterface.getUserToken();
   }
 
-    @override
+  @override
   String getUserId() {
     return authRepositoryInterface.getUserId();
+  }
+
+  @override
+  String getUserEmail() {
+    return authRepositoryInterface.getUserEmail();
   }
 
 
@@ -137,6 +142,11 @@ class AuthService implements AuthServiceInterface {
       @override
   Future<bool?> saveUserId(String userId) async{
    return await authRepositoryInterface.saveUserId(userId);
+  }
+
+  @override
+  Future<bool?> saveUserEmail(String email) async {
+    return await authRepositoryInterface.saveUserEmail(email);
   }
 
   @override

@@ -24,7 +24,8 @@
     <string>????</string>
     <key>CFBundleVersion</key>
     <string>$(FLUTTER_BUILD_NUMBER)</string>
-    <key>LSRequiresIPhoneO
+   <key>LSRequiresIPhoneOS</key>
+<true/>
     
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>

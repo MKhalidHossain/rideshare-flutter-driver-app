@@ -36,10 +36,12 @@ abstract class AuthServiceInterface {
   bool clearSharedAddress();
   String getUserToken();
   String getUserId();
+  String getUserEmail();
 
   Future<dynamic> updateToken();
   Future<bool?> saveUserToken(String token, String refreshToken);
   Future<bool?> saveUserId(String userId);
+  Future<bool?> saveUserEmail(String email);
   Future<dynamic> updateAccessAndRefreshToken();
 
   bool isFirstTimeInstall();

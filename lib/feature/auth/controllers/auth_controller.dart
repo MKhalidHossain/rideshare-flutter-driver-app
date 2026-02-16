@@ -504,6 +504,8 @@ void setRegistrationData({
       refreshToken = logInResponseModel!.data!.refreshToken!;
       accessToken = logInResponseModel!.data!.accessToken!;
       userId = logInResponseModel!.data!.user!.id!;
+      final String savedEmail =
+          logInResponseModel?.data?.user?.email?.trim() ?? '';
       print(
         'accessToken ${logInResponseModel!.data!.accessToken}} NOW Iwalker',
       );
@@ -514,6 +516,11 @@ void setRegistrationData({
 
       await setUserId(userId);
       await setUserToken(accessToken, refreshToken);
+      if (savedEmail.isNotEmpty) {
+        await setUserEmail(savedEmail);
+      } else if (emailOrPhone.contains('@')) {
+        await setUserEmail(emailOrPhone.trim());
+      }
 
       socketClient.emit('join-driver', {
           'driverId': logInResponseModel!.data!.user!.id,  // ei key ta backend expect korche
@@ -925,6 +932,10 @@ void setRegistrationData({
     return authServiceInterface.getUserId();
   }
 
+  String getUserEmail() {
+    return authServiceInterface.getUserEmail();
+  }
+
 
   Future<void> setUserToken(String token, String refreshToken) async {
     await authServiceInterface.saveUserToken(token, refreshToken);
@@ -932,6 +943,10 @@ void setRegistrationData({
 
       Future<void> setUserId(String userId) async {
     await authServiceInterface.saveUserId(userId);
+  }
+
+  Future<void> setUserEmail(String email) async {
+    await authServiceInterface.saveUserEmail(email);
   }
 
 

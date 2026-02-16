@@ -64,11 +64,16 @@ class AuthRepository implements AuthRepositoryInterface {
     return token;
   }
 
-    @override
+  @override
   String getUserId() {
     final userId = sharedPreferences.getString(AppConstants.userId) ?? '';
     apiClient.updateHeader(userId);
     return userId;
+  }
+
+  @override
+  String getUserEmail() {
+    return sharedPreferences.getString(AppConstants.userEmail) ?? '';
   }
 
   @override
@@ -220,6 +225,11 @@ class AuthRepository implements AuthRepositoryInterface {
     @override
   Future<bool?> saveUserId(String userId) async{
     return await sharedPreferences.setString(AppConstants.userId, userId);
+  }
+
+  @override
+  Future<bool?> saveUserEmail(String email) async {
+    return await sharedPreferences.setString(AppConstants.userEmail, email);
   }
 
 

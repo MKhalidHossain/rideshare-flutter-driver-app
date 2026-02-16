@@ -6,6 +6,7 @@ import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/driver
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/account_security_screen.dart';
 import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/screens/notifications_screen.dart';
 import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/screens/privacy_policy_screen.dart';
+import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/screens/delete_account_screen.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../app/screens/rating_review_screen.dart';
@@ -269,6 +270,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       'Privacy policy',
                       onTap: () {
                         Get.to(PrivacyPolicyScreen());
+                      },
+                    ),
+                    _divider(),
+                    _buildMenuItem(
+                      Icons.delete_outline,
+                      "Delete Account",
+                      'Request account deletion',
+                      color: const Color(0xffCE0000).withOpacity(0.8),
+                      onTap: () {
+                        Get.to(() => const DeleteAccountScreen());
                       },
                     ),
                     _divider(),

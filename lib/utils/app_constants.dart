@@ -8,6 +8,7 @@ class AppConstants {
   static const String userId = 'userId';
 
   static const String refreshToken = 'refresh_token';
+  static const String userEmail = 'userEmail';
 
   static const String kSelfie  = 'Selfie Photo';
   static const String kGovId   = 'Government ID';

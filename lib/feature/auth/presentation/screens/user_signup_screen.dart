@@ -1,7 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
 import 'package:ridetohealthdriver/feature/identity/presentation/screens/verify_identity_screen.dart';
 import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
@@ -41,7 +43,7 @@ class UserSignupScreenState extends State<UserSignupScreen> {
   final FocusNode _passwordFocus = FocusNode();
   final FocusNode _confirmPasswordFocus = FocusNode();
 
-final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _drivingLicenceController = TextEditingController();
@@ -50,10 +52,21 @@ final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
+  late final TapGestureRecognizer _termsRecognizer;
+  late final TapGestureRecognizer _privacyRecognizer;
+
   String? selectedServiceType;
 
   @override
   void initState() { 
+    _termsRecognizer = TapGestureRecognizer()
+      ..onTap = () {
+        _openExternalUrl('https://privacy.rideztransportation.com/privacy.html');
+      };
+    _privacyRecognizer = TapGestureRecognizer()
+      ..onTap = () {
+        _openExternalUrl('https://privacy.rideztransportation.com');
+      };
       
     WidgetsBinding.instance.addPostFrameCallback((_) {
       authController = Get.find<AuthController>();
@@ -75,6 +88,8 @@ final TextEditingController _nameController = TextEditingController();
 
   @override
   void dispose() {
+    _termsRecognizer.dispose();
+    _privacyRecognizer.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -84,6 +99,22 @@ final TextEditingController _nameController = TextEditingController();
     _serviceTypeController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _openExternalUrl(String url) async {
+    final uri = Uri.parse(url);
+    final didLaunch = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+    if (!didLaunch) {
+      showAppSnackBar(
+        'Error',
+        'Could not open the link.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    }
   }
 
   @override
@@ -303,7 +334,7 @@ final TextEditingController _nameController = TextEditingController();
                                                       fontWeight:
                                                           FontWeight.w400,
                                                     ),
-                                                    children: const [
+                                                    children: [
                                                       TextSpan(
                                                         text:
                                                             ' term of services ',
@@ -313,6 +344,8 @@ final TextEditingController _nameController = TextEditingController();
                                                               FontWeight.w700,
                                                           fontSize: 16,
                                                         ),
+                                                        recognizer:
+                                                            _termsRecognizer,
                                                       ),
                                                       TextSpan(
                                                         text: ' and ',
@@ -332,6 +365,8 @@ final TextEditingController _nameController = TextEditingController();
                                                               FontWeight.w700,
                                                           fontSize: 16,
                                                         ),
+                                                        recognizer:
+                                                            _privacyRecognizer,
                                                       ),
                                                     ],
                                                   ),
