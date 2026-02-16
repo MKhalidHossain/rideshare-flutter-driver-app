@@ -23,8 +23,8 @@ RidezToHealth Driver is a Flutter app for drivers to manage availability, receiv
 
 **Screen Gallery**
 Place screenshots in `docs/screenshots/` using the filenames below.
-<p><img src="docs/screenshots/driver_idle.png" width="170"/><img src="docs/screenshots/driver_request.png" width="170"/><img src="docs/screenshots/ride_in_progress.png" width="170"/><img src="docs/screenshots/chat.png" width="170"/><img src="docs/screenshots/earnings.png" width="170"/><img src="docs/screenshots/history.png" width="170"/></p>
-<p><img src="docs/screenshots/profile.png" width="170"/><img src="docs/screenshots/account_security.png" width="170"/><img src="docs/screenshots/vehicle_details.png" width="170"/><img src="docs/screenshots/notifications.png" width="170"/><img src="docs/screenshots/location_permission.png" width="170"/></p>
+<p><img src="docs/screenshots/driver_idle.png" width="170"/><img src="docs/screenshots/driver_request.png" width="170"/><img src="docs/screenshots/ride_in_progress.png" width="170"/><img src="docs/screenshots/ride_overview.png" width="170"/><img src="docs/screenshots/chat.png" width="170"/><img src="docs/screenshots/earnings.png" width="170"/></p>
+<p><img src="docs/screenshots/history.png" width="170"/><img src="docs/screenshots/profile.png" width="170"/><img src="docs/screenshots/account_security.png" width="170"/><img src="docs/screenshots/vehicle_details.png" width="170"/><img src="docs/screenshots/notifications.png" width="170"/><img src="docs/screenshots/location_permission.png" width="170"/></p>
 
 **App Flow**
 ```mermaid
