@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 import 'package:ridetohealthdriver/feature/historyAndProfile/presentation/driver_profile/controller/driver_profile_controller.dart';
@@ -21,11 +22,12 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   AuthController authController = Get.find<AuthController>();
   final driverProfileController = Get.put(DriverProfileController());
-  // @override
-  // void initState() {
-  //   //Get.find<ProfileController>().getUserById();
-  //   super.initState();
-  // }
+
+  @override
+  void initState() {
+    super.initState();
+    driverProfileController.getDriverProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,20 +57,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Obx(() {
-                          final profile = driverProfileController
-                              .driverProfile
+                    Obx(() {
+                      final profile = driverProfileController
+                          .driverProfile
+                          .value
+                          ?.profileData;
+                      final fullName =
+                          (profile?.fullName ?? '').trim().isNotEmpty
+                          ? profile!.fullName!.trim()
+                          : driverProfileController.fullName.value.trim();
+                      final email = (profile?.email ?? '').trim().isNotEmpty
+                          ? profile!.email!.trim()
+                          : driverProfileController.email.value.trim();
+                      final phone =
+                          (profile?.phoneNumber ?? '').trim().isNotEmpty
+                          ? profile!.phoneNumber!.trim()
+                          : driverProfileController.phone.value.trim();
+                      final imageUrl =
+                          driverProfileController
+                              .profileImageUrl
                               .value
-                              ?.profileData;
-                          final imageUrl = profile?.profileImage;
-                          return Container(
+                              .isNotEmpty
+                          ? driverProfileController.profileImageUrl.value
+                          : profile?.profileImage;
+
+                      return Row(
+                        children: [
+                          Container(
                             width: 80,
                             height: 80,
                             padding: const EdgeInsets.all(3),
                             decoration: BoxDecoration(
-                              color: Colors.red,
                               shape: BoxShape.circle,
                               gradient: LinearGradient(
                                 colors: [
@@ -95,99 +114,100 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             );
                                           },
                                     )
-                                  : Image.asset(
-                                      'assets/images/user5.png',
-                                      width: 60,
-                                      height: 60,
-                                      fit: BoxFit.cover,
+                                  : const Center(
+                                      child: Icon(
+                                        Icons.person_outline,
+                                        size: 40,
+                                        color: Colors.grey,
+                                      ),
                                     ),
                             ),
-                          );
-                        }),
-                        SizedBox(width: 12),
-
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Obx(
-                              () =>
-                                  (driverProfileController
-                                              .fullName
-                                              .value
-                                              .isNotEmpty
-                                          ? driverProfileController
-                                                .fullName
-                                                .value
-                                          : 'Unknown')
-                                      .text22White(),
-                            ),
-                            SizedBox(height: 4),
-                            Obx(
-                              () =>
-                                  (driverProfileController
-                                              .email
-                                              .value
-                                              .isNotEmpty
-                                          ? driverProfileController.email.value
-                                          : '')
-                                      .text14White(),
-                            ),
-                            Obx(
-                              () =>
-                                  (driverProfileController
-                                              .phone
-                                              .value
-                                              .isNotEmpty
-                                          ? driverProfileController.phone.value
-                                          : '')
-                                      .text14White(),
-                            ),
-                            SizedBox(height: 4),
-                          ],
-                        ),
-
-                        SizedBox(height: 4),
-                        Spacer(),
-                      ],
-                    ),
+                          ),
+                          SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              (fullName.isNotEmpty ? fullName : 'Unknown')
+                                  .text22White(),
+                              SizedBox(height: 4),
+                              (email.isNotEmpty
+                                      ? email
+                                      : 'info@ridetohealth.com')
+                                  .text14White(),
+                              (phone.isNotEmpty ? phone : '+000 0000000')
+                                  .text14White(),
+                              SizedBox(height: 4),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          Spacer(),
+                        ],
+                      );
+                    }),
 
                     Divider(color: Colors.white54, thickness: 0.5),
-                    Row(
-                      children: [
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.star, color: Colors.amber, size: 16),
-                                SizedBox(width: 6),
-                                '4.9'.text14White(),
-                              ],
-                            ),
-                            SizedBox(height: 4),
-                            'Rating'.text14White(),
-                          ],
-                        ),
+                    Obx(() {
+                      final profile = driverProfileController
+                          .driverProfile
+                          .value
+                          ?.profileData;
+                      final driverData = driverProfileController
+                          .driverProfile
+                          .value
+                          ?.driverData;
+                      final ratingAvg = driverData?.ratings?.average ?? 0;
+                      final ratingCount =
+                          driverData?.ratings?.totalRatings ?? 0;
+                      String memberSince = '-';
+                      final createdAt = profile?.createdAt;
+                      if (createdAt != null && createdAt.isNotEmpty) {
+                        try {
+                          memberSince = DateFormat(
+                            'dd MMM yyyy',
+                          ).format(DateTime.parse(createdAt).toLocal());
+                        } catch (_) {}
+                      }
 
-                        Spacer(),
-                        Column(
-                          children: [
-                            SizedBox(width: 6),
-                            '852'.text14White(),
-                            SizedBox(height: 4),
-                            'Riders'.text14White(),
-                          ],
-                        ),
-                        Spacer(),
-                        Column(
-                          children: [
-                            SizedBox(width: 6),
-                            '17 jan 2023'.text14White(),
-                            SizedBox(height: 4),
-                            'Member since'.text14White(),
-                          ],
-                        ),
-                      ],
-                    ),
+                      return Row(
+                        children: [
+                          Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 6),
+                                  ratingAvg.toStringAsFixed(1).text14White(),
+                                ],
+                              ),
+                              SizedBox(height: 4),
+                              'Rating'.text14White(),
+                            ],
+                          ),
+                          Spacer(),
+                          Column(
+                            children: [
+                              SizedBox(width: 6),
+                              '$ratingCount'.text14White(),
+                              SizedBox(height: 4),
+                              'Riders'.text14White(),
+                            ],
+                          ),
+                          Spacer(),
+                          Column(
+                            children: [
+                              SizedBox(width: 6),
+                              memberSince.text14White(),
+                              SizedBox(height: 4),
+                              'Member since'.text14White(),
+                            ],
+                          ),
+                        ],
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -205,10 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
 
-                child: Column(children: [Row(children: [
-                        
-                      ],
-                    )]),
+                child: Column(children: [Row(children: [])]),
               ),
             ),
 

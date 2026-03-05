@@ -80,12 +80,11 @@ class DriverProfileController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString(AppConstants.accessToken);
 
-      if (token == null || token.isEmpty) {
-        isLoading.value = false;
-        return;
+      if (token != null && token.isNotEmpty) {
+        apiClient.updateHeader(token);
+      } else {
+        debugPrint('⚠️ No token found in SharedPreferences');
       }
-
-      apiClient.updateHeader(token);
       final response = await apiClient.getData(Urls.getDriverProfile);
 
       if (response.statusCode == 200) {
@@ -180,8 +179,7 @@ class DriverProfileController extends GetxController {
         fileFieldName: 'image',
       );
 
-      final success =
-          response.statusCode == 200 || response.statusCode == 201;
+      final success = response.statusCode == 200 || response.statusCode == 201;
 
       String? remoteImageUrl;
       final body = response.body;
@@ -257,7 +255,9 @@ class DriverProfileController extends GetxController {
     }
   }
 
-  Future<void> updateDriverProfile(UpdateProfileRequestModel requestModel) async {
+  Future<void> updateDriverProfile(
+    UpdateProfileRequestModel requestModel,
+  ) async {
     isLoading.value = true;
 
     try {
@@ -271,12 +271,14 @@ class DriverProfileController extends GetxController {
 
       apiClient.updateHeader(token);
 
-      final body = requestModel.toJson()..removeWhere((key, value) => value == null);
+      final body = requestModel.toJson()
+        ..removeWhere((key, value) => value == null);
       final response = await apiClient.putData(Urls.updateDriverProfile, body);
 
       if (response.statusCode == 200 && (response.body != null)) {
-        final decoded =
-            response.body is String ? json.decode(response.body) : response.body;
+        final decoded = response.body is String
+            ? json.decode(response.body)
+            : response.body;
         final parsed = decoded is Map<String, dynamic>
             ? UpdateProfileResponseModel.fromJson(decoded)
             : null;

@@ -27,7 +27,7 @@ class Data {
 
   factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
-      accessToken: json['token'] as String?,
+      accessToken: json['accessToken'] as String? ?? json['token'] as String?,
       refreshToken: json['refreshToken'] as String?,
       user: json['user'] != null ? User.fromJson(json['user']) : null,
     );
@@ -65,7 +65,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] as String?,
+      id: (json['id'] as String?) ?? (json['_id'] as String?),
       fullName: json['fullName'] as String?,
       email: json['email'] as String?,
       phoneNumber: json['phoneNumber'] as String?,

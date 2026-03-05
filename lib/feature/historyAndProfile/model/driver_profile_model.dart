@@ -1,20 +1,19 @@
-
 class DriverProfileResponse {
   bool? success;
   ProfileData? profileData;
   DriverData? driverData;
 
-  DriverProfileResponse({
-    this.success,
-    this.profileData,
-    this.driverData,
-  });
+  DriverProfileResponse({this.success, this.profileData, this.driverData});
 
   factory DriverProfileResponse.fromJson(Map<String, dynamic> json) {
     final Map<String, dynamic> root =
-        json['data'] is Map<String, dynamic> ? Map<String, dynamic>.from(json['data']) : json;
+        json['profileData'] != null || json['driverData'] != null
+        ? json
+        : (json['data'] is Map<String, dynamic>
+              ? Map<String, dynamic>.from(json['data'])
+              : json);
     return DriverProfileResponse(
-      success: json['success'],
+      success: json['success'] ?? root['success'],
       profileData: root['profileData'] != null
           ? ProfileData.fromJson(root['profileData'])
           : null,
@@ -25,12 +24,11 @@ class DriverProfileResponse {
   }
 
   Map<String, dynamic> toJson() => {
-        'success': success,
-        'profileData': profileData?.toJson(),
-        'driverData': driverData?.toJson(),
-      };
+    'success': success,
+    'profileData': profileData?.toJson(),
+    'driverData': driverData?.toJson(),
+  };
 }
-
 
 class ProfileData {
   Wallet? wallet;
@@ -118,8 +116,9 @@ class ProfileData {
       nidNumber: json['nidNumber'],
       nidImage: json['nidImage'],
       selfieImage: json['selfieImage'],
-      serviceTypes:
-          (json['serviceTypes'] as List?)?.map((e) => e.toString()).toList(),
+      serviceTypes: (json['serviceTypes'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
       refreshToken: json['refreshToken'],
       isActive: json['isActive'],
       emergencyContact: json['emergency_contact'] != null
@@ -143,39 +142,40 @@ class ProfileData {
   }
 
   Map<String, dynamic> toJson() => {
-        'wallet': wallet?.toJson(),
-        'notificationSettings': notificationSettings?.toJson(),
-        '_id': id,
-        'fullName': fullName,
-        'email': email,
-        'phoneNumber': phoneNumber,
-        'role': role,
-        'profileImage': profileImage,
-        'isEmailVerified': isEmailVerified,
-        'isPhoneVerified': isPhoneVerified,
-        'licenseNumber': licenseNumber,
-        'licenseImage': licenseImage,
-        'nidNumber': nidNumber,
-        'nidImage': nidImage,
-        'selfieImage': selfieImage,
-        'serviceTypes': serviceTypes,
-        'refreshToken': refreshToken,
-        'isActive': isActive,
-        'emergency_contact': emergencyContact?.toJson(),
-        'savedPlaces': savedPlaces,
-        'suspensions': suspensions,
-        'loginHistory': loginHistory?.map((e) => e.toJson()).toList(),
-        'lastSeen': lastSeen,
-        'lastActive': lastActive,
-        'createdAt': createdAt,
-        'city': city,
-        'date_of_birth': dateOfBirth,
-        'state': state,
-        'street_address': streetAddress,
-        'zipcode': zipcode,
-        '__v': version,
-      };
+    'wallet': wallet?.toJson(),
+    'notificationSettings': notificationSettings?.toJson(),
+    '_id': id,
+    'fullName': fullName,
+    'email': email,
+    'phoneNumber': phoneNumber,
+    'role': role,
+    'profileImage': profileImage,
+    'isEmailVerified': isEmailVerified,
+    'isPhoneVerified': isPhoneVerified,
+    'licenseNumber': licenseNumber,
+    'licenseImage': licenseImage,
+    'nidNumber': nidNumber,
+    'nidImage': nidImage,
+    'selfieImage': selfieImage,
+    'serviceTypes': serviceTypes,
+    'refreshToken': refreshToken,
+    'isActive': isActive,
+    'emergency_contact': emergencyContact?.toJson(),
+    'savedPlaces': savedPlaces,
+    'suspensions': suspensions,
+    'loginHistory': loginHistory?.map((e) => e.toJson()).toList(),
+    'lastSeen': lastSeen,
+    'lastActive': lastActive,
+    'createdAt': createdAt,
+    'city': city,
+    'date_of_birth': dateOfBirth,
+    'state': state,
+    'street_address': streetAddress,
+    'zipcode': zipcode,
+    '__v': version,
+  };
 }
+
 class Wallet {
   double? balance;
   List<dynamic>? transactions;
@@ -190,9 +190,9 @@ class Wallet {
   }
 
   Map<String, dynamic> toJson() => {
-        'balance': balance,
-        'transactions': transactions,
-      };
+    'balance': balance,
+    'transactions': transactions,
+  };
 }
 
 class NotificationSettings {
@@ -215,10 +215,10 @@ class NotificationSettings {
   }
 
   Map<String, dynamic> toJson() => {
-        'pushNotifications': pushNotifications,
-        'emailNotifications': emailNotifications,
-        'smsNotifications': smsNotifications,
-      };
+    'pushNotifications': pushNotifications,
+    'emailNotifications': emailNotifications,
+    'smsNotifications': smsNotifications,
+  };
 }
 
 class EmergencyContact {
@@ -234,12 +234,8 @@ class EmergencyContact {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'phoneNumber': phoneNumber,
-      };
+  Map<String, dynamic> toJson() => {'name': name, 'phoneNumber': phoneNumber};
 }
-
 
 class LoginHistory {
   String? device;
@@ -247,12 +243,7 @@ class LoginHistory {
   String? id;
   String? loginTime;
 
-  LoginHistory({
-    this.device,
-    this.ipAddress,
-    this.id,
-    this.loginTime,
-  });
+  LoginHistory({this.device, this.ipAddress, this.id, this.loginTime});
 
   factory LoginHistory.fromJson(Map<String, dynamic> json) {
     return LoginHistory(
@@ -264,13 +255,12 @@ class LoginHistory {
   }
 
   Map<String, dynamic> toJson() => {
-        'device': device,
-        'ipAddress': ipAddress,
-        '_id': id,
-        'loginTime': loginTime,
-      };
+    'device': device,
+    'ipAddress': ipAddress,
+    '_id': id,
+    'loginTime': loginTime,
+  };
 }
-
 
 class DriverData {
   CurrentLocation? currentLocation;
@@ -278,7 +268,7 @@ class DriverData {
   Ratings? ratings;
   String? id;
   String? userId;
-  String? vehicleId;
+  dynamic vehicleId;
   String? status;
   bool? isAvailable;
   int? heading;
@@ -316,10 +306,12 @@ class DriverData {
       currentLocation: json['currentLocation'] != null
           ? CurrentLocation.fromJson(json['currentLocation'])
           : null,
-      earnings:
-          json['earnings'] != null ? Earnings.fromJson(json['earnings']) : null,
-      ratings:
-          json['ratings'] != null ? Ratings.fromJson(json['ratings']) : null,
+      earnings: json['earnings'] != null
+          ? Earnings.fromJson(json['earnings'])
+          : null,
+      ratings: json['ratings'] != null
+          ? Ratings.fromJson(json['ratings'])
+          : null,
       id: json['_id'],
       userId: json['userId'],
       vehicleId: json['vehicleId'],
@@ -338,26 +330,25 @@ class DriverData {
   }
 
   Map<String, dynamic> toJson() => {
-        'currentLocation': currentLocation?.toJson(),
-        'earnings': earnings?.toJson(),
-        'ratings': ratings?.toJson(),
-        '_id': id,
-        'userId': userId,
-        'vehicleId': vehicleId,
-        'status': status,
-        'isAvailable': isAvailable,
-        'heading': heading,
-        'isOnline': isOnline,
-        'speed': speed,
-        'accuracy': accuracy,
-        'paymentMethods': paymentMethods,
-        'withdrawals': withdrawals,
-        '__v': version,
-        'stripeDriverId': stripeDriverId,
-        'currentRideId': currentRideId,
-      };
+    'currentLocation': currentLocation?.toJson(),
+    'earnings': earnings?.toJson(),
+    'ratings': ratings?.toJson(),
+    '_id': id,
+    'userId': userId,
+    'vehicleId': vehicleId,
+    'status': status,
+    'isAvailable': isAvailable,
+    'heading': heading,
+    'isOnline': isOnline,
+    'speed': speed,
+    'accuracy': accuracy,
+    'paymentMethods': paymentMethods,
+    'withdrawals': withdrawals,
+    '__v': version,
+    'stripeDriverId': stripeDriverId,
+    'currentRideId': currentRideId,
+  };
 }
-
 
 class CurrentLocation {
   String? type;
@@ -374,12 +365,8 @@ class CurrentLocation {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'type': type,
-        'coordinates': coordinates,
-      };
+  Map<String, dynamic> toJson() => {'type': type, 'coordinates': coordinates};
 }
-
 
 class Earnings {
   double? total;
@@ -397,10 +384,10 @@ class Earnings {
   }
 
   Map<String, dynamic> toJson() => {
-        'total': total,
-        'available': available,
-        'withdrawn': withdrawn,
-      };
+    'total': total,
+    'available': available,
+    'withdrawn': withdrawn,
+  };
 }
 
 class Ratings {
@@ -435,12 +422,12 @@ class Ratings {
   }
 
   Map<String, dynamic> toJson() => {
-        'average': average,
-        'totalRatings': totalRatings,
-        'count1': count1,
-        'count2': count2,
-        'count3': count3,
-        'count4': count4,
-        'count5': count5,
-      };
+    'average': average,
+    'totalRatings': totalRatings,
+    'count1': count1,
+    'count2': count2,
+    'count3': count3,
+    'count4': count4,
+    'count5': count5,
+  };
 }
