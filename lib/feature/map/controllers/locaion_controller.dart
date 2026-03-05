@@ -50,9 +50,31 @@ class LocationController extends GetxController {
   }
 
   Future<bool> requestLocationPermission() async {
+    final serviceEnabled = await _ensureLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return false;
+    }
+
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      _safeSnackbar(
+        'Location Permission',
+        'Location permission is permanently denied. Please enable it in Settings.',
+      );
+      await Geolocator.openAppSettings();
+      return false;
+    }
+
+    if (permission == LocationPermission.denied) {
+      _safeSnackbar(
+        'Location Permission',
+        'Location permission denied. Please allow access to continue.',
+      );
+      return false;
     }
 
     isLocationPermissionGranted.value =
@@ -75,6 +97,10 @@ class LocationController extends GetxController {
   }) async {
     try {
       print('📍 refreshCurrentPosition: start');
+      final serviceEnabled = await _ensureLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return null;
+      }
       if (!isLocationPermissionGranted.value) {
         final granted = await requestLocationPermission();
         print('📍 Location permission granted: $granted');
@@ -85,6 +111,7 @@ class LocationController extends GetxController {
 
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 15),
       );
       print(
         '📍 Current position: ${position.latitude}, ${position.longitude} (heading: ${position.heading}, speed: ${position.speed})',
@@ -110,6 +137,17 @@ class LocationController extends GetxController {
       _safeSnackbar('Error', 'Failed to get current location: $e');
       return null;
     }
+  }
+
+  Future<bool> _ensureLocationServiceEnabled() async {
+    final enabled = await Geolocator.isLocationServiceEnabled();
+    if (!enabled) {
+      _safeSnackbar(
+        'Location Disabled',
+        'Location Services are off. Please enable them in Settings.',
+      );
+    }
+    return enabled;
   }
 
   Future<void> getAddressFromCoordinates(double lat, double lng, bool isPickup) async {
