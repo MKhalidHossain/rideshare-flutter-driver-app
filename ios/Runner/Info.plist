@@ -2,56 +2,94 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+
+    <!-- BUNDLE IDENTITY -->
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
+
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
+
     <key>CFBundleDisplayName</key>
     <string>RtoHdriver</string>
+
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
+
     <key>CFBundleIdentifier</key>
     <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
+
     <key>CFBundleName</key>
     <string>RtoHdriver</string>
+
     <key>CFBundlePackageType</key>
     <string>APPL</string>
+
     <key>CFBundleShortVersionString</key>
     <string>$(FLUTTER_BUILD_NAME)</string>
+
     <key>CFBundleSignature</key>
     <string>????</string>
+
     <key>CFBundleVersion</key>
     <string>$(FLUTTER_BUILD_NUMBER)</string>
-   <key>LSRequiresIPhoneOS</key>
-<true/>
-    
+
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+
+    <!-- ENCRYPTION COMPLIANCE -->
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
 
-    <!-- ✅ Add these to fix 90683 errors -->
+    <!-- CAMERA: selfie, driving licence, NID card capture -->
     <key>NSCameraUsageDescription</key>
-    <string>We use the camera to capture photos for profile and delivery/verification purposes.</string>
+    <string>RtoHdriver needs camera access to capture your selfie for identity verification, and to photograph your Driving Licence and National ID card during registration.</string>
 
+    <!-- PHOTO LIBRARY: upload licence / NID / profile photo -->
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>We use your photo library so you can choose and upload images (profile, documents, proofs).</string>
+    <string>RtoHdriver needs access to your photo library so you can upload your Driving Licence, National ID card, and profile photo during registration.</string>
 
-    <!-- ✅ Add this to fix the location warning -->
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>RtoHdriver may save captured verification photos to your photo library for your records.</string>
+
+    <!-- LOCATION: live trip tracking foreground + background -->
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>We use your location while you use the app to show nearby tasks and for live trip tracking.</string>
+    <string>RtoHdriver uses your location while the app is open to show nearby ride requests and provide live trip navigation.</string>
 
-    <!-- Your existing location keys -->
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>This app needs continuous location access to provide real-time tracking even when running in the background.</string>
+    <string>RtoHdriver needs continuous location access — including when the app is in the background — to track your trip in real time and update passengers on your arrival.</string>
 
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>This app needs your location to function properly, even when not in use.</string>
+    <string>RtoHdriver needs background location access to keep your trip tracking active even when you switch to another app.</string>
 
+    <!-- BACKGROUND MODES: notifications, location, fetch -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>fetch</string>
+        <string>remote-notification</string>
+        <string>location</string>
+    </array>
+
+    <!-- MICROPHONE: uncomment if in-app voice calls are used
+    <key>NSMicrophoneUsageDescription</key>
+    <string>RtoHdriver uses the microphone for voice calls between drivers and passengers.</string>
+    -->
+
+    <!-- FACE ID: uncomment if biometric login is used
+    <key>NSFaceIDUsageDescription</key>
+    <string>RtoHdriver uses Face ID to securely verify your identity when logging in.</string>
+    -->
+
+    <!-- UI CONFIGURATION -->
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
+
     <key>UILaunchStoryboardName</key>
     <string>LaunchScreen</string>
+
     <key>UIMainStoryboardFile</key>
     <string>Main</string>
 
@@ -69,5 +107,6 @@
         <string>UIInterfaceOrientationLandscapeLeft</string>
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
+
 </dict>
 </plist>
