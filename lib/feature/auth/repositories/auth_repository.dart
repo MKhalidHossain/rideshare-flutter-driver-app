@@ -18,9 +18,6 @@ class AuthRepository implements AuthRepositoryInterface {
   RxString _token = "".obs;
   static const String driverProfile = "/api/driver/profile";
 
-
-
-
   @override
   Future accessAndRefreshToken(Pattern refreshToken) async {
     return await apiClient.postData(Urls.refreshAccessToken, {}) ?? ();
@@ -44,6 +41,14 @@ class AuthRepository implements AuthRepositoryInterface {
   @override
   Future logoutAllDevices() async {
     return await apiClient.postData(Urls.logoutAllDevices, {});
+  }
+
+  @override
+  Future deleteAccount(String emailOrPhone) async {
+    return await apiClient.deleteData(
+      Urls.deleteAccount,
+      body: {'emailOrPhone': emailOrPhone},
+    );
   }
 
   @override
@@ -123,8 +128,7 @@ class AuthRepository implements AuthRepositoryInterface {
     });
   }
 
-
- @override
+  @override
   Future register(
     String fullName,
     String email,
@@ -140,26 +144,22 @@ class AuthRepository implements AuthRepositoryInterface {
   ) async {
     return await apiClient.postDriverRegistration(
       Urls.register,
-      
-  fields: {
-      'fullName': fullName,
-      'email': email,
-      'phoneNumber': phoneNumber,
-      'licenseNumber': drivingLicenceNumber,
-      'nidNumber': nationalIdNumber,
-      'serviceTypes': serviceType,        
-      'password': password,
-      'role': role,
-    },
-     license: license,
+
+      fields: {
+        'fullName': fullName,
+        'email': email,
+        'phoneNumber': phoneNumber,
+        'licenseNumber': drivingLicenceNumber,
+        'nidNumber': nationalIdNumber,
+        'serviceTypes': serviceType,
+        'password': password,
+        'role': role,
+      },
+      license: license,
       nid: nid,
       selfie: selfie,
-
     );
   }
-
-
-
 
   // @override
   // Future register(
@@ -184,10 +184,6 @@ class AuthRepository implements AuthRepositoryInterface {
   //     'role': role,
   //   });
   // }
-
-
-
-
 
   @override
   Future forgetPassword(String? emailOrPhone) async {
@@ -216,14 +212,17 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   Future<bool?> saveUserToken(String token, String refreshToken) async {
-    final isSaved = await sharedPreferences.setString(AppConstants.accessToken, token);
+    final isSaved = await sharedPreferences.setString(
+      AppConstants.accessToken,
+      token,
+    );
     await sharedPreferences.setString(AppConstants.refreshToken, refreshToken);
     apiClient.updateHeader(token);
     return isSaved;
   }
 
-    @override
-  Future<bool?> saveUserId(String userId) async{
+  @override
+  Future<bool?> saveUserId(String userId) async {
     return await sharedPreferences.setString(AppConstants.userId, userId);
   }
 
@@ -232,13 +231,10 @@ class AuthRepository implements AuthRepositoryInterface {
     return await sharedPreferences.setString(AppConstants.userEmail, email);
   }
 
-
   @override
   void setFirstTimeInstall() {
     sharedPreferences.setBool('firstTimeInstall', true);
   }
-
-
 
   @override
   Future updateAccessAndRefreshToken() async {
@@ -261,8 +257,4 @@ class AuthRepository implements AuthRepositoryInterface {
       'type': type,
     });
   }
-
-
-
-
 }

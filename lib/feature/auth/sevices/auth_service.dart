@@ -32,6 +32,11 @@ class AuthService implements AuthServiceInterface {
   }
 
   @override
+  Future deleteAccount(String emailOrPhone) async {
+    return await authRepositoryInterface.deleteAccount(emailOrPhone);
+  }
+
+  @override
   bool clearSharedAddress() {
     return authRepositoryInterface.clearSharedAddress();
   }
@@ -55,7 +60,6 @@ class AuthService implements AuthServiceInterface {
   String getUserEmail() {
     return authRepositoryInterface.getUserEmail();
   }
-
 
   @override
   bool isFirstTimeInstall() {
@@ -92,18 +96,17 @@ class AuthService implements AuthServiceInterface {
 
   @override
   Future register(
-
-  String fullName,
-  String email,
-  String phoneNumber,
-  String drivingLicenceNumber,
-  String nationalIdNumber,
-  String serviceType,
-  String password,
-  String role,
-  XFile license,
-  XFile nid,
-  XFile selfie,
+    String fullName,
+    String email,
+    String phoneNumber,
+    String drivingLicenceNumber,
+    String nationalIdNumber,
+    String serviceType,
+    String password,
+    String role,
+    XFile license,
+    XFile nid,
+    XFile selfie,
   ) async {
     return await authRepositoryInterface.register(
       fullName,
@@ -139,9 +142,9 @@ class AuthService implements AuthServiceInterface {
     return await authRepositoryInterface.saveUserToken(token, refreshToken);
   }
 
-      @override
-  Future<bool?> saveUserId(String userId) async{
-   return await authRepositoryInterface.saveUserId(userId);
+  @override
+  Future<bool?> saveUserId(String userId) async {
+    return await authRepositoryInterface.saveUserId(userId);
   }
 
   @override

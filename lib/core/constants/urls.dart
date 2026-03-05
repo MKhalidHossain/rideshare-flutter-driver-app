@@ -19,6 +19,7 @@ class Urls {
   static const String forgetPassword = '/auth/request-password-reset';
   static const String resetPasswordWithOtp = '/auth/reset-password';
   static const String changePassword = '/auth/change-password';
+  static const String deleteAccount = '/auth/delete-account';
   static const String getLoginHistory = '/driver/get-login-history';
   static const String logoutAllDevices = '/auth/logout-all-devices';
   static const String logOut = '/auth/logout';

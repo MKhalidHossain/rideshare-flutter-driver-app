@@ -2,18 +2,17 @@ import 'package:image_picker/image_picker.dart';
 
 abstract class AuthRepositoryInterface {
   Future<dynamic> register(
-  String fullName,
-  String email,
-  String phoneNumber,
-  String drivingLicenceNumber,
-  String nationalIdNumber,
-  String serviceType,
-  String password,
-  String role,
-  XFile license,
-  XFile nid,
-  XFile selfie,
-    
+    String fullName,
+    String email,
+    String phoneNumber,
+    String drivingLicenceNumber,
+    String nationalIdNumber,
+    String serviceType,
+    String password,
+    String role,
+    XFile license,
+    XFile nid,
+    XFile selfie,
   );
   Future<dynamic> login(
     String emailOrPhone,
@@ -26,6 +25,7 @@ abstract class AuthRepositoryInterface {
   Future<dynamic> changePassword(String currentPassword, String newPassword);
   Future<dynamic> getLoginHistory();
   Future<dynamic> logoutAllDevices();
+  Future<dynamic> deleteAccount(String emailOrPhone);
 
   Future<dynamic> accessAndRefreshToken(String refreshToken);
 

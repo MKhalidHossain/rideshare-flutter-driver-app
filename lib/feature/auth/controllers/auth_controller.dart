@@ -34,6 +34,7 @@ class AuthController extends GetxController implements GetxService {
   AuthController({required this.authServiceInterface});
 
   bool changePasswordIsLoading = false;
+  bool deleteAccountLoading = false;
 
   bool? isFirstTime;
   bool _isLoading = false;
@@ -87,12 +88,9 @@ class AuthController extends GetxController implements GetxService {
       }
     }
 
-    return {
-      'name': name,
-      'os': os,
-      'appVersion': packageInfo.version,
-    };
+    return {'name': name, 'os': os, 'appVersion': packageInfo.version};
   }
+
   String get mobileNumber => _mobileNumber;
   XFile? _pickedProfileFile;
   XFile? get pickedProfileFile => _pickedProfileFile;
@@ -103,10 +101,8 @@ class AuthController extends GetxController implements GetxService {
   String email = '';
   final socketClient = SocketClient();
 
-
-
-  // for register 
-  // info taken from text fields and photos 
+  // for register
+  // info taken from text fields and photos
 
   // simple variables to hold registration input values (from screens)
   String name = '';
@@ -120,12 +116,11 @@ class AuthController extends GetxController implements GetxService {
   String? _pendingLoginEmail;
   String? _pendingLoginPassword;
 
-// iamge 
+  // iamge
 
   XFile? license;
   XFile? nid;
   XFile? selfie;
-
 
   // Populate registration fields explicitly (call this when you have values ready).
   // Example usage from a screen:
@@ -141,41 +136,39 @@ class AuthController extends GetxController implements GetxService {
   //   nidFile: controller.nid,
   //   selfieFile: controller.selfie,
   // );
-void setRegistrationData({
-  String? name,
-  String? userEmail,
-  String? phoneNumber,
-  String? drivingLicenceNumber,
-  String? nationalIdNumber,
-  String? serviceType,
-  String? password,
-  XFile? licenseFile,
-  XFile? nidFile,
-  XFile? selfieFile,
-}) {
-  this.name = name ?? this.name;
-  this.userEmail = userEmail ?? this.userEmail;
-  this.phoneNumber = phoneNumber ?? this.phoneNumber;
-  this.drivingLicenceNumber = drivingLicenceNumber ?? this.drivingLicenceNumber;
-  this.nationalIdNumber = nationalIdNumber ?? this.nationalIdNumber;
-  this.serviceType = serviceType ?? this.serviceType;
-  this.password = password ?? this.password;
+  void setRegistrationData({
+    String? name,
+    String? userEmail,
+    String? phoneNumber,
+    String? drivingLicenceNumber,
+    String? nationalIdNumber,
+    String? serviceType,
+    String? password,
+    XFile? licenseFile,
+    XFile? nidFile,
+    XFile? selfieFile,
+  }) {
+    this.name = name ?? this.name;
+    this.userEmail = userEmail ?? this.userEmail;
+    this.phoneNumber = phoneNumber ?? this.phoneNumber;
+    this.drivingLicenceNumber =
+        drivingLicenceNumber ?? this.drivingLicenceNumber;
+    this.nationalIdNumber = nationalIdNumber ?? this.nationalIdNumber;
+    this.serviceType = serviceType ?? this.serviceType;
+    this.password = password ?? this.password;
 
-  if (licenseFile != null) {
-    this.license = licenseFile; // ✅ correct assignment
+    if (licenseFile != null) {
+      this.license = licenseFile; // ✅ correct assignment
+    }
+    if (nidFile != null) {
+      this.nid = nidFile; // ✅
+    }
+    if (selfieFile != null) {
+      this.selfie = selfieFile; // ✅
+    }
+
+    update();
   }
-  if (nidFile != null) {
-    this.nid = nidFile; // ✅
-  }
-  if (selfieFile != null) {
-    this.selfie = selfieFile; // ✅
-  }
-
-  update();
-}
-
-
-  
 
   // Convenience: read directly from controllers and current picked files.
   // Call this from the sign up screen when user taps register.
@@ -189,8 +182,9 @@ void setRegistrationData({
       userEmail: emailController.text.trim().isEmpty
           ? null
           : emailController.text.trim(),
-      phoneNumber:
-          phoneController.text.trim().isEmpty ? null : phoneController.text.trim(),
+      phoneNumber: phoneController.text.trim().isEmpty
+          ? null
+          : phoneController.text.trim(),
       // If you have separate controllers for DL and NID, map them here.
       drivingLicenceNumber: identityNumberController.text.trim().isEmpty
           ? null
@@ -199,7 +193,9 @@ void setRegistrationData({
           ? null
           : identityNumberController.text.trim(),
       serviceType: serviceType.isEmpty ? role : serviceType,
-      password: passwordController.text.isEmpty ? null : passwordController.text,
+      password: passwordController.text.isEmpty
+          ? null
+          : passwordController.text,
       licenseFile: license,
       nidFile: nid,
       selfieFile: selfie,
@@ -258,6 +254,8 @@ void setRegistrationData({
 
   RegistrationResponseModel? registrationResponseModel;
   LogInResponseModel? logInResponseModel;
+  static const int _maxLoginAttempts = 3;
+  int _loginFailCount = 0;
   ChangePasswordResponseModel? changePasswordResponseModel;
   GetLoginHistoryResponseModel? getLoginHistoryResponseModel;
   RequestPasswordResetResponseModel? requestPasswordResetResponseModel;
@@ -311,169 +309,88 @@ void setRegistrationData({
   }
 
   Future<void> register(
-  String otpVerifyType,
-  String fullName,
-  String email,
-  String phoneNumber,
-  String drivingLicenceNumber,
-  String nationalIdNumber,
-  String serviceType,
-  String password,
-  String role,
-  XFile license,
-  XFile nid,
-  XFile selfie,
-  // XFile vehicleImage,
-) async {
-  _isLoading = true;
-  update();
+    String otpVerifyType,
+    String fullName,
+    String email,
+    String phoneNumber,
+    String drivingLicenceNumber,
+    String nationalIdNumber,
+    String serviceType,
+    String password,
+    String role,
+    XFile license,
+    XFile nid,
+    XFile selfie,
+    // XFile vehicleImage,
+  ) async {
+    _isLoading = true;
+    update();
 
-  userEmail = email;
-  this.password = password;
-  _pendingLoginEmail = email;
-  _pendingLoginPassword = password;
+    userEmail = email;
+    this.password = password;
+    _pendingLoginEmail = email;
+    _pendingLoginPassword = password;
 
-  print(
-    "REGISTER API BODY: {fullName: $fullName, email: $email, password: $password, role: $role}",
-  );
-
-  try {
-    Response response = await authServiceInterface.register(
-      fullName,
-      email,
-      phoneNumber,
-      drivingLicenceNumber,
-      nationalIdNumber,
-      serviceType,
-      password,
-      role,
-      license,
-      nid,
-      selfie,
-      // vehicleImage,
+    print(
+      "REGISTER API BODY: {fullName: $fullName, email: $email, password: $password, role: $role}",
     );
-     print("RAW RESPONSE: ${response.body}");
-          print("STATUS CODE: ${response.statusCode}");
-          print("HEADERS: ${response.headers}");
 
-    if (response.statusCode == 201) {
-      registrationResponseModel =
-          RegistrationResponseModel.fromJson(response.body);
-         
+    try {
+      Response response = await authServiceInterface.register(
+        fullName,
+        email,
+        phoneNumber,
+        drivingLicenceNumber,
+        nationalIdNumber,
+        serviceType,
+        password,
+        role,
+        license,
+        nid,
+        selfie,
+        // vehicleImage,
+      );
+      print("RAW RESPONSE: ${response.body}");
+      print("STATUS CODE: ${response.statusCode}");
+      print("HEADERS: ${response.headers}");
+
+      if (response.statusCode == 201) {
+        registrationResponseModel = RegistrationResponseModel.fromJson(
+          response.body,
+        );
+
+        _isLoading = false;
+        update();
+
+        Get.off(
+          () => VerifyOtpScreen(email: email, otpVerifyType: otpVerifyType),
+        );
+
+        showCustomSnackBar(
+          response.body['message'] ??
+              'Registration successful! Please verify your email.',
+        );
+        // showCustomSnackBar('Check your email to verify your account.');
+      } else {
+        _isLoading = false;
+
+        showCustomSnackBar(
+          response.body['message'] ?? 'Registration failed.',
+          isError: true,
+        );
+
+        print('❌ Registration failed: ${response.statusCode} ${response.body}');
+      }
+    } catch (e) {
       _isLoading = false;
-      update();
-
-      Get.off(() => VerifyOtpScreen(
-            email: email,
-            otpVerifyType: otpVerifyType,
-          ));
-
-      showCustomSnackBar(response.body['message'] ??
-          'Registration successful! Please verify your email.');
-      // showCustomSnackBar('Check your email to verify your account.');
-
-    } else {
-      _isLoading = false;
+      print("❌ Error during registration: $e");
 
       showCustomSnackBar(
-        response.body['message'] ?? 'Registration failed.',
+        "Something went wrong. Please try again later.",
         isError: true,
       );
-
-      print('❌ Registration failed: ${response.statusCode} ${response.body}');
     }
-  } catch (e) {
-    _isLoading = false;
-    print("❌ Error during registration: $e");
-
-    showCustomSnackBar(
-      "Something went wrong. Please try again later.",
-      isError: true,
-    );
   }
-}
-
-
-  // Future<void> register(
-  //   String otpVerifyType,
-  //   String fullName,
-  //   String email,
-  //   String phoneNumber,
-  //   String drivingLicenceNumber,
-  //   String nationalIdNumber,
-  //   String serviceType,
-  //   String password,
-  //   String role,
-  // ) async {
-  //   _isLoading = true;
-  //   update();
-
-  //   print(
-  //     "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
-  //   );
-
-  //   try {
-  //     Response? response = await authServiceInterface.register(
-  //       fullName,
-  //       email,
-  //       phoneNumber,
-  //       drivingLicenceNumber,
-  //       nationalIdNumber,
-  //       serviceType,
-  //       password,
-  //       role,
-  //     );
-  //     if (response!.statusCode == 201) {
-  //       registrationResponseModel = RegistrationResponseModel.fromJson(
-  //         response.body,
-  //       );
-
-  //       print(
-  //         "REGISTER API BODY: {fullNmae: $fullName, email: $email, password: $password, role: $role}",
-  //       );
-  //       print('\nemail: $email , otpVerifyType: $otpVerifyType\n');
-  //       _isLoading = false;
-  //       update();
-  //       Get.off(
-  //         () => VerifyOtpScreen(email: email, otpVerifyType: otpVerifyType),
-  //       );
-
-  //       showCustomSnackBar(
-  //         response.body['message'] ??
-  //             'Registration success Now need to email verification',
-  //       );
-  //       showCustomSnackBar('please check your email to verify your account');
-  //       // Get.off(() => UserLoginScreen());
-  //       // showCustomSnackBar('Welcome you have successfully Registered');
-  //     } else {
-  //       _isLoading = false;
-  //       if (response.statusCode == 400) {
-  //         showCustomSnackBar(
-  //           response.body['message'] ?? 'Something went wrong',
-  //           isError: true,
-  //         );
-  //       } else {
-  //         showCustomSnackBar(
-  //           response.body['message'] ??
-  //               'Registration failed. Please try again.',
-  //           isError: true,
-  //         );
-  //       }
-
-  //       print(
-  //         ' ❌ Registration failed: ${response.statusCode} ${response.body} ',
-  //       );
-  //     }
-  //     update();
-  //   } catch (e) {
-  //     _isLoading = false;
-  //     print("❌ Error during registration: $e");
-  //     showCustomSnackBar(
-  //       "Something went wrong. Please try again later.",
-  //       isError: true,
-  //     );
-  //   }
-  // }
 
   Future<void> login(String emailOrPhone, String password) async {
     _isLoading = true;
@@ -490,9 +407,23 @@ void setRegistrationData({
 
     if (response == null) {
       print("No response found");
+      _loginFailCount++;
+      if (_loginFailCount >= _maxLoginAttempts) {
+        _loginFailCount = 0;
+        _isLoading = false;
+        update();
+        Get.offAll(UserSignupScreen());
+        showCustomSnackBar(
+          'Too many failed attempts. Please create an account.',
+        );
+        return;
+      }
+      _isLoading = false;
+      update();
+      return;
     }
-    if (response!.statusCode == 200) {
-      Map map = response.body;
+    if (response.statusCode == 200) {
+      // Map map = response.body;
       String accessToken = '';
       String refreshToken = '';
       String userId = '';
@@ -523,15 +454,15 @@ void setRegistrationData({
       }
 
       socketClient.emit('join-driver', {
-          'driverId': logInResponseModel!.data!.user!.id,  // ei key ta backend expect korche
-            });
+        'driverId': logInResponseModel!
+            .data!
+            .user!
+            .id, // ei key ta backend expect korche
+      });
 
-
-            
       print("Join room with id mahbub: ${logInResponseModel!.data!.user!.id}");
 
       Get.offAll(() => AppMain());
-
 
       //Get.offAll(BottomNavbar());
 
@@ -542,20 +473,15 @@ void setRegistrationData({
       if (response.body['data']['is_phone_verified'] == 0) {}
     } else if (response.statusCode == 400) {
       showCustomSnackBar('Sorry you have no account, please create a account');
-      Get.offAll(()=>UserSignupScreen());
-      
-    }
-    else if (response.statusCode == 401) { 
-    showCustomSnackBar(
-      'Login Failed',
-      subMessage: 'The email or password you entered is incorrect. Please try again.',
-    );
-      Get.offAll(()=>UserSignupScreen());
-
-
-    }
-    
-     else {
+      // Get.offAll(()=>UserSignupScreen());
+    } else if (response.statusCode == 401) {
+      showCustomSnackBar(
+        'Login Failed',
+        subMessage:
+            'The email or password you entered is incorrect. Please try again.',
+      );
+      // Get.offAll(()=>UserSignupScreen());
+    } else {
       _isLoading = false;
       ApiChecker.checkApi(response);
     }
@@ -788,7 +714,8 @@ void setRegistrationData({
           Get.offAll(() => ProfileScreen());
         } else {
           showCustomSnackBar(
-            message ?? 'Invalid credentials. Please check your current password.',
+            message ??
+                'Invalid credentials. Please check your current password.',
             isError: true,
           );
         }
@@ -826,15 +753,17 @@ void setRegistrationData({
       final body = response.body;
       final decoded = body is String ? jsonDecode(body) : body;
       if (response.statusCode == 200 && decoded is Map<String, dynamic>) {
-        getLoginHistoryResponseModel =
-            GetLoginHistoryResponseModel.fromJson(decoded);
+        getLoginHistoryResponseModel = GetLoginHistoryResponseModel.fromJson(
+          decoded,
+        );
         final list = getLoginHistoryResponseModel?.loginHistory ?? [];
         if (list.isEmpty) {
           loginHistoryError = 'No login history found';
         }
       } else {
-        loginHistoryError =
-            decoded is Map<String, dynamic> ? (decoded['message'] ?? 'Unable to fetch login history') : 'Unable to fetch login history';
+        loginHistoryError = decoded is Map<String, dynamic>
+            ? (decoded['message'] ?? 'Unable to fetch login history')
+            : 'Unable to fetch login history';
       }
     } catch (e) {
       loginHistoryError = e.toString();
@@ -859,10 +788,67 @@ void setRegistrationData({
         );
       }
     } catch (e) {
+      showCustomSnackBar('Could not log out from all devices', isError: true);
+    }
+  }
+
+  Future<bool> deleteAccount(String emailOrPhone) async {
+    deleteAccountLoading = true;
+    update();
+
+    try {
+      final response = await authServiceInterface.deleteAccount(emailOrPhone);
+
+      if (response == null) {
+        showCustomSnackBar(
+          'Unable to delete account. Please try again.',
+          isError: true,
+        );
+        return false;
+      }
+
+      final body = response.body;
+      Map<String, dynamic>? decoded;
+      if (body is Map<String, dynamic>) {
+        decoded = body;
+      } else if (body is String) {
+        try {
+          final jsonBody = jsonDecode(body);
+          if (jsonBody is Map<String, dynamic>) {
+            decoded = jsonBody;
+          }
+        } catch (_) {}
+      }
+
+      final success = response.statusCode == 200 || response.statusCode == 204;
+      final successFlag = decoded?['success'];
+      final message = decoded?['message'] as String?;
+
+      if (success && (successFlag == null || successFlag == true)) {
+        await authServiceInterface.clearUserCredentials();
+        showCustomSnackBar(
+          message ?? 'Account deleted successfully',
+          isError: false,
+        );
+        Get.offAll(() => UserLoginScreen());
+        return true;
+      }
+
+      if (message != null && message.isNotEmpty) {
+        showCustomSnackBar(message, isError: true);
+      } else {
+        ApiChecker.checkApi(response);
+      }
+      return false;
+    } catch (e) {
       showCustomSnackBar(
-        'Could not log out from all devices',
+        'Unable to delete account. Please try again later.',
         isError: true,
       );
+      return false;
+    } finally {
+      deleteAccountLoading = false;
+      update();
     }
   }
 
@@ -928,7 +914,7 @@ void setRegistrationData({
     return authServiceInterface.getUserToken();
   }
 
- String getUserId() {
+  String getUserId() {
     return authServiceInterface.getUserId();
   }
 
@@ -936,19 +922,17 @@ void setRegistrationData({
     return authServiceInterface.getUserEmail();
   }
 
-
   Future<void> setUserToken(String token, String refreshToken) async {
     await authServiceInterface.saveUserToken(token, refreshToken);
   }
 
-      Future<void> setUserId(String userId) async {
+  Future<void> setUserId(String userId) async {
     await authServiceInterface.saveUserId(userId);
   }
 
   Future<void> setUserEmail(String email) async {
     await authServiceInterface.saveUserEmail(email);
   }
-
 
   Future<bool> getFirsTimeInstall() async {
     return authServiceInterface.isFirstTimeInstall();
@@ -989,7 +973,4 @@ void setRegistrationData({
       _pendingLoginPassword = null;
     }
   }
-
-
-
 }

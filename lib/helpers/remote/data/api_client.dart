@@ -32,10 +32,9 @@ class ApiClient extends GetxService {
     updateHeader(_accessToken);
   }
 
-
-    Map<String, String> getHeader(){
+  Map<String, String> getHeader() {
     _accessToken = sharedPreferences.getString(AppConstants.accessToken) ?? '';
-     Map<String, String> header = {
+    Map<String, String> header = {
       'Content-Type': 'application/json; charset=UTF-8',
       'Accept': 'application/json',
       'Authorization': 'Bearer $_accessToken',
@@ -55,7 +54,9 @@ class ApiClient extends GetxService {
     );
     _accessToken = token;
 
-    print('New header: from api client : _token || updateedToken : $_accessToken');
+    print(
+      'New header: from api client : _token || updateedToken : $_accessToken',
+    );
   }
 
   Future<Response> getData(
@@ -105,75 +106,83 @@ class ApiClient extends GetxService {
   }
 
   Future<Response> postDriverRegistration(
-  String uri, {
-  required Map<String, dynamic> fields,
-  XFile? license,
-  XFile? nid,
-  XFile? selfie,
-  XFile? vehicleImage,
-  Map<String, String>? headers,
-}) async {
-  try {
-    final cleanBaseUrl = appBaseUrln.replaceAll(RegExp(r'/$'), '');
-    final cleanUri = uri.replaceAll(RegExp(r'^/'), '');
-    final url = "$cleanBaseUrl/$cleanUri";
+    String uri, {
+    required Map<String, dynamic> fields,
+    XFile? license,
+    XFile? nid,
+    XFile? selfie,
+    XFile? vehicleImage,
+    Map<String, String>? headers,
+  }) async {
+    try {
+      final cleanBaseUrl = appBaseUrln.replaceAll(RegExp(r'/$'), '');
+      final cleanUri = uri.replaceAll(RegExp(r'^/'), '');
+      final url = "$cleanBaseUrl/$cleanUri";
 
-    var request = http.MultipartRequest('POST', Uri.parse(url));
+      var request = http.MultipartRequest('POST', Uri.parse(url));
 
-    var requestHeaders = Map<String, String>.from(headers ?? getHeader());
-    requestHeaders.remove('Content-Type');
-    request.headers.addAll(requestHeaders);
+      var requestHeaders = Map<String, String>.from(headers ?? getHeader());
+      requestHeaders.remove('Content-Type');
+      request.headers.addAll(requestHeaders);
 
-    // text fields (JSON encode maps/lists)
-    fields.forEach((key, value) {
-      if (value != null) {
-        if (value is Map || value is List) {
-          request.fields[key] = jsonEncode(value);
-        } else {
-          request.fields[key] = value.toString();
+      // text fields (JSON encode maps/lists)
+      fields.forEach((key, value) {
+        if (value != null) {
+          if (value is Map || value is List) {
+            request.fields[key] = jsonEncode(value);
+          } else {
+            request.fields[key] = value.toString();
+          }
         }
+      });
+
+      // files – field names MUST match backend
+      if (license != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'license', // ✅ matches Postman
+            license.path,
+          ),
+        );
       }
-    });
 
-    // files – field names MUST match backend
-    if (license != null) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'license',   // ✅ matches Postman
-        license.path,
-      ));
+      if (nid != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'nid', // ✅ matches Postman
+            nid.path,
+          ),
+        );
+      }
+
+      if (selfie != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'selfie', // ✅ matches Postman
+            selfie.path,
+          ),
+        );
+      }
+
+      if (vehicleImage != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'vehicleImage', // ✅ matches Postman
+            vehicleImage.path,
+            filename: vehicleImage.name,
+          ),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      return handleResponse(response, url);
+    } catch (e) {
+      print("Error in postDriverRegistration: $e");
+      return Response(statusCode: 1, statusText: noInternetMessage);
     }
-
-    if (nid != null) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'nid',       // ✅ matches Postman
-        nid.path,
-      ));
-    }
-
-    if (selfie != null) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'selfie',    // ✅ matches Postman
-        selfie.path,
-      ));
-    }
-
-    if (vehicleImage != null) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'vehicleImage', // ✅ matches Postman
-        vehicleImage.path,
-        filename: vehicleImage.name,
-      ));
-    }
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    return handleResponse(response, url);
-  } catch (e) {
-    print("Error in postDriverRegistration: $e");
-    return Response(statusCode: 1, statusText: noInternetMessage);
   }
-}
 
   Future<Response> postMultipartFormData(
     String uri, {
@@ -620,15 +629,25 @@ class ApiClient extends GetxService {
 
   Future<Response> deleteData(
     String uri, {
+    dynamic body,
     Map<String, String>? headers,
   }) async {
     try {
       if (kDebugMode) {
         log('====> API Call: $uri\nHeader: $getHeader()');
+        if (body != null) {
+          log('====> API Body: $body');
+        }
       }
-      http.Response response = await http
-          .delete(Uri.parse(appBaseUrl + uri), headers: headers ?? getHeader())
-          .timeout(Duration(seconds: timeoutInSeconds));
+      final request = http.Request('DELETE', Uri.parse(appBaseUrln + uri));
+      request.headers.addAll(headers ?? getHeader());
+      if (body != null) {
+        request.body = jsonEncode(body);
+      }
+      final streamedResponse = await request.send().timeout(
+        Duration(seconds: timeoutInSeconds),
+      );
+      final response = await http.Response.fromStream(streamedResponse);
       return handleResponse(response, uri);
     } catch (e) {
       return Response(statusCode: 1, statusText: noInternetMessage);
