@@ -2,10 +2,7 @@ class GetServiceByIdResponseModel {
   final bool? success;
   final ServiceData? data;
 
-  GetServiceByIdResponseModel({
-    this.success,
-    this.data,
-  });
+  GetServiceByIdResponseModel({this.success, this.data});
 
   factory GetServiceByIdResponseModel.fromJson(Map<String, dynamic> json) {
     return GetServiceByIdResponseModel(
@@ -15,20 +12,19 @@ class GetServiceByIdResponseModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'data': data?.toJson(),
-    };
+    return {'success': success, 'data': data?.toJson()};
   }
 }
 
 class ServiceData {
+  static const double _mileConversionFactor = 0.621371;
+
   final String? id;
   final String? name;
   final String? description;
   final num? baseFare;
   final String? serviceImage;
-  final num? perKmRate;
+  final num? perMileRate;
   final num? perMinuteRate;
   final num? minimumFare;
   final num? cancellationFee;
@@ -48,7 +44,7 @@ class ServiceData {
     this.description,
     this.baseFare,
     this.serviceImage,
-    this.perKmRate,
+    this.perMileRate,
     this.perMinuteRate,
     this.minimumFare,
     this.cancellationFee,
@@ -70,7 +66,9 @@ class ServiceData {
       description: json['description'],
       baseFare: json['baseFare'],
       serviceImage: json['serviceImage'],
-      perKmRate: json['perKmRate'],
+      perMileRate: json['perKmRate'] != null
+          ? (json['perKmRate'] as num).toDouble() * _mileConversionFactor
+          : null,
       perMinuteRate: json['perMinuteRate'],
       minimumFare: json['minimumFare'],
       cancellationFee: json['cancellationFee'],
@@ -95,7 +93,9 @@ class ServiceData {
       'description': description,
       'baseFare': baseFare,
       'serviceImage': serviceImage,
-      'perKmRate': perKmRate,
+      'perKmRate': perMileRate != null
+          ? perMileRate! / _mileConversionFactor
+          : null,
       'perMinuteRate': perMinuteRate,
       'minimumFare': minimumFare,
       'cancellationFee': cancellationFee,

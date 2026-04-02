@@ -191,7 +191,7 @@ class VehicleDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: _buildVehicleInfoItem(
                           'Per Mile Rate',
-                          vehicleData.service.perKmRate.toString(),
+                          vehicleData.service.perMileRate.toStringAsFixed(2),
                         ),
                       ),
                       const SizedBox(width: 16),

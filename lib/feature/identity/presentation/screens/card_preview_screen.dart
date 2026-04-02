@@ -15,7 +15,6 @@ import 'take_photo_screen.dart';
 /// (If you already have a shared constants file, you can remove these
 /// and import your constants instead.)
 
-
 class CardPreviewScreen extends StatefulWidget {
   /// Fallbacks from navigation args (legacy). The screen will prefer values
   /// saved in AuthController, but will use these if controller paths are null.
@@ -23,13 +22,13 @@ class CardPreviewScreen extends StatefulWidget {
   final String driveingLicence; // legacy param name kept for compatibility
   final String selfiePhoto;
 
-  /// Which image flow we came from (Selfie / Government ID / Driving Licence)
+  /// Which image flow we came from (Selfie / Government ID / Driver's License)
   final String whichImage;
 
   const CardPreviewScreen({
     super.key,
     this.governmentId = 'No Government ID',
-    this.driveingLicence = 'No Driving Licence',
+    this.driveingLicence = "No Driver's License",
     this.selfiePhoto = 'No Selfie Photo',
     required this.whichImage,
   });
@@ -51,9 +50,9 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
   @override
   Widget build(BuildContext context) {
     // Files from controller (preferred source of truth)
-    final dLicense = authController.license; // Driving Licence image (XFile?)
-    final nid     = authController.nid;     // Government ID image (XFile?)
-    final selfie  = authController.selfie;  // Selfie image (XFile?)
+    final dLicense = authController.license; // Driver's License image (XFile?)
+    final nid = authController.nid; // Government ID image (XFile?)
+    final selfie = authController.selfie; // Selfie image (XFile?)
 
     return Scaffold(
       // backgroundColor: Colors.black, // dark bg → better contrast for white text
@@ -89,20 +88,28 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
                   // Prefer controller.nid, fall back to navigation argument
                   path: nid?.path ?? widget.governmentId,
                   retakeOnTap: () {
-                    Get.to(() => const TakePhotoScreen(whichImage: AppConstants.kGovId));
+                    Get.to(
+                      () => const TakePhotoScreen(
+                        whichImage: AppConstants.kGovId,
+                      ),
+                    );
                   },
                 ),
 
                 const SizedBox(height: 30),
 
-                // ---------------- DRIVING LICENCE ----------------
+                // ---------------- DRIVER'S LICENSE ----------------
                 _buildImageBlock(
                   context: context,
-                  title: "Driving Licence",
+                  title: "Driver's License",
                   // Prefer controller.license, fall back to navigation argument
                   path: dLicense?.path ?? widget.driveingLicence,
                   retakeOnTap: () {
-                    Get.to(() => const TakePhotoScreen(whichImage: AppConstants.kDriving));
+                    Get.to(
+                      () => const TakePhotoScreen(
+                        whichImage: AppConstants.kDriving,
+                      ),
+                    );
                   },
                 ),
 
@@ -115,7 +122,11 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
                   // Prefer controller.selfie, fall back to navigation argument
                   path: selfie?.path ?? widget.selfiePhoto,
                   retakeOnTap: () {
-                    Get.to(() => const TakePhotoScreen(whichImage: AppConstants.kSelfie));
+                    Get.to(
+                      () => const TakePhotoScreen(
+                        whichImage: AppConstants.kSelfie,
+                      ),
+                    );
                   },
                 ),
 
@@ -176,8 +187,8 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
               child: hasImage
                   ? LayoutBuilder(
                       builder: (context, constraints) {
-                        final cacheWidth =
-                            (constraints.maxWidth * pixelRatio).round();
+                        final cacheWidth = (constraints.maxWidth * pixelRatio)
+                            .round();
                         return Image.file(
                           File(path),
                           fit: BoxFit.cover,
@@ -222,10 +233,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
   // ============================================================
   Widget _buildShimmer() {
     return const Center(
-      child: Text(
-        "Image not found",
-        style: TextStyle(color: Colors.white54),
-      ),
+      child: Text("Image not found", style: TextStyle(color: Colors.white54)),
     );
   }
 
@@ -247,7 +255,11 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
           const SizedBox(height: 8),
           const Text(
             "Check Quality",
-            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 4),
           const Text(
@@ -258,14 +270,14 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
 
           const SizedBox(height: 16),
 
-              WideCustomButton(
+          WideCustomButton(
             text: "Request to Admin",
             onPressed: _submitRegistration,
           ),
 
           const SizedBox(height: 12),
 
-             const Text(
+          const Text(
             "Admin will verify your documents and get back to you shortly.",
             style: TextStyle(color: Colors.white70, fontSize: 12),
             textAlign: TextAlign.center,
@@ -282,34 +294,46 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
     if (_isSubmitting || authController.isLoading) return;
     // Pull everything from controller; these should have been filled earlier
     // via UserSignupScreen.setRegistrationData(...) and TakePhotoScreen.
-    final name   = authController.name.trim();
-    final email  = authController.userEmail.trim(); // use userEmail (not email)
-    final phone  = authController.phoneNumber.trim();
-    final dlNo   = authController.drivingLicenceNumber.trim();
-    final nidNo  = authController.nationalIdNumber.trim();
-    final srv    = authController.serviceType.trim();
-    final pass   = authController.password;
-    final role   = (authController.role.isNotEmpty ? authController.role : 'driver');
+    final name = authController.name.trim();
+    final email = authController.userEmail.trim(); // use userEmail (not email)
+    final phone = authController.phoneNumber.trim();
+    final dlNo = authController.drivingLicenceNumber.trim();
+    final nidNo = authController.nationalIdNumber.trim();
+    final srv = authController.serviceType.trim();
+    final pass = authController.password;
+    final role = (authController.role.isNotEmpty
+        ? authController.role
+        : 'driver');
 
     final license = authController.license;
-    final nid     = authController.nid;
-    final selfie  = authController.selfie;
+    final nid = authController.nid;
+    final selfie = authController.selfie;
     final hasLicense = _fileIsReadable(license);
     final hasNid = _fileIsReadable(nid);
     final hasSelfie = _fileIsReadable(selfie);
 
     // Basic validation (client-side)
     String? err;
-    if (name.isEmpty) err = 'Full name is required';
-    else if (email.isEmpty) err = 'Email is required';
-    else if (phone.isEmpty) err = 'Phone number is required';
-    else if (dlNo.isEmpty) err = 'Driving licence number is required';
-    else if (nidNo.isEmpty) err = 'National ID number is required';
-    else if (srv.isEmpty) err = 'Service type is required';
-    else if (pass.isEmpty) err = 'Password is required';
-    else if (!hasLicense) err = 'Driving Licence photo is required';
-    else if (!hasNid) err = 'Government ID photo is required';
-    else if (!hasSelfie) err = 'Selfie photo is required';
+    if (name.isEmpty)
+      err = 'Full name is required';
+    else if (email.isEmpty)
+      err = 'Email is required';
+    else if (phone.isEmpty)
+      err = 'Phone number is required';
+    else if (dlNo.isEmpty)
+      err = "Driver's license number is required";
+    else if (nidNo.isEmpty)
+      err = 'National ID number is required';
+    else if (srv.isEmpty)
+      err = 'Service type is required';
+    else if (pass.isEmpty)
+      err = 'Password is required';
+    else if (!hasLicense)
+      err = "Driver's license photo is required";
+    else if (!hasNid)
+      err = 'Government ID photo is required';
+    else if (!hasSelfie)
+      err = 'Selfie photo is required';
 
     if (err != null) {
       showAppSnackBar(
@@ -341,11 +365,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
       );
       // On success, your controller navigates to VerifyOtpScreen.
     } catch (e) {
-
-      showCustomSnackBar(
-        'Registration failed',
-        isError: true
-      );
+      showCustomSnackBar('Registration failed', isError: true);
     } finally {
       if (mounted) {
         setState(() => _isSubmitting = false);
@@ -357,7 +377,7 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
   bool _fileLooksValid(String path) {
     if (path.isEmpty) return false;
     if (path == 'No Government ID' ||
-        path == 'No Driving Licence' ||
+        path == "No Driver's License" ||
         path == 'No Selfie Photo' ||
         path == 'No Image') {
       return false;
@@ -372,9 +392,6 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
   }
 }
 
-
-
-
 // import 'dart:io';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
@@ -385,13 +402,11 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
 // import '../widgets/show_modal_bottom_sheet.dart';
 // import 'take_photo_screen.dart';
 
-
 // class CardPreviewScreen extends StatefulWidget {
 //   final String governmentId;
 //   final String driveingLicence;
 //   final String selfiePhoto;
 //   final String whichImage;
-  
 
 //   const CardPreviewScreen({
 //     super.key,
@@ -489,8 +504,6 @@ class _CardPreviewScreenState extends State<CardPreviewScreen> {
 //                 ),
 
 //                 const SizedBox(height: 15),
-
-
 
 //                 const SizedBox(height: 30),
 

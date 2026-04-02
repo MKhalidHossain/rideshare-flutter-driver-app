@@ -78,14 +78,13 @@ void showBlurredBottomSheet(BuildContext context) {
                                     children: [
                                       Image.asset(
                                         'assets/images/governmentId.png',
-                                            fit: BoxFit.cover,
+                                        fit: BoxFit.cover,
                                         height: 60,
                                         width: 60,
                                       ),
                                       const SizedBox(width: 12),
                                       Text(
-                                        'Government ID'
-                                        ,
+                                        'Government ID',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500,
@@ -125,14 +124,14 @@ void showBlurredBottomSheet(BuildContext context) {
                                   child: Row(
                                     children: [
                                       Image.asset(
-                                          'assets/images/driving_licence.png',
-                                          fit: BoxFit.cover,
+                                        'assets/images/driving_licence.png',
+                                        fit: BoxFit.cover,
                                         height: 60,
                                         width: 60,
                                       ),
-                                        const SizedBox(width: 12),
+                                      const SizedBox(width: 12),
                                       Text(
-                                        'Driveing Licence',
+                                        "Driver's License",
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500,
@@ -152,7 +151,7 @@ void showBlurredBottomSheet(BuildContext context) {
                                   ),
                                 ),
                               ),
-                              
+
                               InkWell(
                                 onTap: () {
                                   Get.to(
@@ -173,8 +172,8 @@ void showBlurredBottomSheet(BuildContext context) {
                                   child: Row(
                                     children: [
                                       Image.asset(
-                                            'assets/images/selfiePhoto.png',
-                                                fit: BoxFit.contain,
+                                        'assets/images/selfiePhoto.png',
+                                        fit: BoxFit.contain,
                                         height: 60,
                                         width: 60,
                                       ),

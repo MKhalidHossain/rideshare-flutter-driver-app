@@ -25,10 +25,10 @@ class VehicleResponse {
       );
 
   Map<String, dynamic> toJson() => {
-        "success": success,
-        "message": message,
-        "data": data.toJson(),
-      };
+    "success": success,
+    "message": message,
+    "data": data.toJson(),
+  };
 }
 
 class VehicleData {
@@ -45,18 +45,18 @@ class VehicleData {
   });
 
   factory VehicleData.fromJson(Map<String, dynamic> json) => VehicleData(
-        vehicle: Vehicle.fromJson(json["vehicle"]),
-        service: Service.fromJson(json["service"]),
-        licenseNumber: json["licenseNumber"] ?? '',
-        licenseImage: json["licenseImage"] ?? '',
-      );
+    vehicle: Vehicle.fromJson(json["vehicle"]),
+    service: Service.fromJson(json["service"]),
+    licenseNumber: json["licenseNumber"] ?? '',
+    licenseImage: json["licenseImage"] ?? '',
+  );
 
   Map<String, dynamic> toJson() => {
-        "vehicle": vehicle.toJson(),
-        "service": service.toJson(),
-        "licenseNumber": licenseNumber,
-        "licenseImage": licenseImage,
-      };
+    "vehicle": vehicle.toJson(),
+    "service": service.toJson(),
+    "licenseNumber": licenseNumber,
+    "licenseImage": licenseImage,
+  };
 }
 
 class Vehicle {
@@ -91,45 +91,47 @@ class Vehicle {
   });
 
   factory Vehicle.fromJson(Map<String, dynamic> json) => Vehicle(
-        id: json["_id"] ?? '',
-        serviceId: json["serviceId"] ?? '',
-        driverId: json["driverId"] ?? '',
-        taxiName: json["taxiName"] ?? '',
-        model: json["model"] ?? '',
-        plateNumber: json["plateNumber"] ?? '',
-        color: json["color"] ?? '',
-        year: json["year"] ?? 0,
-        vin: json["vin"] ?? '',
-        assignedDrivers: json["assignedDrivers"] ?? false,
-        createdAt: json["createdAt"] ?? '',
-        updatedAt: json["updatedAt"] ?? '',
-        v: json["__v"] ?? 0,
-      );
+    id: json["_id"] ?? '',
+    serviceId: json["serviceId"] ?? '',
+    driverId: json["driverId"] ?? '',
+    taxiName: json["taxiName"] ?? '',
+    model: json["model"] ?? '',
+    plateNumber: json["plateNumber"] ?? '',
+    color: json["color"] ?? '',
+    year: json["year"] ?? 0,
+    vin: json["vin"] ?? '',
+    assignedDrivers: json["assignedDrivers"] ?? false,
+    createdAt: json["createdAt"] ?? '',
+    updatedAt: json["updatedAt"] ?? '',
+    v: json["__v"] ?? 0,
+  );
 
   Map<String, dynamic> toJson() => {
-        "_id": id,
-        "serviceId": serviceId,
-        "driverId": driverId,
-        "taxiName": taxiName,
-        "model": model,
-        "plateNumber": plateNumber,
-        "color": color,
-        "year": year,
-        "vin": vin,
-        "assignedDrivers": assignedDrivers,
-        "createdAt": createdAt,
-        "updatedAt": updatedAt,
-        "__v": v,
-      };
+    "_id": id,
+    "serviceId": serviceId,
+    "driverId": driverId,
+    "taxiName": taxiName,
+    "model": model,
+    "plateNumber": plateNumber,
+    "color": color,
+    "year": year,
+    "vin": vin,
+    "assignedDrivers": assignedDrivers,
+    "createdAt": createdAt,
+    "updatedAt": updatedAt,
+    "__v": v,
+  };
 }
 
 class Service {
+  static const double _mileConversionFactor = 0.621371;
+
   final String id;
   final String name;
   final String description;
   final int baseFare;
   final String serviceImage;
-  final int perKmRate;
+  final double perMileRate;
   final int perMinuteRate;
   final int minimumFare;
   final int cancellationFee;
@@ -147,7 +149,7 @@ class Service {
     required this.description,
     required this.baseFare,
     required this.serviceImage,
-    required this.perKmRate,
+    required this.perMileRate,
     required this.perMinuteRate,
     required this.minimumFare,
     required this.cancellationFee,
@@ -161,42 +163,43 @@ class Service {
   });
 
   factory Service.fromJson(Map<String, dynamic> json) => Service(
-        id: json["_id"] ?? '',
-        name: json["name"] ?? '',
-        description: json["description"] ?? '',
-        baseFare: json["baseFare"] ?? 0,
-        serviceImage: json["serviceImage"] ?? '',
-        perKmRate: json["perKmRate"] ?? 0,
-        perMinuteRate: json["perMinuteRate"] ?? 0,
-        minimumFare: json["minimumFare"] ?? 0,
-        cancellationFee: json["cancellationFee"] ?? 0,
-        capacity: json["capacity"] ?? 0,
-        isActive: json["isActive"] ?? false,
-        features: json["features"] != null
-            ? List<String>.from(json["features"])
-            : [],
-        estimatedArrivalTime: json["estimatedArrivalTime"] ?? 0,
-        createdAt: json["createdAt"] ?? '',
-        updatedAt: json["updatedAt"] ?? '',
-        v: json["__v"] ?? 0,
-      );
+    id: json["_id"] ?? '',
+    name: json["name"] ?? '',
+    description: json["description"] ?? '',
+    baseFare: json["baseFare"] ?? 0,
+    serviceImage: json["serviceImage"] ?? '',
+    perMileRate:
+        ((json["perKmRate"] as num?)?.toDouble() ?? 0) * _mileConversionFactor,
+    perMinuteRate: json["perMinuteRate"] ?? 0,
+    minimumFare: json["minimumFare"] ?? 0,
+    cancellationFee: json["cancellationFee"] ?? 0,
+    capacity: json["capacity"] ?? 0,
+    isActive: json["isActive"] ?? false,
+    features: json["features"] != null
+        ? List<String>.from(json["features"])
+        : [],
+    estimatedArrivalTime: json["estimatedArrivalTime"] ?? 0,
+    createdAt: json["createdAt"] ?? '',
+    updatedAt: json["updatedAt"] ?? '',
+    v: json["__v"] ?? 0,
+  );
 
   Map<String, dynamic> toJson() => {
-        "_id": id,
-        "name": name,
-        "description": description,
-        "baseFare": baseFare,
-        "serviceImage": serviceImage,
-        "perKmRate": perKmRate,
-        "perMinuteRate": perMinuteRate,
-        "minimumFare": minimumFare,
-        "cancellationFee": cancellationFee,
-        "capacity": capacity,
-        "isActive": isActive,
-        "features": features,
-        "estimatedArrivalTime": estimatedArrivalTime,
-        "createdAt": createdAt,
-        "updatedAt": updatedAt,
-        "__v": v,
-      };
+    "_id": id,
+    "name": name,
+    "description": description,
+    "baseFare": baseFare,
+    "serviceImage": serviceImage,
+    "perKmRate": perMileRate / _mileConversionFactor,
+    "perMinuteRate": perMinuteRate,
+    "minimumFare": minimumFare,
+    "cancellationFee": cancellationFee,
+    "capacity": capacity,
+    "isActive": isActive,
+    "features": features,
+    "estimatedArrivalTime": estimatedArrivalTime,
+    "createdAt": createdAt,
+    "updatedAt": updatedAt,
+    "__v": v,
+  };
 }

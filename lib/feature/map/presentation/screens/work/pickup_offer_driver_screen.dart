@@ -40,6 +40,9 @@ class PickUpOfferDriverScreen extends StatefulWidget {
 }
 
 class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
+  static const double _mileConversionFactor = 0.621371;
+  static const double _arrivalThresholdMiles = 0.031;
+
   final LocationController locationController = Get.find<LocationController>();
   final AppController appController = Get.find<AppController>();
 
@@ -55,7 +58,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   bool _journeyStarted = false;
   bool _showStartJourneyPopup = false;
   bool _showJourneyCompletedPopup = false;
-  double _activeDistanceKm = 0;
+  double _activeDistanceMiles = 0;
   bool _isSheetExpanded = true;
   bool _isInitializing = true;
   BitmapDescriptor? _driverMarkerIcon;
@@ -126,7 +129,8 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
 
     final distance = locationController.distance.value;
     if (distance > 0) {
-      return '${distance.toStringAsFixed(1)}km';
+      final distanceInMiles = distance * _mileConversionFactor;
+      return '${distanceInMiles.toStringAsFixed(1)} mi';
     }
     return null;
   }
@@ -154,8 +158,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
   }
 
   ImageProvider? get _customerAvatar {
-    final photo = 
-        widget.incomingRideRequest?.customerImage;
+    final photo = widget.incomingRideRequest?.customerImage;
     if (photo == null || photo.isEmpty) return null;
     if (photo.startsWith('http')) return NetworkImage(photo);
     return AssetImage(photo);
@@ -201,18 +204,19 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
 
   void _listenToDriverLocation() {
     _positionSubscription?.cancel();
-    _positionSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 5,
-      ),
-    ).listen((pos) {
-      _driverLatLng = LatLng(pos.latitude, pos.longitude);
-      locationController.currentLocation.value = _driverLatLng;
-      _refreshMarkers();
-      _refreshPolyline();
-      _updateDistances();
-    });
+    _positionSubscription =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 5,
+          ),
+        ).listen((pos) {
+          _driverLatLng = LatLng(pos.latitude, pos.longitude);
+          locationController.currentLocation.value = _driverLatLng;
+          _refreshMarkers();
+          _refreshPolyline();
+          _updateDistances();
+        });
   }
 
   Future<void> _ensureDriverMarkerIcon() async {
@@ -240,14 +244,10 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
     final gradient = ui.Gradient.radial(
       center.translate(-8, -8),
       size * 0.48,
-      const [
-        Color(0xFFB10000),
-        Color(0xFF7F0000),
-      ],
+      const [Color(0xFFB10000), Color(0xFF7F0000)],
       const [0.25, 1.0],
     );
-    final circlePaint = Paint()
-      ..shader = gradient;
+    final circlePaint = Paint()..shader = gradient;
     canvas.drawCircle(center, size * 0.48, circlePaint);
 
     // Paper plane path
@@ -268,9 +268,9 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
     canvas.drawPath(path, planePaint);
 
     final image = await recorder.endRecording().toImage(
-          size.toInt(),
-          size.toInt(),
-        );
+      size.toInt(),
+      size.toInt(),
+    );
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
   }
@@ -279,7 +279,8 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
     final controller = locationController.mapController.value;
     if (controller == null ||
         _driverLatLng == null ||
-        _customerPickupLatLng == null) return;
+        _customerPickupLatLng == null)
+      return;
 
     final target = _journeyStarted
         ? _customerDestinationLatLng ?? _customerPickupLatLng!
@@ -310,9 +311,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
     if (_driverLatLng != null) {
       final driverIcon = _journeyStarted && _driverMarkerIcon != null
           ? _driverMarkerIcon!
-          : BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueRed,
-            );
+          : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
       final heading = _journeyStarted ? _headingToTarget() : null;
       markers.add(
         Marker(
@@ -358,8 +357,9 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
 
   void _refreshPolyline() {
     if (_driverLatLng == null) return;
-    final target =
-        _journeyStarted ? _customerDestinationLatLng : _customerPickupLatLng;
+    final target = _journeyStarted
+        ? _customerDestinationLatLng
+        : _customerPickupLatLng;
     if (target == null) return;
 
     if (!_shouldRefreshRoute(_driverLatLng!, target)) return;
@@ -371,12 +371,14 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
         target,
       );
       if (!mounted || requestId != _polylineRequestId) return;
-      final List<LatLng> routePoints =
-          points.isNotEmpty ? points : <LatLng>[_driverLatLng!, target];
+      final List<LatLng> routePoints = points.isNotEmpty
+          ? points
+          : <LatLng>[_driverLatLng!, target];
       locationController.polylines.value = {
         Polyline(
-          polylineId:
-              PolylineId(_journeyStarted ? 'to_destination' : 'to_pickup'),
+          polylineId: PolylineId(
+            _journeyStarted ? 'to_destination' : 'to_pickup',
+          ),
           color: const Color(0xFF0F1323),
           width: 6,
           geodesic: false,
@@ -392,14 +394,16 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
     if (_lastRouteOrigin == null || _lastRouteTarget == null) {
       return true;
     }
-    final originMoved = Geolocator.distanceBetween(
+    final originMoved =
+        Geolocator.distanceBetween(
           origin.latitude,
           origin.longitude,
           _lastRouteOrigin!.latitude,
           _lastRouteOrigin!.longitude,
         ) >
         30;
-    final targetMoved = Geolocator.distanceBetween(
+    final targetMoved =
+        Geolocator.distanceBetween(
           target.latitude,
           target.longitude,
           _lastRouteTarget!.latitude,
@@ -409,25 +413,25 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
     return originMoved || targetMoved;
   }
 
-  double _distanceInKm(LatLng a, LatLng b) {
+  double _distanceInMiles(LatLng a, LatLng b) {
     return Geolocator.distanceBetween(
           a.latitude,
           a.longitude,
           b.latitude,
           b.longitude,
         ) /
-        1000;
+        1609.344;
   }
 
   String get _etaText {
-    if (_activeDistanceKm <= 0) return '1 min';
-    final minutes = (_activeDistanceKm / 0.6).ceil(); // ~36km/h
+    if (_activeDistanceMiles <= 0) return '1 min';
+    final minutes = (_activeDistanceMiles / 0.3667).ceil(); // ~22 mph
     return '${minutes.clamp(1, 90)} min';
   }
 
   String get _distanceLabel {
-    if (_activeDistanceKm <= 0) return 'Nearby';
-    return '${_activeDistanceKm.toStringAsFixed(1)} km';
+    if (_activeDistanceMiles <= 0) return 'Nearby';
+    return '${_activeDistanceMiles.toStringAsFixed(1)} mi';
   }
 
   double? _headingToTarget() {
@@ -447,8 +451,11 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
     if (_driverLatLng == null) return;
 
     if (!_journeyStarted && _customerPickupLatLng != null) {
-      _activeDistanceKm = _distanceInKm(_driverLatLng!, _customerPickupLatLng!);
-      final reached = _activeDistanceKm <= 0.05; // 50m threshold
+      _activeDistanceMiles = _distanceInMiles(
+        _driverLatLng!,
+        _customerPickupLatLng!,
+      );
+      final reached = _activeDistanceMiles <= _arrivalThresholdMiles;
       if (reached && !_showStartJourneyPopup) {
         Future.delayed(const Duration(milliseconds: 300), () {
           if (!mounted) return;
@@ -465,9 +472,11 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
         }
       }
     } else if (_journeyStarted && _customerDestinationLatLng != null) {
-      _activeDistanceKm =
-          _distanceInKm(_driverLatLng!, _customerDestinationLatLng!);
-      final reached = _activeDistanceKm <= 0.05;
+      _activeDistanceMiles = _distanceInMiles(
+        _driverLatLng!,
+        _customerDestinationLatLng!,
+      );
+      final reached = _activeDistanceMiles <= _arrivalThresholdMiles;
       if (reached && !_showJourneyCompletedPopup) {
         setState(() {
           _showJourneyCompletedPopup = true;
@@ -504,7 +513,6 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     debugPrint('🚗 Building PickUpOfferDriverScreen UI...');
     final size = MediaQuery.of(context).size;
     final hasRide =
@@ -545,21 +553,15 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
             if (hasRide) _buildBottomRideCard(size),
 
             if (_showStartJourneyPopup)
-              _buildBlurOverlay(
-                child: _buildStartJourneyDialog(),
-              ),
+              _buildBlurOverlay(child: _buildStartJourneyDialog()),
 
             if (_showJourneyCompletedPopup)
-              _buildBlurOverlay(
-                child: _buildJourneyCompletedDialog(),
-              ),
+              _buildBlurOverlay(child: _buildJourneyCompletedDialog()),
             // Loading overlay
             if (appController.isLoading.value || _isInitializing)
               Container(
                 color: Colors.black54,
-                child: const Center(
-                  child: LoadingShimmer(color: Colors.red),
-                ),
+                child: const Center(child: LoadingShimmer(color: Colors.red)),
               ),
           ],
         ),
@@ -631,10 +633,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
             topRight: Radius.circular(20),
           ),
           border: Border(
-            top: BorderSide(
-              color: Colors.white.withOpacity(0.08),
-              width: 1,
-            ),
+            top: BorderSide(color: Colors.white.withOpacity(0.08), width: 1),
           ),
         ),
         child: GestureDetector(
@@ -822,10 +821,12 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
                         icon: Icons.messenger_outline,
                         iconSize: 26,
                         onPressed: () {
-                          Get.to(ChatScreenRTH(
-                            incomingRideRequest: widget.incomingRideRequest,
-                            acceptedRideData : widget.acceptedRideData,
-                          ));
+                          Get.to(
+                            ChatScreenRTH(
+                              incomingRideRequest: widget.incomingRideRequest,
+                              acceptedRideData: widget.acceptedRideData,
+                            ),
+                          );
                         },
                       ),
                     ),
@@ -893,11 +894,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
               icon: const Icon(Icons.close, color: Colors.white70, size: 18),
             ),
           ),
-          const Icon(
-            Icons.near_me,
-            color: Colors.red,
-            size: 52,
-          ),
+          const Icon(Icons.near_me, color: Colors.red, size: 52),
           const SizedBox(height: 12),
           const Text(
             'Start Your Journey',
@@ -958,11 +955,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
               icon: const Icon(Icons.close, color: Colors.white70, size: 18),
             ),
           ),
-          const Icon(
-            Icons.check_circle,
-            color: Colors.red,
-            size: 52,
-          ),
+          const Icon(Icons.check_circle, color: Colors.red, size: 52),
           const SizedBox(height: 12),
           const Text(
             'Journey Completed',

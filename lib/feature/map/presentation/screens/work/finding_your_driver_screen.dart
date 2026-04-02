@@ -239,8 +239,11 @@ class _FindingYourDriverScreenState extends State<FindingYourDriverScreen> {
                                             .value !=
                                         null &&
                                     locationController.distance.value > 0) {
+                                  final distanceInMiles =
+                                      locationController.distance.value *
+                                      0.621371;
                                   return Text(
-                                    '${locationController.distance.value.toStringAsFixed(1)}km',
+                                    '${distanceInMiles.toStringAsFixed(1)} mi',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 15,
@@ -295,13 +298,6 @@ class _FindingYourDriverScreenState extends State<FindingYourDriverScreen> {
     );
   }
 }
-
-
-
-
-
-
-
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -380,8 +376,6 @@ class _FindingYourDriverScreenState extends State<FindingYourDriverScreen> {
 //                 ),
 //               ),
 //             ),
-
-           
 
 //             // Loading overlay
 //             if (appController.isLoading.value)

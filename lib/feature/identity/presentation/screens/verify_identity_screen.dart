@@ -40,7 +40,7 @@ class VerifyIdentityScreen extends StatelessWidget {
                       SizedBox(
                         height: 90,
                         width: 140,
-        
+
                         child: Image.asset(
                           'assets/images/governmentId.png',
                           fit: BoxFit.cover,
@@ -48,7 +48,7 @@ class VerifyIdentityScreen extends StatelessWidget {
                         ),
                       ),
                       "Government ID".text24White(),
-                      "Take picture a drivers licence, national identity cards or passport photo"
+                      "Take a picture of a driver's license, national identity card, or passport photo"
                           .text14White(),
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -104,8 +104,8 @@ class VerifyIdentityScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      "Driving Licence".text24White(),
-                      "Take picture a drivers licence, national identity cards or passport photo"
+                      "Driver's License".text24White(),
+                      "Take a picture of a driver's license, national identity card, or passport photo"
                           .text14White(),
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -136,13 +136,11 @@ class VerifyIdentityScreen extends StatelessWidget {
                   ),
                 ),
               ),
-        
+
               // Selfie
               GestureDetector(
+                onTap: () => showBlurredBottomSheet(context),
 
-                     onTap: () => showBlurredBottomSheet(context),
-             
-        
                 child: Container(
                   width: double.infinity,
                   margin: EdgeInsets.all(16),
@@ -157,7 +155,7 @@ class VerifyIdentityScreen extends StatelessWidget {
                       SizedBox(
                         height: 90,
                         width: 140,
-        
+
                         child: Image.asset(
                           'assets/images/selfiePhoto.png',
 
@@ -165,7 +163,7 @@ class VerifyIdentityScreen extends StatelessWidget {
                         ),
                       ),
                       "Selfie Photo".text24White(),
-                      "Take picture a drivers licence, national identity cards or passport photo"
+                      "Take a picture of a driver's license, national identity card, or passport photo"
                           .text14White(),
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -179,7 +177,7 @@ class VerifyIdentityScreen extends StatelessWidget {
                               "assets/icons/takeASelfieIcon.png",
                               height: 26,
                             ),
-        
+
                             const SizedBox(width: 8),
                             Text(
                               'Take a image',

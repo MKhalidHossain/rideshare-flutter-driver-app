@@ -159,7 +159,7 @@ class _RideConfirmedScreenState extends State<RideConfirmedScreen> {
                                     color: Colors.white,
                                     size: 16,
                                   ),
-                                  "4.0km: 4140 Parker Rd".text12White(),
+                                  "2.5 mi: 4140 Parker Rd".text12White(),
                                 ],
                               ),
                             ],
@@ -322,17 +322,6 @@ class _RideConfirmedScreenState extends State<RideConfirmedScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
@@ -645,7 +634,7 @@ class _RideConfirmedScreenState extends State<RideConfirmedScreen> {
 //                                           null &&
 //                                       locationController.distance.value > 0) {
 //                                     return Text(
-//                                       '${locationController.distance.value.toStringAsFixed(1)}km',
+//                                       '${locationController.distance.value.toStringAsFixed(1)} mi',
 //                                       style: const TextStyle(
 //                                         color: Colors.white,
 //                                         fontSize: 15,
@@ -709,10 +698,6 @@ class _RideConfirmedScreenState extends State<RideConfirmedScreen> {
 //     );
 //   }
 // }
-
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
@@ -992,7 +977,7 @@ class _RideConfirmedScreenState extends State<RideConfirmedScreen> {
 //                                           null &&
 //                                       locationController.distance.value > 0) {
 //                                     return Text(
-//                                       '${locationController.distance.value.toStringAsFixed(1)}km',
+//                                       '${locationController.distance.value.toStringAsFixed(1)} mi',
 //                                       style: TextStyle(
 //                                         color: Colors.white,
 //                                         fontSize: 15,
@@ -1057,10 +1042,6 @@ class _RideConfirmedScreenState extends State<RideConfirmedScreen> {
 //     );
 //   }
 // }
-
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';

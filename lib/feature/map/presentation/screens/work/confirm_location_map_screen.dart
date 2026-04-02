@@ -279,8 +279,11 @@ class ConfirmYourLocationScreen extends StatelessWidget {
                                               .value !=
                                           null &&
                                       locationController.distance.value > 0) {
+                                    final distanceInMiles =
+                                        locationController.distance.value *
+                                        0.621371;
                                     return Text(
-                                      '${locationController.distance.value.toStringAsFixed(1)}km',
+                                      '${distanceInMiles.toStringAsFixed(1)} mi',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 15,
@@ -335,9 +338,7 @@ class ConfirmYourLocationScreen extends StatelessWidget {
             if (appController.isLoading.value)
               Container(
                 color: Colors.black54,
-                child: Center(
-                  child: LoadingShimmer(color: Colors.red),
-                ),
+                child: Center(child: LoadingShimmer(color: Colors.red)),
               ),
           ],
         ),
@@ -345,20 +346,6 @@ class ConfirmYourLocationScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
@@ -446,7 +433,6 @@ class ConfirmYourLocationScreen extends StatelessWidget {
 //                 child: Icon(Icons.my_location, color: Colors.white),
 //               ),
 //             ),
-
 
 //             // CONFIRM YOUR LOCATION BOTTOM SHEET
 //             Positioned(
@@ -590,7 +576,7 @@ class ConfirmYourLocationScreen extends StatelessWidget {
 //                                   // Only show distance if destination is set and distance is calculated
 //                                   if (locationController.destinationLocation.value != null && locationController.distance.value > 0) {
 //                                     return Text(
-//                                       '${locationController.distance.value.toStringAsFixed(1)}km',
+//                                       '${locationController.distance.value.toStringAsFixed(1)} mi',
 //                                       style: TextStyle(color: Colors.white, fontSize: 15),
 //                                     );
 //                                   }
@@ -649,8 +635,3 @@ class ConfirmYourLocationScreen extends StatelessWidget {
 //     );
 //   }
 // }
-
-
-
-
-

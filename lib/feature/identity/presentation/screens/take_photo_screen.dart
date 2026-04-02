@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -48,8 +47,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen>
     final status = await Permission.camera.request();
     if (!mounted) return;
     if (!status.isGranted) {
-      _showSettingsButton =
-          status.isPermanentlyDenied || status.isRestricted;
+      _showSettingsButton = status.isPermanentlyDenied || status.isRestricted;
       _cameraErrorMessage = _showSettingsButton
           ? 'Camera permission is permanently denied.\nPlease enable it in Settings.'
           : 'Camera permission denied.\nPlease allow access to continue.';
@@ -72,8 +70,9 @@ class _TakePhotoScreenState extends State<TakePhotoScreen>
       }
 
       final isSelfie = widget.whichImage == AppConstants.kSelfie;
-      final preferredDirection =
-          isSelfie ? CameraLensDirection.front : CameraLensDirection.back;
+      final preferredDirection = isSelfie
+          ? CameraLensDirection.front
+          : CameraLensDirection.back;
       final selectedCamera = cameras.firstWhere(
         (camera) => camera.lensDirection == preferredDirection,
         orElse: () => cameras.first,
@@ -139,121 +138,124 @@ class _TakePhotoScreenState extends State<TakePhotoScreen>
     });
   }
 
-
   void _capturePhoto() async {
-  final controller = _cameraController;
-  if (!_isCardAligned || controller == null || !controller.value.isInitialized) {
-    return;
-  }
-  if (_isCapturing || controller.value.isTakingPicture) return;
+    final controller = _cameraController;
+    if (!_isCardAligned ||
+        controller == null ||
+        !controller.value.isInitialized) {
+      return;
+    }
+    if (_isCapturing || controller.value.isTakingPicture) return;
 
-  try {
-    _isCapturing = true;
-    final file = await controller.takePicture();
+    try {
+      _isCapturing = true;
+      final file = await controller.takePicture();
 
-    // ---------- SELFIE PHOTO ----------
-    if (widget.whichImage == AppConstants.kSelfie) {
-      final xfile = XFile(file.path);
-      authController.selfie = xfile;
-      authController.setRegistrationData(selfieFile: xfile);
+      // ---------- SELFIE PHOTO ----------
+      if (widget.whichImage == AppConstants.kSelfie) {
+        final xfile = XFile(file.path);
+        authController.selfie = xfile;
+        authController.setRegistrationData(selfieFile: xfile);
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CardPreviewScreen(
+              selfiePhoto: file.path,
+              whichImage: AppConstants.kSelfie,
+            ),
+          ),
+        );
+        return;
+      }
+
+      // ---------- CROPPING FOR GOV ID / DRIVING LICENCE ----------
+      final bytes = await File(file.path).readAsBytes();
+      final image = img.decodeImage(bytes);
+      if (image == null) return;
+
+      final renderBox =
+          _cameraKey.currentContext!.findRenderObject() as RenderBox;
+      final overlaySize = renderBox.size;
+
+      const cardWidth = 345.0;
+      const cardHeight = 230.0;
+      final screenW = overlaySize.width;
+      final screenH = overlaySize.height;
+      final scale = screenW / cardWidth;
+      final overlayW = cardWidth * scale;
+      final overlayH = cardHeight * scale;
+      final left = (screenW - overlayW) / 2;
+      final top = (screenH - overlayH) / 2;
+
+      final imageW = image.width;
+      final imageH = image.height;
+
+      final cropX = (left / screenW * imageW).round();
+      final cropY = (top / screenH * imageH).round();
+      final cropW = (overlayW / screenW * imageW).round();
+      final cropH = (overlayH / screenH * imageH).round();
+
+      final safeX = _clampInt(cropX, 0, imageW - 1);
+      final safeY = _clampInt(cropY, 0, imageH - 1);
+      final safeW = _clampInt(cropW, 1, imageW - safeX);
+      final safeH = _clampInt(cropH, 1, imageH - safeY);
+
+      final cropped = img.copyCrop(
+        image,
+        x: safeX,
+        y: safeY,
+        width: safeW,
+        height: safeH,
+      );
+
+      final croppedFile = await File(
+        '${file.path}_cropped.jpg',
+      ).writeAsBytes(img.encodeJpg(cropped, quality: 85));
+
+      // ---------- ASSIGN TO CORRECT FIELD ----------
+      if (widget.whichImage == AppConstants.kGovId) {
+        final xfile = XFile(croppedFile.path);
+        authController.nid = xfile;
+        authController.setRegistrationData(nidFile: xfile);
+      } else if (widget.whichImage == AppConstants.kDriving) {
+        final xfile = XFile(croppedFile.path);
+        authController.license = xfile; // ✅ fixed assignment
+        authController.setRegistrationData(licenseFile: xfile);
+      }
+
+      debugPrint('nid: ${authController.nid?.path}');
+      debugPrint('license: ${authController.license?.path}');
+      debugPrint('selfie: ${authController.selfie?.path}');
+
       if (!mounted) return;
 
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (_) => CardPreviewScreen(
-            selfiePhoto: file.path,
-            whichImage: AppConstants.kSelfie,
+            governmentId: widget.whichImage == AppConstants.kGovId
+                ? croppedFile.path
+                : 'No Government ID',
+            driveingLicence: widget.whichImage == AppConstants.kDriving
+                ? croppedFile.path
+                : "No Driver's License",
+            whichImage: widget.whichImage ?? 'No type found',
           ),
         ),
+        (route) => !route.isCurrent,
       );
-      return;
+    } catch (e) {
+      debugPrint("Capture or crop error: $e");
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed: $e")));
+    } finally {
+      _isCapturing = false;
     }
-
-    // ---------- CROPPING FOR GOV ID / DRIVING LICENCE ----------
-    final bytes = await File(file.path).readAsBytes();
-    final image = img.decodeImage(bytes);
-    if (image == null) return;
-
-    final renderBox = _cameraKey.currentContext!.findRenderObject() as RenderBox;
-    final overlaySize = renderBox.size;
-
-    const cardWidth = 345.0;
-    const cardHeight = 230.0;
-    final screenW = overlaySize.width;
-    final screenH = overlaySize.height;
-    final scale = screenW / cardWidth;
-    final overlayW = cardWidth * scale;
-    final overlayH = cardHeight * scale;
-    final left = (screenW - overlayW) / 2;
-    final top = (screenH - overlayH) / 2;
-
-    final imageW = image.width;
-    final imageH = image.height;
-
-    final cropX = (left / screenW * imageW).round();
-    final cropY = (top / screenH * imageH).round();
-    final cropW = (overlayW / screenW * imageW).round();
-    final cropH = (overlayH / screenH * imageH).round();
-
-    final safeX = _clampInt(cropX, 0, imageW - 1);
-    final safeY = _clampInt(cropY, 0, imageH - 1);
-    final safeW = _clampInt(cropW, 1, imageW - safeX);
-    final safeH = _clampInt(cropH, 1, imageH - safeY);
-
-    final cropped = img.copyCrop(
-      image,
-      x: safeX,
-      y: safeY,
-      width: safeW,
-      height: safeH,
-    );
-
-    final croppedFile = await File('${file.path}_cropped.jpg')
-        .writeAsBytes(img.encodeJpg(cropped, quality: 85));
-
-    // ---------- ASSIGN TO CORRECT FIELD ----------
-    if (widget.whichImage == AppConstants.kGovId) {
-      final xfile = XFile(croppedFile.path);
-      authController.nid = xfile;
-      authController.setRegistrationData(nidFile: xfile);
-    } else if (widget.whichImage == AppConstants.kDriving) {
-      final xfile = XFile(croppedFile.path);
-      authController.license = xfile; // ✅ fixed assignment
-      authController.setRegistrationData(licenseFile: xfile);
-    }
-
-    debugPrint('nid: ${authController.nid?.path}');
-    debugPrint('license: ${authController.license?.path}');
-    debugPrint('selfie: ${authController.selfie?.path}');
-
-    if (!mounted) return;
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (_) => CardPreviewScreen(
-          governmentId: widget.whichImage == AppConstants.kGovId
-              ? croppedFile.path
-              : 'No Government ID',
-          driveingLicence: widget.whichImage == AppConstants.kDriving
-              ? croppedFile.path
-              : 'No Driving Licence',
-          whichImage: widget.whichImage ?? 'No type found',
-        ),
-      ),
-      (route) => !route.isCurrent,
-    );
-  } catch (e) {
-    debugPrint("Capture or crop error: $e");
-    if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Failed: $e")));
-  } finally {
-    _isCapturing = false;
   }
-}
-
 
   // void _capturePhoto() async {
   //   if (!_isCardAligned || !_cameraController!.value.isInitialized) return;
@@ -371,11 +373,6 @@ class _TakePhotoScreenState extends State<TakePhotoScreen>
   //   }
   // }
 
-  
-  
-  
-  
-  
   void _setZoom(double zoom) async {
     await _cameraController?.setZoomLevel(zoom);
     setState(() => _currentZoomLevel = zoom);

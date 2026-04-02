@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 class IncomingRideRequest {
+  static const double _mileConversionFactor = 0.621371;
+
   final String rideId;
   final String pickupAddress;
   final String dropoffAddress;
   final double? totalFare;
-  final double? distanceKm;
+  final double? distanceMiles;
   final String? customerName;
   final String? customerPhone;
   final String? customerImage;
@@ -20,7 +22,7 @@ class IncomingRideRequest {
     required this.pickupAddress,
     required this.dropoffAddress,
     this.totalFare,
-    this.distanceKm,
+    this.distanceMiles,
     this.customerName,
     this.customerPhone,
     this.customerImage,
@@ -32,8 +34,10 @@ class IncomingRideRequest {
   String get fareText =>
       totalFare != null ? '\$${totalFare!.toStringAsFixed(2)}' : '';
 
-  String? get distanceText =>
-      distanceKm != null ? '${distanceKm!.toStringAsFixed(1)} km' : null;
+  String? get distanceText {
+    if (distanceMiles == null) return null;
+    return '${distanceMiles!.toStringAsFixed(1)} mi';
+  }
 
   factory IncomingRideRequest.fromSocket(dynamic raw) {
     Map<String, dynamic> data;
@@ -45,7 +49,8 @@ class IncomingRideRequest {
       data = raw.map((key, value) => MapEntry(key.toString(), value));
     } else {
       throw Exception(
-          'Unsupported ride_request payload type: ${raw.runtimeType}');
+        'Unsupported ride_request payload type: ${raw.runtimeType}',
+      );
     }
 
     final pickup = data['pickup'] is Map
@@ -61,12 +66,18 @@ class IncomingRideRequest {
     return IncomingRideRequest(
       rideId: data['rideId']?.toString() ?? '',
       pickupAddress:
-          pickup['address']?.toString() ?? pickup['name']?.toString() ?? 'Pickup location',
+          pickup['address']?.toString() ??
+          pickup['name']?.toString() ??
+          'Pickup location',
       dropoffAddress:
-          dropoff['address']?.toString() ?? dropoff['name']?.toString() ?? 'Destination',
+          dropoff['address']?.toString() ??
+          dropoff['name']?.toString() ??
+          'Destination',
       totalFare: rawFare != null ? double.tryParse(rawFare.toString()) : null,
-      distanceKm:
-          rawDistance != null ? double.tryParse(rawDistance.toString()) : null,
+      distanceMiles: rawDistance != null
+          ? (double.tryParse(rawDistance.toString()) ?? 0) *
+                _mileConversionFactor
+          : null,
       customerName: data['customerName']?.toString(),
       customerPhone: data['customerPhone']?.toString(),
       customerImage: data['customerImage']?.toString(),

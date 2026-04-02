@@ -46,11 +46,13 @@ class UserSignupScreenState extends State<UserSignupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _drivingLicenceController = TextEditingController();
+  final TextEditingController _drivingLicenceController =
+      TextEditingController();
   final TextEditingController _nationalIdController = TextEditingController();
   final TextEditingController _serviceTypeController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   late final TapGestureRecognizer _termsRecognizer;
   late final TapGestureRecognizer _privacyRecognizer;
@@ -58,16 +60,18 @@ class UserSignupScreenState extends State<UserSignupScreen> {
   String? selectedServiceType;
 
   @override
-  void initState() { 
+  void initState() {
     _termsRecognizer = TapGestureRecognizer()
       ..onTap = () {
-        _openExternalUrl('https://privacy.rideztransportation.com/privacy.html');
+        _openExternalUrl(
+          'https://privacy.rideztransportation.com/privacy.html',
+        );
       };
     _privacyRecognizer = TapGestureRecognizer()
       ..onTap = () {
         _openExternalUrl('https://privacy.rideztransportation.com');
       };
-      
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       authController = Get.find<AuthController>();
       homeController = Get.find<HomeController>();
@@ -213,10 +217,10 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                           ),
 
                                           _buildCustomTextField(
-                                            title: 'Licence Number',
+                                            title: "Driver's License Number",
                                             context: context,
                                             label:
-                                                'Enter your Driving Licence Number',
+                                                "Enter your Driver's License Number",
                                             controller:
                                                 _drivingLicenceController,
                                             // icon: Icons.credit_card,
@@ -224,11 +228,14 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                             focusNode: _drivingLicenceFocus,
                                             nextFocusNode: _nationalIdFocus,
                                             validator: Validators.licenceNumber,
-                                           inputFormatters: [
-                                              FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')), // only letters & numbers
-                                              LicenseInputFormatter(maxLength: 18),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.allow(
+                                                RegExp(r'[A-Za-z0-9]'),
+                                              ), // only letters & numbers
+                                              LicenseInputFormatter(
+                                                maxLength: 18,
+                                              ),
                                             ],
-
                                           ),
 
                                           _buildCustomTextField(
@@ -421,7 +428,6 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                               if (_passwordController.text !=
                                                   _confirmPasswordController
                                                       .text) {
-                                                
                                                 (
                                                   'Error',
                                                   subMessage:
@@ -680,19 +686,18 @@ class UserSignupScreenState extends State<UserSignupScreen> {
   }
 }
 
-
-
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     return TextEditingValue(
       text: newValue.text.toUpperCase(),
       selection: newValue.selection,
     );
   }
 }
-
 
 Widget _buildCustomTextField({
   required String title,
@@ -739,8 +744,6 @@ Widget _buildCustomTextField({
               ),
             ),
           ],
-
-          
         ),
       ),
       const SizedBox(height: 8),

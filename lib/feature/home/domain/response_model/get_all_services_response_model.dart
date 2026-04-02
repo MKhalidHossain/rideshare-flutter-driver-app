@@ -27,7 +27,8 @@ class GetAllServicesResponseModel {
       // 🔥 FIXED: null-safe list parsing
       data: json['data'] is List
           ? List<ServiceData>.from(
-              json['data'].map((x) => ServiceData.fromJson(x)))
+              json['data'].map((x) => ServiceData.fromJson(x)),
+            )
           : [],
     );
   }
@@ -45,12 +46,13 @@ class GetAllServicesResponseModel {
   }
 }
 
-
 // -------------------------------
 // ServiceData MODEL
 // -------------------------------
 
 class ServiceData {
+  static const double _mileConversionFactor = 0.621371;
+
   final String id;
   final String name;
   final String description;
@@ -58,7 +60,7 @@ class ServiceData {
   final int? baseFare;
   final String? category;
   final String? serviceImage;
-  final double? perKmRate;
+  final double? perMileRate;
   final double? perMinuteRate;
   final int? minimumFare;
   final int? cancellationFee;
@@ -81,7 +83,7 @@ class ServiceData {
     this.baseFare,
     this.category,
     this.serviceImage,
-    this.perKmRate,
+    this.perMileRate,
     this.perMinuteRate,
     this.minimumFare,
     this.cancellationFee,
@@ -107,8 +109,8 @@ class ServiceData {
       serviceImage: json['serviceImage'],
 
       // 🔥 FIXED: supports both int & double
-      perKmRate: json['perKmRate'] != null
-          ? (json['perKmRate'] as num).toDouble()
+      perMileRate: json['perKmRate'] != null
+          ? (json['perKmRate'] as num).toDouble() * _mileConversionFactor
           : null,
 
       perMinuteRate: json['perMinuteRate'] != null
@@ -127,14 +129,17 @@ class ServiceData {
 
       estimatedArrivalTime: json['estimatedArrivalTime'],
       assignedDrivers: json['assignedDrivers'],
-      createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : null,
       v: json['__v'],
 
-      vehicle:
-          json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null,
+      vehicle: json['vehicle'] != null
+          ? Vehicle.fromJson(json['vehicle'])
+          : null,
     );
   }
 
@@ -146,7 +151,9 @@ class ServiceData {
       "baseFare": baseFare,
       "category": category,
       "serviceImage": serviceImage,
-      "perKmRate": perKmRate,
+      "perKmRate": perMileRate != null
+          ? perMileRate! / _mileConversionFactor
+          : null,
       "perMinuteRate": perMinuteRate,
       "minimumFare": minimumFare,
       "cancellationFee": cancellationFee,
@@ -162,7 +169,6 @@ class ServiceData {
     };
   }
 }
-
 
 // -------------------------------
 // VEHICLE MODEL
