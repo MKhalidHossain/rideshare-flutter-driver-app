@@ -1,12 +1,10 @@
 import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/urls.dart';
 import '../../../helpers/remote/data/api_client.dart';
 import '../../../utils/app_constants.dart';
-import '../../historyAndProfile/model/driver_profile_model.dart';
 import 'auth_repository_interface.dart';
 
 class AuthRepository implements AuthRepositoryInterface {
@@ -20,7 +18,7 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   Future accessAndRefreshToken(Pattern refreshToken) async {
-    return await apiClient.postData(Urls.refreshAccessToken, {}) ?? ();
+    return await apiClient.postData(Urls.refreshAccessToken, {});
   }
 
   @override

@@ -451,7 +451,6 @@ Widget _buildCustomTextField({
   TextInputType keyboardType = TextInputType.text,
   required String? Function(String?) validator,
   bool obscureText = false,
-  VoidCallback? toggleObscureText,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
