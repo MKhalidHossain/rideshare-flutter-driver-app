@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
+import 'package:ridetohealthdriver/helpers/remote/data/auth_expiry_handler.dart';
 
 import '../../../../../core/constants/urls.dart';
 import '../../../../../utils/app_constants.dart';
@@ -44,7 +45,6 @@ class VehicleController extends GetxController {
   var vehicleImage = Rx<File?>(null);
   var vehicleImageUrl = '/placeholder.svg?height=150&width=300'.obs;
 
-
   @override
   void onInit() {
     super.onInit();
@@ -52,8 +52,6 @@ class VehicleController extends GetxController {
     getVehicleDetails();
     //setupTextListeners();
   }
-
-  @override
 
   //============= get vehicle details====================
   Future<void> getVehicleDetails() async {
@@ -78,6 +76,20 @@ class VehicleController extends GetxController {
         },
       );
 
+      dynamic decodedBody;
+      try {
+        decodedBody = json.decode(response.body);
+      } catch (_) {
+        decodedBody = response.body;
+      }
+
+      final message = AuthExpiryHandler.extractMessage(decodedBody);
+      if (response.statusCode == 401 ||
+          AuthExpiryHandler.isTokenExpiredMessage(message)) {
+        await AuthExpiryHandler.redirectToLogin(message: message);
+        return;
+      }
+
       print("============Status Code: ${response.statusCode}");
 
       /*  if (response.statusCode == 200) {
@@ -92,7 +104,11 @@ class VehicleController extends GetxController {
       } */
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = decodedBody;
+        if (data is! Map<String, dynamic>) {
+          print("❌ Invalid response format: ${response.body}");
+          return;
+        }
         print(
           "======================✅ API Response: vehicle details*********** $data",
         );
@@ -114,8 +130,6 @@ class VehicleController extends GetxController {
       isLoading.value = false;
     }
   }
-
-
 
   Future<void> pickVehicleImage() async {
     try {

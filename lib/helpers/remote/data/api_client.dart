@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import '../../../../core/constants/urls.dart';
 import '../../../../utils/app_constants.dart';
+import 'auth_expiry_handler.dart';
 
 class ApiClient extends GetxService {
   final String appBaseUrl;
@@ -43,11 +44,11 @@ class ApiClient extends GetxService {
   }
 
   void updateHeader(String token) {
-    Map<String, String> header = {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
+    // Map<String, String> header = {
+    //   'Content-Type': 'application/json; charset=UTF-8',
+    //   'Accept': 'application/json',
+    //   'Authorization': 'Bearer $token',
+    // };
 
     print(
       'User Token ${token.toString()} ================================== from api Client ',
@@ -677,8 +678,30 @@ class ApiClient extends GetxService {
     if (kDebugMode) {
       // log('====> API Response: [${localResponse.statusCode}] $uri\n${localResponse.body} ==========');
     }
+    _handleTokenExpiry(localResponse, uri);
     // log('====> API Response: [${localResponse.statusCode}] $uri\n${localResponse.body} ==========');
     return localResponse;
+  }
+
+  void _handleTokenExpiry(Response response, String uri) {
+    final message = AuthExpiryHandler.extractMessage(response.body);
+    final hasTokenExpiredMessage = AuthExpiryHandler.isTokenExpiredMessage(
+      message,
+    );
+    final isUnauthorized = response.statusCode == 401;
+    final isAuthFlowEndpoint = _isAuthFlowEndpoint(uri);
+
+    if ((isUnauthorized && !isAuthFlowEndpoint) || hasTokenExpiredMessage) {
+      AuthExpiryHandler.redirectToLogin(message: message);
+    }
+  }
+
+  bool _isAuthFlowEndpoint(String uri) {
+    return uri.contains(Urls.login) ||
+        uri.contains(Urls.register) ||
+        uri.contains(Urls.verifyOtp) ||
+        uri.contains(Urls.forgetPassword) ||
+        uri.contains(Urls.resetPasswordWithOtp);
   }
 }
 
