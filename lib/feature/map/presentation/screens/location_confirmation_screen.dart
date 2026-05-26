@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ridetohealthdriver/helpers/custom_snackbar.dart';
 import '../../controllers/locaion_controller.dart';
 import '../../controllers/booking_controller.dart'; // Assuming bookingController holds price/time

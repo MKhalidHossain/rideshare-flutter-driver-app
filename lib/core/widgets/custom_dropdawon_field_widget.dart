@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
@@ -45,7 +44,7 @@ class CustomDropdownFieldWidget<T> extends StatelessWidget {
               hinttext,
               style: TextStyle(color: AppColors.context(context).textColor),
             ),
-            value: value,
+            initialValue: value,
             decoration: InputDecoration(
               //labelText: label,
               labelStyle: TextStyle(color: Colors.white70),
@@ -73,18 +72,15 @@ class CustomDropdownFieldWidget<T> extends StatelessWidget {
             dropdownColor: AppColors.context(context).contentBoxGreyColor,
             iconEnabledColor: AppColors.context(context).textColor,
             style: TextStyle(color: Colors.white, fontSize: 13),
-            items:
-                items.map((item) {
-                  return DropdownMenuItem<T>(
-                    value: item,
-                    child: Text(
-                      item.toString(),
-                      style: TextStyle(
-                        color: AppColors.context(context).textColor,
-                      ),
-                    ),
-                  );
-                }).toList(),
+            items: items.map((item) {
+              return DropdownMenuItem<T>(
+                value: item,
+                child: Text(
+                  item.toString(),
+                  style: TextStyle(color: AppColors.context(context).textColor),
+                ),
+              );
+            }).toList(),
             onChanged: onChanged,
             validator: validator,
           ),
@@ -93,64 +89,3 @@ class CustomDropdownFieldWidget<T> extends StatelessWidget {
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-
-// class CustomDropdawonFieldWidget extends StatefulWidget {
-//   const CustomDropdawonFieldWidget({super.key});
-
-//   @override
-//   State<CustomDropdawonFieldWidget> createState() =>
-//       _CustomDropdawonFieldWidgetState();
-// }
-
-// class _CustomDropdawonFieldWidgetState
-//     extends State<CustomDropdawonFieldWidget> {
-//   @override
-//   var _currencies = [
-//     "Food",
-//     "Transport",
-//     "Personal",
-//     "Shopping",
-//     "Medical",
-//     "Rent",
-//     "Movie",
-//     "Salary",
-//   ];
-//   Widget build(BuildContext context) {
-//     return FormField<String>(
-//       builder: (FormFieldState<String> state) {
-//         return InputDecorator(
-//           decoration: InputDecoration(
-//             labelStyle: textStyle,
-//             errorStyle: TextStyle(color: Colors.redAccent, fontSize: 16.0),
-//             hintText: 'Please select expense',
-//             border: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(5.0),
-//             ),
-//           ),
-//           isEmpty: _currentSelectedValue == '',
-//           child: DropdownButtonHideUnderline(
-//             child: DropdownButton<String>(
-//               value: _currentSelectedValue,
-//               isDense: true,
-//               onChanged: (String newValue) {
-//                 setState(() {
-//                   _currentSelectedValue = newValue;
-//                   state.didChange(newValue);
-//                 });
-//               },
-//               items:
-//                   _currencies.map((String value) {
-//                     return DropdownMenuItem<String>(
-//                       value: value,
-//                       child: Text(value),
-//                     );
-//                   }).toList(),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }

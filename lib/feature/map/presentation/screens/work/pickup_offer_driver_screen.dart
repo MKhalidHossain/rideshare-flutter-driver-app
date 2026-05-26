@@ -14,8 +14,6 @@ import '../../../../home/domain/request_model/incoming_ride_request.dart';
 import '../../../controllers/app_controller.dart';
 import '../../../controllers/locaion_controller.dart';
 import '../chat_screen.dart';
-import '../call_screen.dart';
-import 'home_screen_driver.dart';
 
 class PickUpOfferDriverScreen extends StatefulWidget {
   const PickUpOfferDriverScreen({
@@ -352,7 +350,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
       );
     }
 
-    locationController.markers.value = markers;
+    locationController.markers.assignAll(markers);
   }
 
   void _refreshPolyline() {
@@ -374,7 +372,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
       final List<LatLng> routePoints = points.isNotEmpty
           ? points
           : <LatLng>[_driverLatLng!, target];
-      locationController.polylines.value = {
+      locationController.polylines.assignAll({
         Polyline(
           polylineId: PolylineId(
             _journeyStarted ? 'to_destination' : 'to_pickup',
@@ -384,7 +382,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
           geodesic: false,
           points: routePoints,
         ),
-      };
+      });
       _lastRouteOrigin = _driverLatLng;
       _lastRouteTarget = target;
     });
@@ -505,7 +503,7 @@ class _PickUpOfferDriverScreenState extends State<PickUpOfferDriverScreen> {
       _journeyStarted = false;
       _isSheetExpanded = true;
     });
-    locationController.polylines.value = {};
+    locationController.polylines.clear();
   }
 
   String get _statusLabel =>

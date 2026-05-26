@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
-import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/feature/auth/domain/model/get_notification_response_model.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
 import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
+
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }

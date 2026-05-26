@@ -15,18 +15,8 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
   await initDI();
-  // socket();
   runApp( MyApp());
 }
-  
-// void socket() {
-//   SocketClient().connect(
-//     url: 'http://10.10.5.85:5001',
-//     autoConnect: true,
-//   );
-// }
-
-
 
 
 class MyApp extends StatefulWidget {
@@ -100,38 +90,3 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GetMaterialApp(
-//       title: 'Flutter Demo',
-//       theme: ThemeData(
-//         scaffoldBackgroundColor: const Color(0xFF303644),
-//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-//       ),
-//       initialBinding: InitialBinding(),
-//       debugShowCheckedModeBanner: false,
-//       home:
-//       // StripeConnectScreen(),
-
-//           // VerifyIdentityScreen(),
-//           //MapScreenTest(),
-//           // SearchDestinationScreen(),
-//           // AppMain(),
-//           UserLoginScreen()
-
-//       //SplashScreen(nextScreen: Onboarding1()),
-
-//       //  RideHistoryPage(),
-//       //MapScreenTest(),
-//       // SearchDestinationScreen(),
-//       //08i AppMain(),
-
-//       // SplashScreen(nextScreen: Onboarding1()), 
-
-//     );
-//   }
-// }

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../../controllers/app_controller.dart';
-import '../../../controllers/booking_controller.dart';
+
 import '../../../controllers/locaion_controller.dart';
 import '../ride_confirmed_screen.dart';
-// import 'chat_screen.dart'; // Uncomment if you use these
-// import 'call_screen.dart'; // Uncomment if you use these
-// import 'payment_screen.dart'; // Uncomment if you use these// Import the new search screen
 
-// ignore: use_key_in_widget_constructors
 class FindingYourDriverScreen extends StatefulWidget {
+  const FindingYourDriverScreen({super.key});
+
   @override
   State<FindingYourDriverScreen> createState() =>
       _FindingYourDriverScreenState();
@@ -18,10 +15,6 @@ class FindingYourDriverScreen extends StatefulWidget {
 
 class _FindingYourDriverScreenState extends State<FindingYourDriverScreen> {
   final LocationController locationController = Get.find<LocationController>();
-
-  final BookingController bookingController = Get.find<BookingController>();
-
-  final AppController appController = Get.find<AppController>();
 
   static const CameraPosition _initialPosition = CameraPosition(
     target: LatLng(23.8103, 90.4125), // Default to Dhaka, Bangladesh
@@ -259,36 +252,6 @@ class _FindingYourDriverScreenState extends State<FindingYourDriverScreen> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  // Confirm Location Button
-                  // Container(
-                  //   width: double.infinity,
-                  //   child: ElevatedButton(
-                  //     onPressed: () {
-                  //       // Action for "Confirm Location"
-                  //       // For example, navigate to the next screen or trigger booking process
-                  //       appController.setCurrentScreen(
-                  //         'confirm',
-                  //       ); // Your existing logic
-                  //       // Get.to(() => LocationConfirmationScreen());
-                  //       //  Get.to(() => RideConfirmedScreen());
-                  //     },
-                  //     style: ElevatedButton.styleFrom(
-                  //       backgroundColor: const Color(0xFFC0392B), // Red color
-                  //       padding: EdgeInsets.symmetric(vertical: 15),
-                  //       shape: RoundedRectangleBorder(
-                  //         borderRadius: BorderRadius.circular(10),
-                  //       ),
-                  //     ),
-                  //     child: Text(
-                  //       'Confirm Location',
-                  //       style: TextStyle(
-                  //         color: Colors.white,
-                  //         fontSize: 16,
-                  //         fontWeight: FontWeight.bold,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),
@@ -298,96 +261,3 @@ class _FindingYourDriverScreenState extends State<FindingYourDriverScreen> {
     );
   }
 }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Obx(
-//         () => Stack(
-//           children: [
-//             GoogleMap(
-//               onMapCreated: (GoogleMapController controller) {
-//                 locationController.setMapController(controller);
-//                 // Move camera to current location if available
-//                 if (locationController.currentLocation.value != null) {
-//                   controller.animateCamera(
-//                     CameraUpdate.newLatLngZoom(
-//                       locationController.currentLocation.value!,
-//                       14.0,
-//                     ),
-//                   );
-//                 }
-//               },
-//               initialCameraPosition: FindingYourDriverScreen._initialPosition,
-//               markers: locationController.markers,
-//               polylines: locationController.polylines, // Display polyline
-//               myLocationEnabled: true,
-//               myLocationButtonEnabled: false,
-//               onTap: (LatLng position) {
-//                 // Allow changing destination by tapping on the map
-//                 locationController.setDestinationLocation(position);
-//                 // The polyline and distance will regenerate automatically due to everAll listener
-//               },
-//             ),
-
-//             // Back button (top left as seen in previous screenshot type)
-//             Positioned(
-//               top: 50,
-//               left: 20,
-//               child: GestureDetector(
-//                 onTap: () => Get.back(),
-//                 child: Container(
-//                   padding: EdgeInsets.all(8),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white,
-//                     shape: BoxShape.circle,
-//                   ),
-//                   child: Icon(Icons.arrow_back, color: Colors.black),
-//                 ),
-//               ),
-//             ),
-//             // Red target icon in the middle right
-//             Positioned(
-//               top:
-//                   MediaQuery.of(context).size.height *
-//                   0.45, // Approximately center vertically
-//               right: 20,
-//               child: GestureDetector(
-//                 onTap: () {
-//                   // Re-center map on current location or destination
-//                   if (locationController.currentLocation.value != null &&
-//                       locationController.mapController.value != null) {
-//                     locationController.mapController.value!.animateCamera(
-//                       CameraUpdate.newLatLngZoom(
-//                         locationController.currentLocation.value!,
-//                         14.0,
-//                       ),
-//                     );
-//                   }
-//                 },
-//                 child: Container(
-//                   width: 50,
-//                   height: 50,
-//                   decoration: BoxDecoration(
-//                     color: Colors.red,
-//                     shape: BoxShape.circle,
-//                   ),
-//                   child: Icon(Icons.my_location, color: Colors.white, size: 30),
-//                 ),
-//               ),
-//             ),
-
-//             // Loading overlay
-//             if (appController.isLoading.value)
-//               Container(
-//                 color: Colors.black54,
-//                 child: Center(
-//                   child: CircularProgressIndicator(color: Colors.red),
-//                 ),
-//               ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

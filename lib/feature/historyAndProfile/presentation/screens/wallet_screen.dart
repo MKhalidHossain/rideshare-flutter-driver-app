@@ -22,36 +22,8 @@ class _WalletScreenState extends State<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      //  backgroundColor: Color(0xFF34495E),
-      // appBar: _buildAppBar(),
-      body: _buildBody(),
-    );
+    return Scaffold(body: _buildBody());
   }
-
-  // PreferredSizeWidget _buildAppBar() {
-  //   return AppBar(
-  //     backgroundColor: Colors.transparent,
-  //     elevation: 0,
-  //     leading: BackButton(color: Colors.white),
-  //     title: Text(
-  //       'Wallet',
-  //       style: TextStyle(
-  //         color: Colors.white,
-  //         fontSize: 18,
-  //         fontWeight: FontWeight.w600,
-  //       ),
-  //     ),
-  //     centerTitle: true,
-  //     actions: [
-  //       IconButton(
-  //         icon: Icon(Icons.more_vert, color: Colors.white),
-  //         onPressed: () => _showOptionsMenu(),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   Widget _buildBody() {
     return Padding(

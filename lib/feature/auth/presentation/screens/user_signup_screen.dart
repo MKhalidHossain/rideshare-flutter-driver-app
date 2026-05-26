@@ -124,8 +124,6 @@ class UserSignupScreenState extends State<UserSignupScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    const String otpVerifyType = "email_verification";
-    const String userRole = "driver";
 
     return GetBuilder<HomeController>(
       builder: (homeController) {
@@ -639,7 +637,7 @@ class UserSignupScreenState extends State<UserSignupScreen> {
             ).textColor, // <— forces hint color
           ),
           child: DropdownButtonFormField<String>(
-            value: value,
+            initialValue: value,
             onChanged: onChanged,
             validator: validator,
             decoration: InputDecoration(
