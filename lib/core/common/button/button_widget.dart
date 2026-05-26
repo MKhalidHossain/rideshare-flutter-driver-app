@@ -4,9 +4,6 @@ import '../../themes/app_color.dart';
 import '../../themes/text_style.dart';
 import '../../widgets/loading_shimmer.dart';
 
-
-
-
 extension ButtonStyleExtensions on BuildContext {
   Widget primaryButton({
     required VoidCallback onPressed,
@@ -35,10 +32,7 @@ extension ButtonStyleExtensions on BuildContext {
             ? SizedBox(
                 width: 24,
                 height: 24,
-                child: LoadingShimmer(
-                  size: 24,
-                  color: Colors.black,
-                ),
+                child: LoadingShimmer(size: 24, color: Colors.black),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -80,82 +74,3 @@ class SecondaryButton extends StatelessWidget {
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-// import 'package:shevaandrii/core/themes/app_colors.dart';
-// import 'package:shevaandrii/core/themes/text_style.dart';
-
-// extension ButtonStyleExtensions on BuildContext {
-//   Widget primaryButton({
-//     required VoidCallback onPressed,
-//     required String text,
-//     double? width,
-//     double? height,
-//     bool isLoading = false,
-//     IconData? icon,
-//     double borderRadius = 12,
-
-//   }) {
-//     return SizedBox(
-//       width: width ?? 250,
-//       height: height ?? 48,
-//       child: ElevatedButton(
-//         onPressed: isLoading ? null : onPressed,
-//         style: ElevatedButton.styleFrom(
-//           backgroundColor: AppColors.buttonbackgroundcolor,
-//           foregroundColor: Colors.black,
-//           elevation: 2,
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(64),
-//           ),
-//         ),
-//         child:
-//             isLoading
-//                 ? SizedBox(
-//                   width: 24,
-//                   height: 24,
-//                   child: CircularProgressIndicator(
-//                     strokeWidth: 2,
-//                     valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-//                   ),
-//                 )
-//                 : Row(
-//                   mainAxisSize: MainAxisSize.min,
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     Text(
-//                       text,
-//                       style: AppText.mdMedium_16.copyWith(color: Colors.black),
-//                     ),
-//                     if (icon != null) ...[
-//                       SizedBox(width: 8),
-//                       Icon(icon, size: 20, color: Colors.black),
-//                     ],
-//                   ],
-//                 ),
-//       ),
-//     );
-//   }
-// }
-
-// Padding(
-//               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-//               child: context.primaryButton(
-//                 onPressed: () {
-//                   if (_selectedProfile != null) {
-//                     Navigator.push(
-//                       context,
-//                       MaterialPageRoute(builder: (context) => const Scaffold()),
-//                     );
-//                   } else {
-//                     setState(() {
-//                       _showProfileError = true;
-//                     });
-//                   }
-//                 },
-//                 text: "Continue",
-//                 backgroundColor: _selectedProfile != null
-//                     ? AppColors.primaryColor
-//                     : Colors.black,
-//               ),
-//             ),

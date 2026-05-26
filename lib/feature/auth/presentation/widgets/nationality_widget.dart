@@ -20,7 +20,9 @@ class _CountryDropdownState extends State<CountryDropdown> {
   }
 
   Future<void> loadCountries() async {
-    final String response = await rootBundle.loadString('assets/countries.json');
+    final String response = await rootBundle.loadString(
+      'assets/countries.json',
+    );
     final List<dynamic> data = jsonDecode(response);
     setState(() {
       countries = data;
@@ -54,7 +56,7 @@ class _CountryDropdownState extends State<CountryDropdown> {
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           isExpanded: true,
-          value: selectedCountry,
+          initialValue: selectedCountry,
           items: countries.map<DropdownMenuItem<String>>((country) {
             return DropdownMenuItem<String>(
               value: country["name"],
@@ -75,7 +77,10 @@ class _CountryDropdownState extends State<CountryDropdown> {
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,

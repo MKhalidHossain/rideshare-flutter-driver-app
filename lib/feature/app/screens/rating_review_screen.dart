@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:intl/intl.dart';
 import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../../../../../core/widgets/app_scaffold.dart';
@@ -47,12 +45,11 @@ class RatingsReviewsScreen extends StatelessWidget {
           );
         }
 
-        // // 🔥 3. No Data State
-        // if ( reviewData!.reviews.isEmpty) {
-        //   return const Center(
-        //     child: Text("No Data Found", style: TextStyle(color: Colors.white)),
-        //   );
-        // }
+        if (reviewData == null) {
+          return const Center(
+            child: Text("No Data Found", style: TextStyle(color: Colors.white)),
+          );
+        }
 
         // 🔥 4. Data Found → Show UI
         return SingleChildScrollView(
@@ -75,7 +72,7 @@ class RatingsReviewsScreen extends StatelessWidget {
                         const Icon(Icons.star, color: Colors.amber, size: 32),
                         const SizedBox(width: 8),
                         Text(
-                          '${reviewData!.averageRating ?? 0.0}',
+                          '${reviewData.averageRating}',
                           style: TextStyle(
                             color: AppColors.context(context).textColor,
                             fontSize: 32,
@@ -87,13 +84,13 @@ class RatingsReviewsScreen extends StatelessWidget {
 
                     const SizedBox(height: 8),
                     Text(
-                      '${reviewData!.pagination.totalReviews} Rating',
+                      '${reviewData.pagination.totalReviews} Rating',
                       style: TextStyle(color: Colors.grey[400]),
                     ),
                     // Rating Breakdown
                     _buildRatingBar(
                       '5 stars',
-                      reviewData!.starPercentages.fiveStar.toInt(),
+                      reviewData.starPercentages.fiveStar.toInt(),
                       843,
                     ),
                     _buildRatingBar(
@@ -129,22 +126,17 @@ class RatingsReviewsScreen extends StatelessWidget {
                 itemCount: reviewData.reviews.length,
                 itemBuilder: (_, index) {
                   final review = reviewData.reviews[index];
-                  // Date formatting
-                  final reviewDate = review.ratedAt != null
-                      ? DateFormat('dd MMM yyyy').format(review.ratedAt!)
-                      : 'Unknown';
-
+                  final reviewerName = review.customer.name;
+                  final reviewComment = review.comment;
                   return _buildReviewCard(
-                    review.customer.name ?? "Unknown",
-
+                    reviewerName.isEmpty ? "Unknown" : reviewerName,
                     review.ratedAt != null
                         ? reviewController.timeAgo(review.ratedAt!)
                         : "Unknown",
-                    //  reviewDate,
                     review.rating.toInt(),
-                    review.comment?.isEmpty ?? true
+                    reviewComment == null || reviewComment.isEmpty
                         ? "No Comment"
-                        : review.comment!,
+                        : reviewComment,
                   );
                 },
               ),

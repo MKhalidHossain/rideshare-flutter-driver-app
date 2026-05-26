@@ -7,8 +7,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 import 'package:ridetohealthdriver/core/extensions/text_extensions.dart';
 import 'package:ridetohealthdriver/core/widgets/normal_custom_button.dart';
-import 'package:ridetohealthdriver/feature/auth/sevices/auth_service.dart';
-import 'package:ridetohealthdriver/feature/auth/sevices/auth_service_interface.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
 import 'package:ridetohealthdriver/feature/home/domain/request_model/update_driver_location_request_model.dart';
 import 'package:ridetohealthdriver/helpers/remote/data/socket_client.dart';
@@ -16,15 +14,7 @@ import '../../../../home/domain/request_model/incoming_ride_request.dart';
 import '../../../controllers/app_controller.dart';
 import '../../../controllers/booking_controller.dart';
 import '../../../controllers/locaion_controller.dart';
-import 'confirm_location_map_screen.dart';
-import '../location_confirmation_screen.dart';
-import '../chat_screen.dart';
-import '../call_screen.dart';
-import '../payment_screen.dart';
-import 'finding_your_driver_screen.dart';
 import 'pickup_offer_driver_screen.dart';
-
-
 
 class HomeScreenDriver extends StatefulWidget {
   static const CameraPosition _initialPosition = CameraPosition(
@@ -113,9 +103,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
         rideId: _activeRideId,
       );
 
-      debugPrint(
-        '📍 Update location payload: ${request.toJson()}',
-      );
+      debugPrint('📍 Update location payload: ${request.toJson()}');
       await homeController.updateDriverLocation(request);
       debugPrint('📍 Location update sent to backend');
     } finally {
@@ -126,17 +114,16 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
   void _startLocationUpdates() {
     if (_locationUpdateTimer != null) return;
     debugPrint('📍 Start periodic location updates');
-    _locationUpdateTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) async {
-        if (!homeController.isDriverOnline) {
-          debugPrint('📍 Stop periodic updates: driver offline');
-          _stopLocationUpdates();
-          return;
-        }
-        await _sendLocationUpdate();
-      },
-    );
+    _locationUpdateTimer = Timer.periodic(const Duration(seconds: 5), (
+      _,
+    ) async {
+      if (!homeController.isDriverOnline) {
+        debugPrint('📍 Stop periodic updates: driver offline');
+        _stopLocationUpdates();
+        return;
+      }
+      await _sendLocationUpdate();
+    });
   }
 
   void _stopLocationUpdates() {
@@ -157,14 +144,12 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
     }
   }
 
-  void _listenForRideRequests() async{
+  void _listenForRideRequests() async {
     await Future.delayed(Duration(seconds: 2));
     final driverId = await authController.getUserId();
-     print("socekt  from here ======= $driverId");
-    
+    print("socekt  from here ======= $driverId");
+
     // if (driverId != null && driverId.isNotEmpty) {
-
-
 
     //   // socketClient.emit('join', {
     //   //     'senderId': logInResponseModel!.data!.user!.id,  // ei key ta backend expect korche
@@ -338,17 +323,11 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
                 init: homeController,
                 builder: (controller) {
                   if (!controller.isDriverOnline) {
-                    return _buildIdleCard(
-                      size,
-                      isOnline: false,
-                    );
+                    return _buildIdleCard(size, isOnline: false);
                   }
                   return hasRideRequest
                       ? _buildRideRequestCard(size)
-                      : _buildIdleCard(
-                          size,
-                          isOnline: true,
-                        );
+                      : _buildIdleCard(size, isOnline: true);
                 },
               ),
             ),
@@ -356,9 +335,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
             if (appController.isLoading.value)
               Container(
                 color: Colors.black54,
-                child: Center(
-                  child: LoadingShimmer(color: Colors.red),
-                ),
+                child: Center(child: LoadingShimmer(color: Colors.red)),
               ),
           ],
         ),
@@ -379,8 +356,9 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
 
       final response = homeController.cancelRideResponseModel;
       final success = response.success ?? false;
-      final message =
-          (response.message ?? '').isNotEmpty ? response.message! : 'Ride declined';
+      final message = (response.message ?? '').isNotEmpty
+          ? response.message!
+          : 'Ride declined';
 
       if (success) {
         setState(() {
@@ -414,8 +392,9 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
       await homeController.acceptRide(ride.rideId);
       final response = homeController.acceptRideResponseModel;
       final success = response.success ?? false;
-      final message =
-          (response.message ?? '').isNotEmpty ? response.message! : 'Ride accepted';
+      final message = (response.message ?? '').isNotEmpty
+          ? response.message!
+          : 'Ride accepted';
 
       if (success) {
         final acceptedData = response.data;
@@ -429,7 +408,6 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
           () => PickUpOfferDriverScreen(
             incomingRideRequest: rideToSend,
             acceptedRideData: acceptedData,
-            
           ),
         );
       } else {
@@ -450,24 +428,20 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
   Widget _buildIdleCard(Size size, {required bool isOnline}) {
     return Container(
       width: size.width * 0.90,
-      margin: const EdgeInsets.only(
-        left: 24,
-        right: 24,
-        bottom: 36,
-      ),
+      margin: const EdgeInsets.only(left: 24, right: 24, bottom: 36),
       padding: const EdgeInsets.all(25),
       decoration: BoxDecoration(
         color: const Color(0xff303644),
         borderRadius: const BorderRadius.all(Radius.circular(8)),
-        border: Border(
-          left: BorderSide(color: Color(0xff7B0100), width: 5),
-        ),
+        border: Border(left: BorderSide(color: Color(0xff7B0100), width: 5)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            isOnline ? 'No ride requests at the moment' : "You're currently offline",
+            isOnline
+                ? 'No ride requests at the moment'
+                : "You're currently offline",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -489,26 +463,17 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
   Widget _buildRideRequestCard(Size size) {
     final ride = _incomingRide;
     if (ride == null) {
-      return _buildIdleCard(
-        size,
-        isOnline: homeController.isDriverOnline,
-      );
+      return _buildIdleCard(size, isOnline: homeController.isDriverOnline);
     }
 
     return Container(
       width: size.width * 0.90,
-      margin: const EdgeInsets.only(
-        left: 24,
-        right: 24,
-        bottom: 36,
-      ),
+      margin: const EdgeInsets.only(left: 24, right: 24, bottom: 36),
       padding: const EdgeInsets.all(25),
       decoration: const BoxDecoration(
         color: Color(0xFF2E2E38),
         borderRadius: BorderRadius.all(Radius.circular(8)),
-        border: Border(
-          left: BorderSide(color: Color(0xff7B0100), width: 5),
-        ),
+        border: Border(left: BorderSide(color: Color(0xff7B0100), width: 5)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -530,11 +495,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
                     _incomingRide = null;
                   });
                 },
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.grey,
-                  size: 20,
-                ),
+                icon: const Icon(Icons.close, color: Colors.grey, size: 20),
               ),
             ],
           ),
@@ -564,9 +525,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 0),
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
             child: Column(
               children: [
                 Row(
@@ -582,11 +541,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
                             shape: BoxShape.circle,
                           ),
                         ),
-                        Container(
-                          width: 2,
-                          height: 25,
-                          color: Colors.red,
-                        ),
+                        Container(width: 2, height: 25, color: Colors.red),
                       ],
                     ),
                     const SizedBox(width: 10),
@@ -667,11 +622,7 @@ class _HomeScreenDriverState extends State<HomeScreenDriver> {
             children: [
               Row(
                 children: const [
-                  Icon(
-                    Icons.access_time,
-                    color: Colors.white,
-                    size: 16,
-                  ),
+                  Icon(Icons.access_time, color: Colors.white, size: 16),
                   SizedBox(width: 6),
                   Text(
                     'Now',

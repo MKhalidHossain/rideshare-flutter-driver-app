@@ -22,7 +22,6 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
   int selectedAmount = 50;
   final _customAmountController = TextEditingController();
   String selectedPaymentMethod = 'Visa';
-  bool _isLoading = false;
 
   final List<Map<String, dynamic>> predefinedAmounts = [
     {'amount': 50, 'type': 'Rider Cash', 'popular': true},
@@ -40,18 +39,8 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //backgroundColor: Color(0xFF34495E),
-      // appBar: _buildAppBar(),
-      body: _buildBody(),
-    );
+    return Scaffold(body: _buildBody());
   }
-
-  //
-
-  // Need to show figma when Api Integration
-
-  //
 
   Widget _buildBody() {
     return SafeArea(
@@ -533,153 +522,5 @@ class _AddFundsScreenState extends State<AddFundsScreen> {
       default:
         return Colors.blue[900]!;
     }
-  }
-
-  void _confirmAddFunds() async {
-    int finalAmount = _customAmountController.text.isNotEmpty
-        ? int.tryParse(_customAmountController.text) ?? 0
-        : selectedAmount;
-
-    if (finalAmount <= 0) {
-      _showErrorMessage('Please select or enter a valid amount');
-      return;
-    }
-
-    if (finalAmount > 10000) {
-      _showErrorMessage('Maximum amount allowed is \$10,000');
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simulate API call
-    await Future.delayed(Duration(seconds: 2));
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    _showConfirmationDialog(finalAmount.toDouble());
-  }
-
-  void _showConfirmationDialog(double amount) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Color(0xFF2C3E50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: Text(
-            'Confirm Transaction',
-            style: TextStyle(color: Colors.white),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildConfirmationRow(
-                'Amount:',
-                '\$${amount.toStringAsFixed(2)}',
-              ),
-              _buildConfirmationRow('Payment Method:', selectedPaymentMethod),
-              _buildConfirmationRow('Destination:', 'Rider Cash'),
-              _buildConfirmationRow(
-                'New Balance:',
-                '\$${(widget.currentBalance + amount).toStringAsFixed(2)}',
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: Colors.grey)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Go back to wallet
-
-                if (widget.onFundsAdded != null) {
-                  widget.onFundsAdded!(amount);
-                }
-
-                _showSuccessMessage(amount);
-              },
-              child: Text(
-                'Confirm',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildConfirmationRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(color: Colors.grey[400], fontSize: 14)),
-          Text(
-            value,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showSuccessMessage(double amount) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Success! \$${amount.toStringAsFixed(2)} added to your wallet.',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        duration: Duration(seconds: 4),
-      ),
-    );
-  }
-
-  void _showErrorMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.error_outline, color: Colors.white),
-            SizedBox(width: 10),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
   }
 }

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
 
-
-
 class OutlinedTextFieldWidget extends StatefulWidget {
   final TextEditingController controller;
   final String name;
@@ -30,8 +28,9 @@ class OutlinedTextFieldWidget extends StatefulWidget {
 }
 
 class _OutlinedTextFieldWidgetState extends State<OutlinedTextFieldWidget> {
-  @override
   bool obscureText = false;
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,21 +59,18 @@ class _OutlinedTextFieldWidgetState extends State<OutlinedTextFieldWidget> {
               //labelText: lebel,
               labelStyle: TextStyle(color: Colors.grey),
               border: OutlineInputBorder(),
-              suffixIcon:
-                  widget.isObsecure
-                      ? IconButton(
-                        icon: Icon(
-                          obscureText
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            obscureText = !obscureText;
-                          });
-                        },
-                      )
-                      : null,
+              suffixIcon: widget.isObsecure
+                  ? IconButton(
+                      icon: Icon(
+                        obscureText ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          obscureText = !obscureText;
+                        });
+                      },
+                    )
+                  : null,
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey.shade500, width: 2.0),
               ),

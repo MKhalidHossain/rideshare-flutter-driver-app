@@ -255,9 +255,9 @@ class VehicleDetailsScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  vehicleData.service.isActive ?? false ? 'Active' : 'Inactive',
+                  vehicleData.service.isActive ? 'Active' : 'Inactive',
                   style: TextStyle(
-                    color: vehicleData.service.isActive ?? false
+                    color: vehicleData.service.isActive
                         ? Colors.green
                         : Colors.red,
                     fontSize: 16,
@@ -278,49 +278,12 @@ class VehicleDetailsScreen extends StatelessWidget {
                   "${vehicleData.service.description}",
                   style: TextStyle(color: Colors.white),
                 ),
-
-                //* / License Information Section
-                /*  _buildSectionTitle('License Information'),
-                const SizedBox(height: 16),
-                _buildInfoItem('License Number', vehicleData.licenseNumber),
-                const SizedBox(height: 32),
-                _buildInfoItem('Service ID', vehicleData.licenseNumber), */
-
-                // Vehicle Documents Section
-                // _buildSectionTitle('Vehicle Documents'),
-                // const SizedBox(height: 16),
-                /*          _buildDocumentItem(
-                  'Vehicle Registration',
-                  'Expires: 2027-11-15',
-                  () {
-                    Get.snackbar(
-                      'Document',
-                      'Opening Vehicle Registration...',
-                      backgroundColor: Colors.blue,
-                      colorText: Colors.white,
-                    );
-                  },
-                ), */
                 const SizedBox(height: 20),
               ],
             ),
           ),
         );
       }),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
     );
   }
 
@@ -346,87 +309,6 @@ class VehicleDetailsScreen extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildInfoItem(String label, String value) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDocumentItem(String title, String subtitle, VoidCallback onTap) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: onTap,
-            child: const Text(
-              'View',
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -159,46 +158,12 @@ class AuthRepository implements AuthRepositoryInterface {
     );
   }
 
-  // @override
-  // Future register(
-  //   String fullName,
-  //   String email,
-  //   String phoneNumber,
-  //   String drivingLicenceNumber,
-  //   String nationalIdNumber,
-  //   String serviceType,
-  //   String password,
-  //   String role,
-  // ) async {
-  //   return await apiClient.postData(Urls.register, {
-  //     'fullName': fullName,
-  //     'email': email,
-  //     'phoneNumber': phoneNumber,
-  //     'licenseNumber':drivingLicenceNumber,
-  //     'nidNumber': nationalIdNumber,
-  //     'serviceTypes': serviceType,
-  //     'nid': nationalIdNumber,
-  //     'password': password,
-  //     'role': role,
-  //   });
-  // }
-
   @override
   Future forgetPassword(String? emailOrPhone) async {
     return await apiClient.postData(Urls.forgetPassword, {
       'emailOrPhone': emailOrPhone,
     });
   }
-
-  // @override
-  // Future resetPassword(
-  //   String email,
-  //   String newPassword,
-  //   String repeatNewPassword,
-  // ) {
-  //   // TODO: implement resetPassword
-  //   throw UnimplementedError();
-  // }
 
   @override
   Future resetPassword(String emailOrPhone, String newPassword) async {

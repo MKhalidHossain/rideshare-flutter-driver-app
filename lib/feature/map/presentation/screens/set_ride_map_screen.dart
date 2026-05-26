@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
+
 import '../../controllers/app_controller.dart';
 import '../../controllers/booking_controller.dart';
 import '../../controllers/locaion_controller.dart';
-import 'work/confirm_location_map_screen.dart'; // Navigate to Confirm Location Map Screen
 
 class SetRideMapScreen extends StatelessWidget {
+  SetRideMapScreen({super.key});
+
   final LocationController locationController = Get.find<LocationController>();
   final BookingController bookingController = Get.find<BookingController>();
   final AppController appController = Get.find<AppController>();
@@ -212,11 +214,7 @@ class SetRideMapScreen extends StatelessWidget {
                     Container(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Action for "Choose car"
-                          // This button will likely lead to the "Confirm your location" screen
-                         // Get.to(() => ConfirmLocationMapScreen());
-                        },
+                        onPressed: () {},
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFC0392B), // Red color
                           padding: EdgeInsets.symmetric(vertical: 15),
@@ -244,9 +242,7 @@ class SetRideMapScreen extends StatelessWidget {
               () => appController.isLoading.value
                   ? Container(
                       color: Colors.black54,
-                      child: Center(
-                        child: LoadingShimmer(color: Colors.red),
-                      ),
+                      child: Center(child: LoadingShimmer(color: Colors.red)),
                     )
                   : SizedBox.shrink(),
             ),
