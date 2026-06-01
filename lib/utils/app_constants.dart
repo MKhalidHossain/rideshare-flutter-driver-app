@@ -9,6 +9,23 @@ class AppConstants {
   static const String refreshToken = 'refresh_token';
   static const String userEmail = 'userEmail';
 
+  // Stripe Connect pending flag
+  static const String stripePending = 'stripe_connect_pending';
+
+  // Registration progress persistence keys
+  static const String regStage = 'reg_stage';
+  static const String regName = 'reg_name';
+  static const String regEmail = 'reg_email_draft';
+  static const String regPhone = 'reg_phone';
+  static const String regLicenseNo = 'reg_license_no';
+  static const String regNidNo = 'reg_nid_no';
+  static const String regServiceType = 'reg_service_type';
+  static const String regPassword = 'reg_password';
+  static const String regGovIdPath = 'reg_gov_id_path';
+  static const String regLicensePath = 'reg_license_path';
+  static const String regSelfiePath = 'reg_selfie_path';
+  static const String regOtpEmail = 'reg_otp_email';
+
   static const String kSelfie = 'Selfie Photo';
   static const String kGovId = 'Government ID';
   static const String kDriving = "Driver's License";

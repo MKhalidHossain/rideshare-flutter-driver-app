@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ import '../presentation/screens/reset_password_screen.dart';
 import '../presentation/screens/user_login_screen.dart';
 import '../presentation/screens/user_signup_screen.dart';
 import '../presentation/screens/verify_otp_screen.dart';
+import '../../../utils/app_constants.dart';
 import '../sevices/auth_service_interface.dart';
 import '../../historyAndProfile/presentation/screens/profile_screen.dart';
 
@@ -229,6 +231,75 @@ class AuthController extends GetxController implements GetxService {
     update();
   }
 
+  // ── Registration progress persistence ────────────────────────────────────────
+
+  Future<void> saveRegistrationProgress(
+    String stage, {
+    String? otpEmail,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppConstants.regStage, stage);
+    if (name.isNotEmpty) await prefs.setString(AppConstants.regName, name);
+    if (userEmail.isNotEmpty) await prefs.setString(AppConstants.regEmail, userEmail);
+    if (phoneNumber.isNotEmpty) await prefs.setString(AppConstants.regPhone, phoneNumber);
+    if (drivingLicenceNumber.isNotEmpty) await prefs.setString(AppConstants.regLicenseNo, drivingLicenceNumber);
+    if (nationalIdNumber.isNotEmpty) await prefs.setString(AppConstants.regNidNo, nationalIdNumber);
+    if (serviceType.isNotEmpty) await prefs.setString(AppConstants.regServiceType, serviceType);
+    if (password.isNotEmpty) await prefs.setString(AppConstants.regPassword, password);
+    if (nid?.path != null) await prefs.setString(AppConstants.regGovIdPath, nid!.path);
+    if (license?.path != null) await prefs.setString(AppConstants.regLicensePath, license!.path);
+    if (selfie?.path != null) await prefs.setString(AppConstants.regSelfiePath, selfie!.path);
+    if (otpEmail != null && otpEmail.isNotEmpty) await prefs.setString(AppConstants.regOtpEmail, otpEmail);
+  }
+
+  Future<String?> getSavedRegistrationStage() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(AppConstants.regStage);
+  }
+
+  Future<void> restoreFromSavedProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    name = prefs.getString(AppConstants.regName) ?? '';
+    userEmail = prefs.getString(AppConstants.regEmail) ?? '';
+    phoneNumber = prefs.getString(AppConstants.regPhone) ?? '';
+    drivingLicenceNumber = prefs.getString(AppConstants.regLicenseNo) ?? '';
+    nationalIdNumber = prefs.getString(AppConstants.regNidNo) ?? '';
+    serviceType = prefs.getString(AppConstants.regServiceType) ?? '';
+    password = prefs.getString(AppConstants.regPassword) ?? '';
+
+    final govIdPath = prefs.getString(AppConstants.regGovIdPath);
+    final licensePath = prefs.getString(AppConstants.regLicensePath);
+    final selfiePath = prefs.getString(AppConstants.regSelfiePath);
+
+    if (govIdPath != null && File(govIdPath).existsSync()) nid = XFile(govIdPath);
+    if (licensePath != null && File(licensePath).existsSync()) license = XFile(licensePath);
+    if (selfiePath != null && File(selfiePath).existsSync()) selfie = XFile(selfiePath);
+
+    update();
+  }
+
+  Future<void> clearRegistrationProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (final key in [
+      AppConstants.regStage,
+      AppConstants.regName,
+      AppConstants.regEmail,
+      AppConstants.regPhone,
+      AppConstants.regLicenseNo,
+      AppConstants.regNidNo,
+      AppConstants.regServiceType,
+      AppConstants.regPassword,
+      AppConstants.regGovIdPath,
+      AppConstants.regLicensePath,
+      AppConstants.regSelfiePath,
+      AppConstants.regOtpEmail,
+    ]) {
+      await prefs.remove(key);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+
   void setCountryCode(String code) {
     countryDialCode = code;
     update();
@@ -358,6 +429,8 @@ class AuthController extends GetxController implements GetxService {
         registrationResponseModel = RegistrationResponseModel.fromJson(
           response.body,
         );
+
+        await saveRegistrationProgress('verify_otp', otpEmail: email);
 
         _isLoading = false;
         update();
@@ -582,7 +655,11 @@ class AuthController extends GetxController implements GetxService {
         Get.to(ResetChangePassword(userEmail: email));
       } else if (type == 'email_verification') {
         showCustomSnackBar('Email verification has been successful');
+        await clearRegistrationProgress();
+        clearRegistrationData();
         await _autoLoginAfterEmailVerification();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(AppConstants.stripePending, true);
         Get.offAll(() => const StripeConnectScreen());
       } else if (type == 'password_reset') {
         showCustomSnackBar('Password Change Successfully');

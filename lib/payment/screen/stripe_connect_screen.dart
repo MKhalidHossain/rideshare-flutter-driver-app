@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ridetohealthdriver/payment/screen/stripe_connect_webview_screen.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
 import 'package:ridetohealthdriver/feature/home/controllers/home_controller.dart';
 import 'package:ridetohealthdriver/core/widgets/loading_shimmer.dart';
+import 'package:ridetohealthdriver/utils/app_constants.dart';
 
 class StripeConnectScreen extends StatefulWidget {
   const StripeConnectScreen({super.key});
@@ -47,6 +49,8 @@ class _StripeConnectScreenState extends State<StripeConnectScreen> {
       );
 
       if (completed == true && mounted) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(AppConstants.stripePending);
         Get.offAll(() => const UserLoginScreen());
       }
     } catch (e) {

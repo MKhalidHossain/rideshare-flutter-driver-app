@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ridetohealthdriver/app.dart';
 import 'package:ridetohealthdriver/core/onboarding/presentation/screens/constantSpashScreen.dart';
 import 'package:ridetohealthdriver/feature/auth/controllers/auth_controller.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_login_screen.dart';
 import 'package:ridetohealthdriver/feature/auth/presentation/screens/user_signup_screen.dart';
-
+import 'package:ridetohealthdriver/feature/auth/presentation/screens/verify_otp_screen.dart';
+import 'package:ridetohealthdriver/payment/screen/stripe_connect_screen.dart';
+import 'package:ridetohealthdriver/utils/app_constants.dart';
 
 import 'feature/map/bindings/initial_binding.dart';
 import 'helpers/dependency_injection.dart';
@@ -28,64 +31,58 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final AuthController authController = Get.find<AuthController>();
-  Future<bool>? _isFirstTimeInstaled;
+  Future<Widget>? _startScreen;
+
   @override
   void initState() {
     super.initState();
-    _isFirstTimeInstaled = authController.isFirstTimeInstall();
+    _startScreen = _determineStartScreen();
   }
 
-  // isFirstTimeInstall() async {
-  //   isFirstTimeInstaled = await authController.isFirstTimeInstall();
-  //   print("form mainScreen isFirstTimeInstaled $isFirstTimeInstaled");
-  //   return isFirstTimeInstaled;
-  // }
-
-  whichPageToNext(bool _isFirstTimeInstaled) {
-    if (_isFirstTimeInstaled) {
-      return UserSignupScreen();
-    } else 
+  Future<Widget> _determineStartScreen() async {
+    final isFirstTime = await authController.isFirstTimeInstall();
+    if (isFirstTime) return const UserSignupScreen();
     if (authController.isLoggedIn()) {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(AppConstants.stripePending) == true) {
+        return const StripeConnectScreen();
+      }
       return AppMain();
-    } else {
-      return UserLoginScreen();
     }
+
+    final savedStage = await authController.getSavedRegistrationStage();
+    if (savedStage == 'verify_otp') {
+      final prefs = await SharedPreferences.getInstance();
+      final email = prefs.getString(AppConstants.regOtpEmail) ?? '';
+      if (email.isNotEmpty) {
+        return VerifyOtpScreen(email: email, otpVerifyType: 'email_verification');
+      }
+    } else if (savedStage == 'verify_identity' || savedStage == 'signup_form') {
+      await authController.restoreFromSavedProgress();
+      return const UserSignupScreen();
+    }
+
+    return UserLoginScreen();
   }
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       navigatorKey: Get.key,
       title: 'RidezToHealth',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(
-          0xFF303644,
-        ), // background color here
+        scaffoldBackgroundColor: const Color(0xFF303644),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-
-        //background: const Color(0xFF303644), // Optional: sets default background in color scheme
       ),
-      // initialBinding: InitialBinding(),
       initialBinding: InitialBinding(),
       debugShowCheckedModeBanner: false,
-      home: FutureBuilder<bool>(
-        future: _isFirstTimeInstaled,
+      home: FutureBuilder<Widget>(
+        future: _startScreen,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return ConstantSplashScreen();
-          } else {
-            return whichPageToNext(snapshot.data!);
-          }
+          if (!snapshot.hasData) return ConstantSplashScreen();
+          return snapshot.data!;
         },
       ),
-
-      // whichPageToNext(),
-      //MapScreenTest(),
-      // SearchDestinationScreen(),
-      // RideConfirmedScreen(),
-      // AppMain(),
-      // SplashScreen(nextScreen: Onboarding1()),
     );
   }
 }

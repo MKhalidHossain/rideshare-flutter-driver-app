@@ -126,6 +126,7 @@ class ApiClient extends GetxService {
       requestHeaders.remove('Content-Type');
       request.headers.addAll(requestHeaders);
 
+
       // text fields (JSON encode maps/lists)
       fields.forEach((key, value) {
         if (value != null) {

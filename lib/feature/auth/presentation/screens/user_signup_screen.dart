@@ -77,14 +77,22 @@ class UserSignupScreenState extends State<UserSignupScreen> {
       homeController = Get.find<HomeController>();
       homeController.getAllServices();
 
-      // _nameController = TextEditingController();
-      // _emailController = TextEditingController();
-      // _phoneController = TextEditingController();
-      // _drivingLicenceController = TextEditingController();
-      // _nationalIdController = TextEditingController();
-      // _serviceTypeController = TextEditingController();
-      // _passwordController = TextEditingController();
-      // _confirmPasswordController = TextEditingController();
+      // Pre-populate fields from any saved registration progress
+      if (authController.name.isNotEmpty) _nameController.text = authController.name;
+      if (authController.userEmail.isNotEmpty) _emailController.text = authController.userEmail;
+      if (authController.phoneNumber.isNotEmpty) _phoneController.text = authController.phoneNumber;
+      if (authController.drivingLicenceNumber.isNotEmpty) _drivingLicenceController.text = authController.drivingLicenceNumber;
+      if (authController.nationalIdNumber.isNotEmpty) _nationalIdController.text = authController.nationalIdNumber;
+      if (authController.password.isNotEmpty) {
+        _passwordController.text = authController.password;
+        _confirmPasswordController.text = authController.password;
+      }
+      if (authController.serviceType.isNotEmpty) {
+        setState(() {
+          selectedServiceType = authController.serviceType;
+          _serviceTypeController.text = authController.serviceType;
+        });
+      }
     });
 
     super.initState();
@@ -384,7 +392,7 @@ class UserSignupScreenState extends State<UserSignupScreen> {
                                           WideCustomButton(
                                             text: 'Sign Up',
 
-                                            onPressed: () {
+                                            onPressed: () async {
                                               FocusScope.of(
                                                 context,
                                               ).unfocus(); // close keyboard
@@ -445,25 +453,16 @@ class UserSignupScreenState extends State<UserSignupScreen> {
 
                                               // Everything OK
                                               authController.setRegistrationData(
-                                                name: _nameController.text
-                                                    .trim(),
-                                                userEmail: _emailController.text
-                                                    .trim(),
-                                                phoneNumber: _phoneController
-                                                    .text
-                                                    .trim(),
-                                                drivingLicenceNumber:
-                                                    _drivingLicenceController
-                                                        .text
-                                                        .trim(),
-                                                nationalIdNumber:
-                                                    _nationalIdController.text
-                                                        .trim(),
-                                                serviceType:
-                                                    selectedServiceType ?? "",
-                                                password:
-                                                    _passwordController.text,
+                                                name: _nameController.text.trim(),
+                                                userEmail: _emailController.text.trim(),
+                                                phoneNumber: _phoneController.text.trim(),
+                                                drivingLicenceNumber: _drivingLicenceController.text.trim(),
+                                                nationalIdNumber: _nationalIdController.text.trim(),
+                                                serviceType: selectedServiceType ?? "",
+                                                password: _passwordController.text,
                                               );
+
+                                              await authController.saveRegistrationProgress('verify_identity');
 
                                               Get.to(
                                                 () => VerifyIdentityScreen(),

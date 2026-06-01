@@ -156,6 +156,7 @@ class _TakePhotoScreenState extends State<TakePhotoScreen>
         final xfile = XFile(file.path);
         authController.selfie = xfile;
         authController.setRegistrationData(selfieFile: xfile);
+        await authController.saveRegistrationProgress('verify_identity');
         if (!mounted) return;
 
         Navigator.pushReplacement(
@@ -221,9 +222,10 @@ class _TakePhotoScreenState extends State<TakePhotoScreen>
         authController.setRegistrationData(nidFile: xfile);
       } else if (widget.whichImage == AppConstants.kDriving) {
         final xfile = XFile(croppedFile.path);
-        authController.license = xfile; // ✅ fixed assignment
+        authController.license = xfile;
         authController.setRegistrationData(licenseFile: xfile);
       }
+      await authController.saveRegistrationProgress('verify_identity');
 
       debugPrint('nid: ${authController.nid?.path}');
       debugPrint('license: ${authController.license?.path}');
